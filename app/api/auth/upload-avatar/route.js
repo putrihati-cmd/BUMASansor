@@ -52,7 +52,7 @@ export async function POST(request) {
         }
 
         // Get current user
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { id: auth.user.id },
             select: { id: true, avatarUrl: true }
         });
@@ -91,7 +91,7 @@ export async function POST(request) {
         }
 
         // Update user avatar URL
-        await prisma.user.update({
+        await prisma.users.update({
             where: { id: user.id },
             data: { avatarUrl: uploadResult.secure_url }
         });
@@ -128,7 +128,7 @@ export async function DELETE(request) {
         }
 
         // Get current user
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { id: auth.user.id },
             select: { id: true, avatarUrl: true }
         });
@@ -148,7 +148,7 @@ export async function DELETE(request) {
         }
 
         // Update user
-        await prisma.user.update({
+        await prisma.users.update({
             where: { id: user.id },
             data: { avatarUrl: null }
         });
@@ -167,3 +167,4 @@ export async function DELETE(request) {
         );
     }
 }
+

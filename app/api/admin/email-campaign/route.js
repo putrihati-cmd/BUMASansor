@@ -51,7 +51,7 @@ export const POST = requireAuth(async function POST(request, context) {
 
             case 'customers':
                 // All customers with verified email
-                const customers = await prisma.user.findMany({
+                const customers = await prisma.users.findMany({
                     where: {
                         emailVerifiedAt: { not: null },
                         status: 'ACTIVE'
@@ -63,7 +63,7 @@ export const POST = requireAuth(async function POST(request, context) {
 
             case 'non-buyers':
                 // Users who never made a purchase
-                const nonBuyers = await prisma.user.findMany({
+                const nonBuyers = await prisma.users.findMany({
                     where: {
                         emailVerifiedAt: { not: null },
                         status: 'ACTIVE',
@@ -76,7 +76,7 @@ export const POST = requireAuth(async function POST(request, context) {
 
             case 'repeat-customers':
                 // Users with more than 1 order
-                const repeatCustomers = await prisma.user.findMany({
+                const repeatCustomers = await prisma.users.findMany({
                     where: {
                         emailVerifiedAt: { not: null },
                         status: 'ACTIVE'
@@ -266,3 +266,4 @@ export const GET = requireAuth(async function GET(request, context) {
         );
     }
 });
+

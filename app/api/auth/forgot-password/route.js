@@ -20,7 +20,7 @@ export async function POST(request) {
         }
 
         // Find user by email
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { email: email.toLowerCase() },
         });
 
@@ -41,7 +41,7 @@ export async function POST(request) {
             .digest('hex');
 
         // Save hashed token to database (expires in 1 hour)
-        await prisma.user.update({
+        await prisma.users.update({
             where: { id: user.id },
             data: {
                 resetPasswordToken: hashedToken,
@@ -66,3 +66,4 @@ export async function POST(request) {
         );
     }
 }
+

@@ -40,7 +40,7 @@ export async function GET(request) {
 
         // Get customers with pagination
         const [customers, total] = await Promise.all([
-            prisma.user.findMany({
+            prisma.users.findMany({
                 where,
                 orderBy: { createdAt: 'desc' },
                 skip: (page - 1) * limit,
@@ -55,7 +55,7 @@ export async function GET(request) {
                     },
                 },
             }),
-            prisma.user.count({ where }),
+            prisma.users.count({ where }),
         ]);
 
         // Format customers
@@ -117,7 +117,7 @@ export async function PATCH(request) {
             );
         }
 
-        const user = await prisma.user.update({
+        const user = await prisma.users.update({
             where: { id: userId },
             data: { status },
         });
@@ -138,3 +138,4 @@ export async function PATCH(request) {
         );
     }
 }
+

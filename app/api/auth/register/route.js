@@ -36,7 +36,7 @@ export async function POST(request) {
         }
 
         // Check if user already exists
-        const existingUser = await prisma.user.findFirst({
+        const existingUser = await prisma.users.findFirst({
             where: isEmail
                 ? { email: cleanIdentifier }
                 : { phone: cleanIdentifier.replace(/^0/, '62') }
@@ -54,7 +54,7 @@ export async function POST(request) {
                     });
                 } else {
                     const token = crypto.randomBytes(32).toString('hex');
-                    await prisma.user.update({
+                    await prisma.users.update({
                         where: { id: existingUser.id },
                         data: {
                             verificationToken: token,
@@ -94,7 +94,7 @@ export async function POST(request) {
             userData.phone = cleanIdentifier.replace(/^0/, '62');
         }
 
-        const newUser = await prisma.user.create({ data: userData });
+        const newUser = await prisma.users.create({ data: userData });
 
         // Send verification
         if (isPhone) {
@@ -123,3 +123,4 @@ export async function POST(request) {
         );
     }
 }
+

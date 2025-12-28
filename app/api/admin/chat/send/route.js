@@ -110,7 +110,7 @@ export const GET = requireAuth(async function GET(request, context) {
         // Get user details
         const conversationsWithUsers = await Promise.all(
             conversations.map(async (conv) => {
-                const user = await prisma.user.findUnique({
+                const user = await prisma.users.findUnique({
                     where: { id: conv.userId },
                     select: {
                         id: true,
@@ -158,3 +158,4 @@ export const GET = requireAuth(async function GET(request, context) {
         );
     }
 });
+

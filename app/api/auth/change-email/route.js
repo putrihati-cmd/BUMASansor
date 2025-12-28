@@ -46,7 +46,7 @@ export async function POST(request) {
         }
 
         // Get user with password
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { id: auth.user.id },
             select: { id: true, email: true, passwordHash: true, name: true }
         });
@@ -77,7 +77,7 @@ export async function POST(request) {
         }
 
         // Check if email already exists
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await prisma.users.findUnique({
             where: { email: newEmail.toLowerCase() }
         });
 
@@ -97,7 +97,7 @@ export async function POST(request) {
 
         // Store pending email change in a separate table or in user metadata
         // For now, we'll use a JSON field approach
-        await prisma.user.update({
+        await prisma.users.update({
             where: { id: user.id },
             data: {
                 verificationToken: hashedToken,
@@ -152,7 +152,7 @@ export async function PUT(request) {
             .digest('hex');
 
         // Find user with matching token
-        const user = await prisma.user.findFirst({
+        const user = await prisma.users.findFirst({
             where: {
                 verificationToken: hashedToken,
                 verificationTokenExpires: { gt: new Date() }
@@ -167,7 +167,7 @@ export async function PUT(request) {
         }
 
         // Check if new email is still available
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await prisma.users.findUnique({
             where: { email: newEmail.toLowerCase() }
         });
 
@@ -179,7 +179,7 @@ export async function PUT(request) {
         }
 
         // Update email
-        await prisma.user.update({
+        await prisma.users.update({
             where: { id: user.id },
             data: {
                 email: newEmail.toLowerCase(),
@@ -203,3 +203,4 @@ export async function PUT(request) {
         );
     }
 }
+

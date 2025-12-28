@@ -32,10 +32,10 @@ export async function POST(request) {
         let user;
 
         if (userId) {
-            user = await prisma.user.findUnique({ where: { id: userId } });
+            user = await prisma.users.findUnique({ where: { id: userId } });
         } else if (token) {
             // For email verification flow
-            user = await prisma.user.findFirst({
+            user = await prisma.users.findFirst({
                 where: {
                     verificationToken: token,
                     verificationTokenExpires: { gt: new Date() }
@@ -69,7 +69,7 @@ export async function POST(request) {
         const passwordHash = await bcrypt.hash(password, 12);
 
         // Update user
-        const updatedUser = await prisma.user.update({
+        const updatedUser = await prisma.users.update({
             where: { id: user.id },
             data: {
                 name: name.trim(),
@@ -118,3 +118,4 @@ export async function POST(request) {
         );
     }
 }
+

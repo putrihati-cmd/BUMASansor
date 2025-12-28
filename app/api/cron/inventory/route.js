@@ -79,3 +79,4 @@ export async function GET(req) {
 
 // Allow running this endpoint without authentication in development
 export const dynamic = 'force-dynamic';
+

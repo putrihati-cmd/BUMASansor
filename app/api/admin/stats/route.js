@@ -57,14 +57,14 @@ export async function GET(request) {
                 where: { createdAt: { gte: startOfLastMonth, lte: endOfLastMonth } },
             }),
             // New customers this month
-            prisma.user.count({
+            prisma.users.count({
                 where: {
                     role: 'CUSTOMER',
                     createdAt: { gte: startOfMonth },
                 },
             }),
             // New customers last month
-            prisma.user.count({
+            prisma.users.count({
                 where: {
                     role: 'CUSTOMER',
                     createdAt: { gte: startOfLastMonth, lte: endOfLastMonth },
@@ -223,3 +223,4 @@ function getRelativeTime(date) {
     if (days < 7) return `${days} hari lalu`;
     return new Date(date).toLocaleDateString('id-ID');
 }
+

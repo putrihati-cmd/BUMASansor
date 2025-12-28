@@ -32,14 +32,14 @@ export async function POST(request) {
         const { email, name, picture, sub: googleId } = profile;
 
         // Check if user exists
-        let user = await prisma.user.findUnique({
+        let user = await prisma.users.findUnique({
             where: { email }
         });
 
         if (user) {
             // User exists - update profile if needed
             if (!user.avatarUrl && picture) {
-                user = await prisma.user.update({
+                user = await prisma.users.update({
                     where: { email },
                     data: {
                         avatarUrl: picture,
@@ -56,7 +56,7 @@ export async function POST(request) {
                 10
             );
 
-            user = await prisma.user.create({
+            user = await prisma.users.create({
                 data: {
                     email,
                     name,
@@ -129,3 +129,4 @@ export async function POST(request) {
         );
     }
 }
+

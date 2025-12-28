@@ -19,7 +19,7 @@ export async function POST(request) {
         }
 
         // Find user with this token
-        const user = await prisma.user.findFirst({
+        const user = await prisma.users.findFirst({
             where: {
                 verificationToken: token,
                 verificationTokenExpires: { gt: new Date() }
@@ -34,7 +34,7 @@ export async function POST(request) {
         }
 
         // Update user status - mark as verified (but still needs profile completion)
-        await prisma.user.update({
+        await prisma.users.update({
             where: { id: user.id },
             data: {
                 status: 'UNVERIFIED', // Email verified, but profile not complete
@@ -57,3 +57,4 @@ export async function POST(request) {
         );
     }
 }
+

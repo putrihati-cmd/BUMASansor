@@ -33,19 +33,19 @@ export async function GET(request) {
             guestOrdersMonth,
         ] = await Promise.all([
             // Users created today
-            prisma.user.count({
+            prisma.users.count({
                 where: { createdAt: { gte: startOfToday } },
             }),
             // Users created this week
-            prisma.user.count({
+            prisma.users.count({
                 where: { createdAt: { gte: startOfWeek } },
             }),
             // Users created this month
-            prisma.user.count({
+            prisma.users.count({
                 where: { createdAt: { gte: startOfMonth } },
             }),
             // Total users
-            prisma.user.count(),
+            prisma.users.count(),
             // Orders today (as proxy for visitors)
             prisma.order.count({
                 where: { createdAt: { gte: startOfToday } },
@@ -119,3 +119,4 @@ export async function GET(request) {
         );
     }
 }
+

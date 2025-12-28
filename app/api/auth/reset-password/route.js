@@ -34,7 +34,7 @@ export async function POST(request) {
             .digest('hex');
 
         // Find user with matching reset token
-        const user = await prisma.user.findFirst({
+        const user = await prisma.users.findFirst({
             where: {
                 resetPasswordToken: hashedToken,
                 resetPasswordExpires: {
@@ -54,7 +54,7 @@ export async function POST(request) {
         const passwordHash = await bcrypt.hash(password, 10);
 
         // Update user password and clear reset token
-        await prisma.user.update({
+        await prisma.users.update({
             where: { id: user.id },
             data: {
                 passwordHash,
@@ -77,3 +77,4 @@ export async function POST(request) {
         );
     }
 }
+

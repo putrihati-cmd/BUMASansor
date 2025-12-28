@@ -40,7 +40,7 @@ export async function POST(request) {
 
         // If userId exists, fetch user
         if (result.userId) {
-            const user = await prisma.user.findUnique({
+            const user = await prisma.users.findUnique({
                 where: { id: result.userId },
                 select: {
                     id: true,
@@ -58,7 +58,7 @@ export async function POST(request) {
                 // Check if user needs to complete profile (new 2-step registration)
                 if (user.status === 'PENDING' || !user.name || !user.passwordHash) {
                     // Update status to UNVERIFIED (phone verified but profile incomplete)
-                    await prisma.user.update({
+                    await prisma.users.update({
                         where: { id: user.id },
                         data: { status: 'UNVERIFIED' }
                     });
@@ -108,3 +108,4 @@ export async function POST(request) {
         );
     }
 }
+

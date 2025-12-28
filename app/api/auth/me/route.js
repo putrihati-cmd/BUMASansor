@@ -17,7 +17,7 @@ export async function GET(request) {
         }
 
         // Get user from database with full details
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { id: auth.user.id },
             select: {
                 id: true,
@@ -66,7 +66,7 @@ export async function PUT(request) {
         const body = await request.json();
         const { name, phone, avatarUrl } = body;
 
-        const user = await prisma.user.update({
+        const user = await prisma.users.update({
             where: { id: auth.user.id },
             data: {
                 ...(name && { name }),
@@ -95,3 +95,4 @@ export async function PUT(request) {
         );
     }
 }
+

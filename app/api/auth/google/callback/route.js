@@ -54,7 +54,7 @@ export async function GET(request) {
         }
 
         // 3. Find or Create User
-        let user = await prisma.user.findFirst({
+        let user = await prisma.users.findFirst({
             where: {
                 OR: [
                     { googleId: userData.id },
@@ -66,7 +66,7 @@ export async function GET(request) {
         if (user) {
             // Update googleId if not present (e.g. registered via email before)
             if (!user.googleId) {
-                user = await prisma.user.update({
+                user = await prisma.users.update({
                     where: { id: user.id },
                     data: {
                         googleId: userData.id,
@@ -77,7 +77,7 @@ export async function GET(request) {
             }
         } else {
             // Register new user
-            user = await prisma.user.create({
+            user = await prisma.users.create({
                 data: {
                     name: userData.name,
                     email: userData.email,
@@ -117,3 +117,4 @@ export async function GET(request) {
         return NextResponse.redirect(new URL('/auth/login?error=InternalError', request.url));
     }
 }
+

@@ -214,3 +214,4 @@ export async function DELETE(request) {
         return NextResponse.json({ error: 'Gagal menghapus dari keranjang' }, { status: 500 });
     }
 }
+

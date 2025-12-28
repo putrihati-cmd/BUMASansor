@@ -8,3 +8,4 @@ export default function robots() {
         sitemap: 'https://infiatin.store/sitemap.xml',
     };
 }
+

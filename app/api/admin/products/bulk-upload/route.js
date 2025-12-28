@@ -64,3 +64,4 @@ export const POST = requireAuth(async function POST(request, context) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 });
+

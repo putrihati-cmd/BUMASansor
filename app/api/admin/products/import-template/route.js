@@ -35,3 +35,4 @@ export const GET = requireAuth(async function GET(request, context) {
         return NextResponse.json({ error: 'Failed to generate template' }, { status: 500 });
     }
 });
+

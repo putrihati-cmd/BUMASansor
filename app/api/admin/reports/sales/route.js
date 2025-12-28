@@ -64,3 +64,4 @@ export const GET = requireAuth(async function GET(request, context) {
         return NextResponse.json({ error: 'Failed to export report' }, { status: 500 });
     }
 });
+

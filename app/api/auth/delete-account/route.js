@@ -45,7 +45,7 @@ export async function DELETE(request) {
         }
 
         // Get user
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { id: auth.user.id },
             include: {
                 orders: {
@@ -87,7 +87,7 @@ export async function DELETE(request) {
         // This preserves order history for analytics
         const randomSuffix = Math.random().toString(36).substring(7);
 
-        await prisma.user.update({
+        await prisma.users.update({
             where: { id: user.id },
             data: {
                 email: `deleted_${user.id}_${randomSuffix}@deleted.local`,
@@ -131,3 +131,4 @@ export async function DELETE(request) {
         );
     }
 }
+
