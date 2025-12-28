@@ -80,7 +80,7 @@ export default function PWAInstallPrompt() {
                     </div>
                     <div>
                         <h3 className="font-bold text-lg">Install Infiatin Store</h3>
-                        <p className="text-sm opacity-90">Akses lebih cepat seperti aplikasi asli!</p>
+                        <p className="text-sm opacity-90">Belanja lebih mudah dan cepat tanpa browser!</p>
                     </div>
                 </div>
 
