@@ -11,14 +11,30 @@ export default function AdminPreviewBanner() {
     useEffect(() => {
         // Check if user is admin
         fetch('/api/auth/me', { credentials: 'include' })
-            .then(res => res.json())
-            .then(data => {
+            .then(async res => {
+                // If not authenticated (401), user is not admin
+                if (!res.ok) {
+                    setIsAdmin(false);
+                    setLoading(false);
+                    return;
+                }
+
+                const data = await res.json();
+
+                // Only show banner for ADMIN or SUPER_ADMIN
                 if (data.user && (data.user.role === 'ADMIN' || data.user.role === 'SUPER_ADMIN')) {
                     setIsAdmin(true);
+                } else {
+                    setIsAdmin(false);
                 }
+
+                setLoading(false);
             })
-            .catch(() => setIsAdmin(false))
-            .finally(() => setLoading(false));
+            .catch(error => {
+                console.error('Failed to check admin status:', error);
+                setIsAdmin(false);
+                setLoading(false);
+            });
     }, []);
 
     if (loading || !isAdmin) return null;
