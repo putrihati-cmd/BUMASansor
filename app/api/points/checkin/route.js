@@ -20,7 +20,7 @@ export const GET = requireAuth(async function GET(request, context) {
         today.setHours(0, 0, 0, 0);
 
         // Check if already checked in today
-        const todayCheckin = await prisma.pointTransaction.findFirst({
+        const todayCheckin = await prisma.point_transactions.findFirst({
             where: {
                 userId,
                 type: 'CHECKIN',
@@ -29,7 +29,7 @@ export const GET = requireAuth(async function GET(request, context) {
         });
 
         // Get streak info (consecutive days)
-        const recentCheckins = await prisma.pointTransaction.findMany({
+        const recentCheckins = await prisma.point_transactions.findMany({
             where: {
                 userId,
                 type: 'CHECKIN',
@@ -92,7 +92,7 @@ export const POST = requireAuth(async function POST(request, context) {
         today.setHours(0, 0, 0, 0);
 
         // Check if already checked in today
-        const existingCheckin = await prisma.pointTransaction.findFirst({
+        const existingCheckin = await prisma.point_transactions.findFirst({
             where: {
                 userId,
                 type: 'CHECKIN',
@@ -111,7 +111,7 @@ export const POST = requireAuth(async function POST(request, context) {
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
 
-        const yesterdayCheckin = await prisma.pointTransaction.findFirst({
+        const yesterdayCheckin = await prisma.point_transactions.findFirst({
             where: {
                 userId,
                 type: 'CHECKIN',
@@ -127,7 +127,7 @@ export const POST = requireAuth(async function POST(request, context) {
 
         if (yesterdayCheckin) {
             // Count consecutive days
-            const recentCheckins = await prisma.pointTransaction.findMany({
+            const recentCheckins = await prisma.point_transactions.findMany({
                 where: {
                     userId,
                     type: 'CHECKIN',
@@ -188,7 +188,7 @@ export const POST = requireAuth(async function POST(request, context) {
         });
 
         // Get new balance
-        const userPoints = await prisma.userPoints.findUnique({
+        const userPoints = await prisma.user_points.findUnique({
             where: { userId }
         });
 

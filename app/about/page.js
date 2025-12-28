@@ -174,7 +174,7 @@ export default function AboutPage() {
                                 </div>
                                 <h3 className="font-semibold text-neutral-800 mb-2">Telepon</h3>
                                 <p className="text-sm text-neutral-500">+62 21 1234 5678</p>
-                                <p className="text-sm text-neutral-500">+62 812 3456 7890 (WhatsApp)</p>
+                                <p className="text-sm text-neutral-500">0851-1945-7138 (WhatsApp)</p>
                             </div>
                             <div className="bg-white rounded-xl p-6 text-center shadow-sm">
                                 <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mx-auto mb-4">

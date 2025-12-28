@@ -32,7 +32,7 @@ export const POST = requireAuth(async function POST(request, context) {
         }
 
         // Get user points
-        const userPoints = await prisma.userPoints.findUnique({
+        const userPoints = await prisma.user_points.findUnique({
             where: { userId }
         });
 

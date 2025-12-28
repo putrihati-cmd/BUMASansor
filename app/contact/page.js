@@ -97,12 +97,12 @@ export default function ContactPage() {
                                 <h3 className="font-semibold text-neutral-800 mb-2">WhatsApp</h3>
                                 <p className="text-neutral-600 text-sm mb-3">Chat langsung dengan tim kami</p>
                                 <Link
-                                    href="https://wa.me/6281234567890"
+                                    href="https://wa.me/6285119457138"
                                     target="_blank"
                                     className="inline-flex items-center gap-2 text-primary-500 hover:underline text-sm"
                                 >
                                     <MessageCircle className="w-4 h-4" />
-                                    +62 812 3456 7890
+                                    WhatsApp: 0851-1945-7138
                                 </Link>
                             </div>
 

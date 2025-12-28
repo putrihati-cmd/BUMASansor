@@ -119,7 +119,7 @@ export default function RefundPolicyPage() {
                                         </p>
                                         <ul className="list-disc list-inside space-y-1 text-neutral-600 text-sm">
                                             <li>Email: refund@infiatin.store</li>
-                                            <li>WhatsApp: +62 812 3456 7890</li>
+                                            <li>WhatsApp: 0851-1945-7138</li>
                                             <li>Halaman &quot;Pesanan Saya&quot; di akun Anda</li>
                                         </ul>
                                     </div>
@@ -231,7 +231,7 @@ export default function RefundPolicyPage() {
                                 </p>
                                 <p className="flex items-center gap-2 text-neutral-700">
                                     <MessageCircle className="w-5 h-5 text-primary-500" />
-                                    WhatsApp: +62 812 3456 7890
+                                    WhatsApp: 0851-1945-7138
                                 </p>
                             </div>
                         </section>

@@ -126,7 +126,7 @@ export default function TermsPage() {
                                 </p>
                                 <p className="flex items-center gap-2 text-neutral-700">
                                     <MessageCircle className="w-5 h-5 text-primary-500" />
-                                    WhatsApp: +62 812 3456 7890
+                                    WhatsApp: 0851-1945-7138
                                 </p>
                             </div>
                         </section>

@@ -21,7 +21,7 @@ export async function POST(request) {
         }
 
         // Check if already subscribed
-        const existing = await prisma.stockNotification.findFirst({
+        const existing = await prisma.stock_notifications.findFirst({
             where: {
                 email,
                 productId,
@@ -36,7 +36,7 @@ export async function POST(request) {
         }
 
         // Create notification subscription
-        await prisma.stockNotification.create({
+        await prisma.stock_notifications.create({
             data: {
                 email,
                 productId,

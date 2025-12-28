@@ -69,7 +69,7 @@ export async function POST(request) {
             });
 
             // Create user points record
-            await prisma.userPoints.create({
+            await prisma.user_points.create({
                 data: {
                     userId: user.id,
                     balance: 100, // Welcome bonus
@@ -78,7 +78,7 @@ export async function POST(request) {
             });
 
             // Log registration
-            await prisma.pointTransaction.create({
+            await prisma.point_transactions.create({
                 data: {
                     userId: user.id,
                     type: 'EARN_REFERRAL',

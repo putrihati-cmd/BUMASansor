@@ -1177,3 +1177,16 @@ model invoices {
   @@map("invoices")
 }
 
+
+model banners {
+  id          String   @id @default(uuid())
+  title       String
+  subtitle    String?
+  image_url   String
+  link        String?
+  alt_text    String?
+  order       Int      @default(0)
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
