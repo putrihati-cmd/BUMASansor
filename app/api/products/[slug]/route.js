@@ -45,7 +45,7 @@ export async function GET(request, { params }) {
         // Get related products
         const relatedProducts = await prisma.products.findMany({
             where: {
-                category_id: product.categoriesId,
+                category_id: product.category_id,
                 id: { not: product.id },
                 status: 'ACTIVE',
             },
@@ -58,12 +58,18 @@ export async function GET(request, { params }) {
         });
 
         return NextResponse.json({
-            products: {
+            product: {
                 ...product,
+                base_price: Number(product.base_price),
+                sale_price: product.sale_price ? Number(product.sale_price) : null,
                 rating: avgRating._avg.rating || 0,
                 reviewCount: avgRating._count.rating,
             },
-            relatedProducts,
+            relatedProducts: relatedProducts.map(p => ({
+                ...p,
+                base_price: Number(p.base_price),
+                sale_price: p.sale_price ? Number(p.sale_price) : null,
+            })),
         });
     } catch (error) {
         console.error('Get product error:', error);

@@ -95,16 +95,33 @@ export default function HomePage() {
             try {
                 // Fetch featured products
                 const featuredRes = await fetch('/api/products?featured=true&limit=12');
+
+                if (!featuredRes.ok) {
+                    console.error('Featured products fetch failed:', featuredRes.status);
+                }
+
                 const featuredData = await featuredRes.json();
+
+                // If no featured products, fetch regular products
+                if (!featuredData.products || featuredData.products.length === 0) {
+                    console.log('No featured products, fetching all products');
+                    const fallbackRes = await fetch('/api/products?limit=12');
+                    const fallbackData = await fallbackRes.json();
+                    setFeaturedProducts(fallbackData.products || []);
+                } else {
+                    setFeaturedProducts(featuredData.products || []);
+                }
 
                 // Fetch all products for recommendations
                 const allRes = await fetch('/api/products?limit=18');
                 const allData = await allRes.json();
 
-                setFeaturedProducts(featuredData.products || []);
                 setAllProducts(allData.products || []);
             } catch (error) {
                 console.error('Error fetching products:', error);
+                // Set empty arrays on error
+                setFeaturedProducts([]);
+                setAllProducts([]);
             } finally {
                 setLoading(false);
             }
