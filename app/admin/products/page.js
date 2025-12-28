@@ -250,13 +250,13 @@ export default function ProductsPage() {
                                         </td>
                                         <td className="px-4 py-4 text-neutral-600">{product.category}</td>
                                         <td className="px-4 py-4">
-                                            {product.salePrice ? (
+                                            {product.sale_price ? (
                                                 <div>
-                                                    <p className="font-semibold text-primary-500">{formatRupiah(product.salePrice)}</p>
-                                                    <p className="text-sm text-neutral-400 line-through">{formatRupiah(product.basePrice)}</p>
+                                                    <p className="font-semibold text-primary-500">{formatRupiah(product.sale_price)}</p>
+                                                    <p className="text-sm text-neutral-400 line-through">{formatRupiah(product.base_price)}</p>
                                                 </div>
                                             ) : (
-                                                <p className="font-semibold text-neutral-800">{formatRupiah(product.basePrice)}</p>
+                                                <p className="font-semibold text-neutral-800">{formatRupiah(product.base_price)}</p>
                                             )}
                                         </td>
                                         <td className="px-4 py-4">

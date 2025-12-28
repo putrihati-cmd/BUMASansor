@@ -75,7 +75,7 @@ export default function CheckoutPage() {
                 items: items.map(item => ({
                     productId: item.id,
                     quantity: item.quantity,
-                    priceAtPurchase: item.salePrice || item.basePrice,
+                    priceAtPurchase: item.sale_price || item.base_price,
                 })),
                 shippingMethod: selectedShipping.id,
                 shippingCost,
@@ -419,10 +419,10 @@ export default function CheckoutPage() {
                                                     </div>
                                                     <div className="flex-1">
                                                         <p className="font-medium text-neutral-800 line-clamp-1">{item.name}</p>
-                                                        <p className="text-sm text-neutral-500">{item.quantity}x {formatRupiah(item.salePrice || item.basePrice)}</p>
+                                                        <p className="text-sm text-neutral-500">{item.quantity}x {formatRupiah(item.sale_price || item.base_price)}</p>
                                                     </div>
                                                     <p className="font-semibold text-neutral-800">
-                                                        {formatRupiah((item.salePrice || item.basePrice) * item.quantity)}
+                                                        {formatRupiah((item.sale_price || item.base_price) * item.quantity)}
                                                     </p>
                                                 </div>
                                             ))}

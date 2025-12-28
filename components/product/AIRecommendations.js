@@ -141,9 +141,9 @@ export default function AIRecommendations({
                                 )}
 
                                 {/* Sale Badge */}
-                                {product.salePrice && product.salePrice < product.basePrice && (
+                                {product.sale_price && product.sale_price < product.base_price && (
                                     <div className="absolute top-2 left-2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-medium">
-                                        {Math.round((1 - product.salePrice / product.basePrice) * 100)}% OFF
+                                        {Math.round((1 - product.sale_price / product.base_price) * 100)}% OFF
                                     </div>
                                 )}
 
@@ -182,18 +182,18 @@ export default function AIRecommendations({
 
                                 {/* Price */}
                                 <div className="mt-2">
-                                    {product.salePrice ? (
+                                    {product.sale_price ? (
                                         <div className="flex items-center gap-1.5 flex-wrap">
                                             <span className="text-sm font-bold text-teal-600">
-                                                {formatPrice(product.salePrice)}
+                                                {formatPrice(product.sale_price)}
                                             </span>
                                             <span className="text-xs text-gray-400 line-through">
-                                                {formatPrice(product.basePrice)}
+                                                {formatPrice(product.base_price)}
                                             </span>
                                         </div>
                                     ) : (
                                         <span className="text-sm font-bold text-gray-800">
-                                            {formatPrice(product.basePrice)}
+                                            {formatPrice(product.base_price)}
                                         </span>
                                     )}
                                 </div>

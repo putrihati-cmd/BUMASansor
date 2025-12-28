@@ -145,7 +145,7 @@ function StickyBuyBar({ onAddToCart, onBuyNow }) {
 function ShareModal({ isOpen, onClose, product }) {
     const [copied, setCopied] = useState(false);
     const productUrl = typeof window !== 'undefined' ? window.location.href : '';
-    const shareText = `${product.name} - ${formatRupiah(product.salePrice || product.basePrice)}`;
+    const shareText = `${product.name} - ${formatRupiah(product.sale_price || product.base_price)}`;
 
     const handleCopyLink = () => {
         navigator.clipboard.writeText(productUrl);
@@ -291,8 +291,8 @@ export default function ProductDetailPage() {
                     slug: product.slug,
                     name: product.name,
                     image: product.images?.[0],
-                    basePrice: product.basePrice,
-                    salePrice: product.salePrice,
+                    basePrice: product.base_price,
+                    salePrice: product.sale_price,
                     viewedAt: new Date().toISOString()
                 },
                 ...filtered
@@ -335,8 +335,8 @@ export default function ProductDetailPage() {
         );
     }
 
-    const discountPercentage = calculateDiscountPercentage(product.basePrice, product.salePrice);
-    const currentPrice = product.salePrice || product.basePrice;
+    const discountPercentage = calculateDiscountPercentage(product.base_price, product.sale_price);
+    const currentPrice = product.sale_price || product.base_price;
     const soldCount = product.soldCount || (product.reviewCount || 0) * 10 || 100;
 
     const handleAddToCart = () => {
@@ -385,9 +385,9 @@ export default function ProductDetailPage() {
                                 <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-4 -mx-4 lg:mx-0 lg:rounded-lg">
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-2xl font-bold">{formatRupiah(currentPrice)}</span>
-                                        {product.salePrice && (
+                                        {product.sale_price && (
                                             <span className="text-sm line-through text-white/70">
-                                                {formatRupiah(product.basePrice)}
+                                                {formatRupiah(product.base_price)}
                                             </span>
                                         )}
                                         {discountPercentage > 0 && (

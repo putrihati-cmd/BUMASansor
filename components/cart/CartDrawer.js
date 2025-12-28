@@ -96,7 +96,7 @@ export default function CartDrawer() {
                                             <p className="text-xs text-neutral-500 mb-1">{item.variantName}</p>
                                         )}
                                         <p className="font-bold text-primary-500">
-                                            {formatRupiah(item.salePrice || item.basePrice)}
+                                            {formatRupiah(item.sale_price || item.base_price)}
                                         </p>
 
                                         {/* Quantity Controls */}

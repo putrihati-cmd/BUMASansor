@@ -127,11 +127,11 @@ export default function CartPage() {
                                                 {/* Price */}
                                                 <div className="flex items-center gap-2 mb-4">
                                                     <span className="font-bold text-primary-500">
-                                                        {formatRupiah(item.salePrice || item.basePrice)}
+                                                        {formatRupiah(item.sale_price || item.base_price)}
                                                     </span>
-                                                    {item.salePrice && (
+                                                    {item.sale_price && (
                                                         <span className="text-sm text-neutral-400 line-through">
-                                                            {formatRupiah(item.basePrice)}
+                                                            {formatRupiah(item.base_price)}
                                                         </span>
                                                     )}
                                                 </div>
@@ -169,7 +169,7 @@ export default function CartPage() {
 
                                                     {/* Item Total */}
                                                     <p className="font-bold text-neutral-800">
-                                                        {formatRupiah((item.salePrice || item.basePrice) * item.quantity)}
+                                                        {formatRupiah((item.sale_price || item.base_price) * item.quantity)}
                                                     </p>
                                                 </div>
                                             </div>

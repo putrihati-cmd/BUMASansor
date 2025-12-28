@@ -170,7 +170,7 @@ function SearchContent() {
                 ) : products.length > 0 ? (
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {products.map((product) => {
-                            const discountPercentage = calculateDiscountPercentage(product.basePrice, product.salePrice);
+                            const discountPercentage = calculateDiscountPercentage(product.base_price, product.sale_price);
                             return (
                                 <div key={product.id} className="bg-white rounded-xl shadow-sm overflow-hidden group">
                                     <Link href={`/products/${product.slug}`}>
@@ -200,13 +200,13 @@ function SearchContent() {
                                             <span className="text-sm text-neutral-400">({product.reviewCount || 0})</span>
                                         </div>
                                         <div className="flex items-center gap-2 mb-4">
-                                            {product.salePrice ? (
+                                            {product.sale_price ? (
                                                 <>
-                                                    <span className="text-lg font-bold text-primary-500">{formatRupiah(product.salePrice)}</span>
-                                                    <span className="text-sm text-neutral-400 line-through">{formatRupiah(product.basePrice)}</span>
+                                                    <span className="text-lg font-bold text-primary-500">{formatRupiah(product.sale_price)}</span>
+                                                    <span className="text-sm text-neutral-400 line-through">{formatRupiah(product.base_price)}</span>
                                                 </>
                                             ) : (
-                                                <span className="text-lg font-bold text-neutral-800">{formatRupiah(product.basePrice)}</span>
+                                                <span className="text-lg font-bold text-neutral-800">{formatRupiah(product.base_price)}</span>
                                             )}
                                         </div>
                                         <Button

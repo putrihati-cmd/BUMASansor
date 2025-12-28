@@ -139,7 +139,7 @@ function FlashSaleProductCard({ product }) {
             name: product.name,
             images: [product.image],
             basePrice: product.originalPrice,
-            salePrice: product.salePrice,
+            salePrice: product.sale_price,
             stock: product.stockLeft,
         });
     };
@@ -178,7 +178,7 @@ function FlashSaleProductCard({ product }) {
                 {/* Price */}
                 <div className="mb-3">
                     <p className="text-lg font-bold text-red-500">
-                        {formatRupiah(product.salePrice)}
+                        {formatRupiah(product.sale_price)}
                     </p>
                     <p className="text-sm text-gray-400 line-through">
                         {formatRupiah(product.originalPrice)}

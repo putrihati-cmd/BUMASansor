@@ -18,8 +18,8 @@ export default function ProductCard({ product, variant = 'default' }) {
     };
 
     const discountPercentage = calculateDiscountPercentage(
-        product.basePrice,
-        product.salePrice
+        product.base_price,
+        product.sale_price
     );
 
     const soldCount = product.soldCount || product.reviewCount * 5 || 0;
@@ -102,11 +102,11 @@ export default function ProductCard({ product, variant = 'default' }) {
                     {/* Price */}
                     <div className="flex items-baseline gap-1 mb-1 flex-wrap">
                         <span className="text-sm md:text-lg font-bold text-primary-600">
-                            {formatRupiah(product.salePrice || product.basePrice)}
+                            {formatRupiah(product.sale_price || product.base_price)}
                         </span>
-                        {product.salePrice && (
+                        {product.sale_price && (
                             <span className="text-[9px] md:text-xs text-neutral-400 line-through truncate">
-                                {formatRupiah(product.basePrice)}
+                                {formatRupiah(product.base_price)}
                             </span>
                         )}
                     </div>

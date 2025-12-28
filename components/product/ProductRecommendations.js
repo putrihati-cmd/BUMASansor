@@ -130,18 +130,18 @@ export function ProductRecommendations({ productSlug, title = 'Rekomendasi Untuk
                                 </h3>
 
                                 <div className="flex flex-col gap-1">
-                                    {product.salePrice ? (
+                                    {product.sale_price ? (
                                         <>
                                             <span className="text-base font-bold text-primary-600">
-                                                {formatRupiah(product.salePrice)}
+                                                {formatRupiah(product.sale_price)}
                                             </span>
                                             <span className="text-xs text-neutral-400 line-through">
-                                                {formatRupiah(product.basePrice)}
+                                                {formatRupiah(product.base_price)}
                                             </span>
                                         </>
                                     ) : (
                                         <span className="text-base font-bold text-neutral-800">
-                                            {formatRupiah(product.basePrice)}
+                                            {formatRupiah(product.base_price)}
                                         </span>
                                     )}
                                 </div>

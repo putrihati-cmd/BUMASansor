@@ -75,8 +75,8 @@ export default function WishlistPage() {
             addItem({
                 id: product.id,
                 name: product.name,
-                basePrice: Number(product.basePrice),
-                salePrice: product.salePrice ? Number(product.salePrice) : null,
+                basePrice: Number(product.base_price),
+                salePrice: product.sale_price ? Number(product.sale_price) : null,
                 stock: product.stock,
                 images: product.images || [],
             });
@@ -151,8 +151,8 @@ export default function WishlistPage() {
                                 const product = item.product;
                                 if (!product) return null;
 
-                                const basePrice = Number(product.basePrice);
-                                const salePrice = product.salePrice ? Number(product.salePrice) : null;
+                                const basePrice = Number(product.base_price);
+                                const salePrice = product.sale_price ? Number(product.sale_price) : null;
                                 const discountPercentage = salePrice
                                     ? calculateDiscountPercentage(basePrice, salePrice)
                                     : 0;

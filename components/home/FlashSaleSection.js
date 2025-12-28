@@ -55,8 +55,8 @@ function CountdownTimer() {
 // Flash Sale Product Card - White Card on Colored BG
 function FlashSaleProductCard({ product }) {
     const soldPercent = Math.min(Math.round((product.soldCount ?? 50) / 100 * 100), 100);
-    const salePrice = product.salePrice || Math.round(Number(product.basePrice) * 0.7);
-    const basePrice = Number(product.basePrice);
+    const salePrice = product.sale_price || Math.round(Number(product.base_price) * 0.7);
+    const basePrice = Number(product.base_price);
     const discount = Math.round((1 - salePrice / basePrice) * 100);
 
     return (
@@ -126,7 +126,7 @@ export default function FlashSaleSection() {
                         ...p,
                         soldCount,
                         soldPercent,
-                        salePrice: p.sale_price || p.salePrice || Math.round(Number(p.base_price || p.basePrice) * 0.8)
+                        salePrice: p.sale_price || p.sale_price || Math.round(Number(p.base_price || p.base_price) * 0.8)
                     };
                 });
                 setProducts(productsWithSales);
