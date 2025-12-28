@@ -6,20 +6,22 @@ import { useEffect, useState } from 'react';
 export default function AdminPreviewBanner() {
     const router = useRouter();
     const [isAdmin, setIsAdmin] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         // Check if user is admin
-        fetch('/api/auth/me')
+        fetch('/api/auth/me', { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 if (data.user && (data.user.role === 'ADMIN' || data.user.role === 'SUPER_ADMIN')) {
                     setIsAdmin(true);
                 }
             })
-            .catch(() => setIsAdmin(false));
+            .catch(() => setIsAdmin(false))
+            .finally(() => setLoading(false));
     }, []);
 
-    if (!isAdmin) return null;
+    if (loading || !isAdmin) return null;
 
     return (
         <div className="fixed bottom-4 right-4 z-50">
