@@ -34,9 +34,9 @@ export default function AccountPage() {
     const [avatarUploading, setAvatarUploading] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || null);
     const [formData, setFormData] = useState({
-        name: user?.name || 'Demo Customer',
-        email: user?.email || 'demo@infiatin.store',
-        phone: user?.phone || '081234567890',
+        name: user?.name || '',
+        email: user?.email || '',
+        phone: user?.phone || '',
     });
 
     const handleChange = (e) => {

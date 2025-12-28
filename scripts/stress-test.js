@@ -57,7 +57,7 @@ async function runSimulation() {
 
         // Ensure user address exists
         const user = await prisma.user.findUnique({
-            where: { email: 'demo@infiatin.store' },
+            where: { email: 'customer@infiatin.store' },
             include: { addresses: true }
         });
 

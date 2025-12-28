@@ -1,95 +1,51 @@
-## 🔐 KREDENSIAL LOGIN INFIATIN STORE
+# 🔐 Kredensial Login - Infiatin Store
 
-### Admin / Super Admin
+**Update:** 2025-12-29 02:20 WIB
+
+## 👨‍💼 ADMIN / SUPER ADMIN
+
 ```
 Email    : admin@infiatin.store
 Password : admin123
 Role     : SUPER_ADMIN
 ```
 
-### Demo Customer
+**Login URL:** https://www.infiya.store/admin
+
+---
+
+## 👤 CUSTOMER (Testing)
+
 ```
-Email    : demo@infiatin.store
-Password : password123
+Email    : customer@infiatin.store
+Password : customer123
+Name     : Ahmad Wijaya
 Role     : CUSTOMER
 ```
 
----
-
-## 📌 Catatan Penting
-
-1. **Ganti Password Setelah Login Pertama**
-   - Segera ganti password default untuk keamanan
-   - Akses: Admin Dashboard → Settings → Security
-
-2. **Jika Lupa Password**
-   ```bash
-   # Jalankan seed ulang untuk reset ke password default
-   npx prisma db seed
-   ```
-
-3. **Environment Production**
-   - **WAJIB** ganti password sebelum deploy ke production
-   - Jangan gunakan password default `admin123` di production
-
-4. **Login URL**
-   - Admin: `http://localhost:3000/admin/login` (Halaman khusus admin)
-   - Customer: `http://localhost:3000/auth/login`
-   - Dashboard Admin: `http://localhost:3000/admin`
+**Login URL:** https://www.infiya.store/auth/login
 
 ---
 
-## 🔧 Troubleshooting Login
+## 📚 Dokumentasi Lengkap
 
-### Password Selalu Salah?
-
-**Solusi 1: Reset Database**
-```bash
-npx prisma db push --force-reset
-npx prisma db seed
-```
-
-**Solusi 2: Cek Typo**
-- Email: `admin@infiatin.store` (bukan `admin@infiya.store`)
-- Password: `admin123` (case sensitive, lowercase semua)
-
-**Solusi 3: Clear Browser Cache**
-- Hapus cookies dan cache browser
-- Coba di incognito/private mode
-
-### Akun Suspended?
-
-Jika muncul error "Akun dinonaktifkan":
-```bash
-# Jalankan di Prisma Studio atau seed ulang
-npx prisma studio
-# Ubah status user menjadi ACTIVE
-```
+Untuk informasi lebih detail tentang akun testing, lihat:
+`docs/TESTING_ACCOUNTS.md`
 
 ---
 
-## 📝 Cara Membuat Admin Baru
+## ⚠️ PERINGATAN KEAMANAN
 
-Opsi 1 - Via Prisma Studio (Recommended):
-```bash
-npx prisma studio
-```
-1. Buka tabel `User`
-2. Klik "Add record"
-3. Isi data:
-   - email: `admin2@infiatin.store`
-   - passwordHash: (hash bcrypt password)
-   - role: `ADMIN` atau `SUPER_ADMIN`
-   - status: `ACTIVE`
+**Development:**
+- Password simple OK untuk testing lokal
 
-Opsi 2 - Via Script:
-```javascript
-// Jalankan di Node.js atau buat script
-const bcrypt = require('bcryptjs');
-const hash = await bcrypt.hash('yourpassword', 10);
-console.log(hash); // Copy hash ini ke passwordHash
-```
+**Production:**
+- HARUS ganti password admin dengan yang kuat!
+- Minimal 12 karakter, kombinasi huruf,angka, simbol
+- Gunakan password manager
+- Enable 2FA jika tersedia
+- Jangan share credentials di public repo
 
 ---
 
-**Terakhir Update**: 27 Desember 2025
+*File ini untuk referensi cepat development. Jangan commit password production ke Git!*

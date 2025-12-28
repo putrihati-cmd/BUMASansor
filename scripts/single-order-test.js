@@ -9,7 +9,7 @@ async function singleOrderTest() {
         const loginRes = await fetch('http://localhost:3000/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: 'demo@infiatin.store', password: 'password123' })
+            body: JSON.stringify({ email: 'customer@infiatin.store', password: 'customer123' })
         });
 
         const { token } = await loginRes.json();

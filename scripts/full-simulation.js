@@ -61,7 +61,7 @@ async function runFullSimulation() {
             body: JSON.stringify({
                 name: 'Test User',
                 email: `test${Date.now()}@test.com`,
-                password: 'password123'
+                password: 'customer123'
             })
         });
         return { success: res.status === 201 || res.status === 400 }; // 400 = email exists
@@ -74,8 +74,8 @@ async function runFullSimulation() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                email: 'demo@infiatin.store',
-                password: 'password123'
+                email: 'customer@infiatin.store',
+                password: 'customer123'
             })
         });
         const data = await res.json();
