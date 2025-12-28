@@ -20,7 +20,7 @@ export const POST = requireAuth(async function POST(request, context) {
         const { amount, bankAccount } = await request.json();
 
         // Get affiliate info
-        const affiliate = await prisma.affiliate.findUnique({
+        const affiliate = await prisma.affiliates.findUnique({
             where: { userId: context.user.id }
         });
 
@@ -57,7 +57,7 @@ export const POST = requireAuth(async function POST(request, context) {
         }
 
         // Create withdrawal request
-        const withdrawal = await prisma.affiliateWithdrawal.create({
+        const withdrawal = await prisma.affiliate_withdrawals.create({
             data: {
                 affiliateId: affiliate.id,
                 amount: withdrawAmount,
@@ -67,7 +67,7 @@ export const POST = requireAuth(async function POST(request, context) {
         });
 
         // Deduct from available balance
-        await prisma.affiliate.update({
+        await prisma.affiliates.update({
             where: { id: affiliate.id },
             data: {
                 availableBalance: {
@@ -101,7 +101,7 @@ export const POST = requireAuth(async function POST(request, context) {
  */
 export const GET = requireAuth(async function GET(request, context) {
     try {
-        const affiliate = await prisma.affiliate.findUnique({
+        const affiliate = await prisma.affiliates.findUnique({
             where: { userId: context.user.id }
         });
 
@@ -112,7 +112,7 @@ export const GET = requireAuth(async function GET(request, context) {
             );
         }
 
-        const withdrawals = await prisma.affiliateWithdrawal.findMany({
+        const withdrawals = await prisma.affiliate_withdrawals.findMany({
             where: { affiliateId: affiliate.id },
             orderBy: { createdAt: 'desc' },
             take: 50

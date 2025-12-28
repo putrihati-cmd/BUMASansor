@@ -105,7 +105,7 @@ export const POST = requireAuth(async function POST(request, context) {
                 };
 
                 // Check if category exists
-                const categoryExists = await prisma.category.findUnique({
+                const categoryExists = await prisma.categories.findUnique({
                     where: { id: productData.categoryId }
                 });
 
@@ -116,13 +116,13 @@ export const POST = requireAuth(async function POST(request, context) {
                 // Create or update product
                 if (row.id) {
                     // Update existing
-                    await prisma.product.update({
+                    await prisma.products.update({
                         where: { id: row.id },
                         data: productData
                     });
                 } else {
                     // Create new
-                    await prisma.product.create({
+                    await prisma.products.create({
                         data: productData
                     });
                 }

@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
     try {
         const { id } = params;
 
-        const category = await prisma.category.findUnique({
+        const category = await prisma.categories.findUnique({
             where: { id },
             include: {
                 parent: true,
@@ -58,7 +58,7 @@ export async function PATCH(request, { params }) {
         const { name, slug, description, imageUrl, parentId } = body;
 
         // Check if category exists
-        const existing = await prisma.category.findUnique({
+        const existing = await prisma.categories.findUnique({
             where: { id }
         });
 
@@ -86,7 +86,7 @@ export async function PATCH(request, { params }) {
 
         // Check if slug is already used by another category
         if (slug !== existing.slug) {
-            const duplicateSlug = await prisma.category.findUnique({
+            const duplicateSlug = await prisma.categories.findUnique({
                 where: { slug: slug.trim() }
             });
 
@@ -99,7 +99,7 @@ export async function PATCH(request, { params }) {
         }
 
         // Update category
-        const category = await prisma.category.update({
+        const category = await prisma.categories.update({
             where: { id },
             data: {
                 name: name.trim(),
@@ -133,7 +133,7 @@ export async function DELETE(request, { params }) {
         const { id } = params;
 
         // Check if category exists
-        const category = await prisma.category.findUnique({
+        const category = await prisma.categories.findUnique({
             where: { id },
             include: {
                 _count: {
@@ -175,7 +175,7 @@ export async function DELETE(request, { params }) {
         }
 
         // Delete category
-        await prisma.category.delete({
+        await prisma.categories.delete({
             where: { id }
         });
 

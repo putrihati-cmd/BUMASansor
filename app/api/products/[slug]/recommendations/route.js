@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
         const limit = parseInt(searchParams.get('limit') || '8');
 
         // Find the product
-        const product = await prisma.product.findUnique({
+        const product = await prisma.products.findUnique({
             where: { slug },
             select: {
                 id: true,
@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
         // Get recommendations in parallel
         const [relatedProducts, alsoBought, recentlyViewed] = await Promise.all([
             // 1. Related products (same category)
-            prisma.product.findMany({
+            prisma.products.findMany({
                 where: {
                     categoryId: product.categoryId,
                     id: { not: product.id },
@@ -70,7 +70,7 @@ export async function GET(request, { params }) {
             `,
 
             // 3. Similar price range
-            prisma.product.findMany({
+            prisma.products.findMany({
                 where: {
                     id: { not: product.id },
                     status: 'ACTIVE',

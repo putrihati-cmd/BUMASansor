@@ -27,7 +27,7 @@ export async function GET(request) {
         startDate.setDate(startDate.getDate() - days);
 
         // Fetch orders grouped by date
-        const orders = await prisma.order.findMany({
+        const orders = await prisma.orders.findMany({
             where: {
                 createdAt: { gte: startDate },
                 status: { in: ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'] },
@@ -71,7 +71,7 @@ export async function GET(request) {
         }
 
         // Get status distribution
-        const statusDistribution = await prisma.order.groupBy({
+        const statusDistribution = await prisma.orders.groupBy({
             by: ['status'],
             where: {
                 createdAt: { gte: startDate },
@@ -85,7 +85,7 @@ export async function GET(request) {
         }));
 
         // Top products
-        const topProducts = await prisma.orderItem.groupBy({
+        const topProducts = await prisma.order_items.groupBy({
             by: ['productId'],
             where: {
                 order: {
@@ -107,7 +107,7 @@ export async function GET(request) {
 
         const topProductsWithNames = await Promise.all(
             topProducts.map(async (item) => {
-                const product = await prisma.product.findUnique({
+                const product = await prisma.products.findUnique({
                     where: { id: item.productId },
                     select: { name: true },
                 });

@@ -16,7 +16,7 @@ export async function GET(request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const flashSales = await prisma.flashSale.findMany({
+        const flashSales = await prisma.flash_sales.findMany({
             orderBy: { startTime: 'desc' },
             include: {
                 products: {
@@ -76,7 +76,7 @@ export async function POST(request) {
         else if (now > end) status = 'ENDED';
 
         // Create flash sale
-        const flashSale = await prisma.flashSale.create({
+        const flashSale = await prisma.flash_sales.create({
             data: {
                 name,
                 slug: slugify(name) + '-' + Date.now(),

@@ -37,7 +37,7 @@ export async function POST(request) {
         }
 
         // Check if product exists
-        const product = await prisma.product.findUnique({
+        const product = await prisma.products.findUnique({
             where: { id: productId }
         });
 
@@ -50,7 +50,7 @@ export async function POST(request) {
 
         // Check if variant exists (if provided)
         if (variantId) {
-            const variant = await prisma.productVariant.findUnique({
+            const variant = await prisma.product_variants.findUnique({
                 where: { id: variantId }
             });
 

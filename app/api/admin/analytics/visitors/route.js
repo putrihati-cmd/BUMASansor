@@ -47,15 +47,15 @@ export async function GET(request) {
             // Total users
             prisma.users.count(),
             // Orders today (as proxy for visitors)
-            prisma.order.count({
+            prisma.orders.count({
                 where: { createdAt: { gte: startOfToday } },
             }),
             // Orders this week
-            prisma.order.count({
+            prisma.orders.count({
                 where: { createdAt: { gte: startOfWeek } },
             }),
             // Guest orders this month (unique visitors approximation)
-            prisma.order.count({
+            prisma.orders.count({
                 where: {
                     createdAt: { gte: startOfMonth },
                     userId: null, // Guest orders
@@ -64,7 +64,7 @@ export async function GET(request) {
         ]);
 
         // Calculate returning vs new visitors rate
-        const returningCustomersMonth = await prisma.order.groupBy({
+        const returningCustomersMonth = await prisma.orders.groupBy({
             by: ['userId'],
             where: {
                 createdAt: { gte: startOfMonth },
@@ -79,7 +79,7 @@ export async function GET(request) {
         });
 
         // Bounce rate approximation (orders with only 1 item vs multiple items)
-        const singleItemOrders = await prisma.order.count({
+        const singleItemOrders = await prisma.orders.count({
             where: {
                 createdAt: { gte: startOfMonth },
                 items: { some: {} },

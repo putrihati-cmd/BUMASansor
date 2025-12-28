@@ -30,7 +30,7 @@ export async function POST(request) {
         }
 
         // Check if product exists
-        const product = await prisma.product.findUnique({
+        const product = await prisma.products.findUnique({
             where: { id: productId },
         });
 
@@ -39,7 +39,7 @@ export async function POST(request) {
         }
 
         // Check if user already reviewed this product
-        const existingReview = await prisma.review.findFirst({
+        const existingReview = await prisma.reviews.findFirst({
             where: {
                 productId,
                 userId: user.userId,
@@ -53,7 +53,7 @@ export async function POST(request) {
         }
 
         // Optional: Check if user has purchased this product
-        // const hasPurchased = await prisma.orderItem.findFirst({
+        // const hasPurchased = await prisma.order_items.findFirst({
         //   where: {
         //     productId,
         //     order: {
@@ -69,7 +69,7 @@ export async function POST(request) {
         // }
 
         // Create review
-        const review = await prisma.review.create({
+        const review = await prisma.reviews.create({
             data: {
                 userId: user.id,
                 productId,
@@ -125,7 +125,7 @@ export async function GET(request) {
         }
 
         const [reviews, total] = await Promise.all([
-            prisma.review.findMany({
+            prisma.reviews.findMany({
                 where: {
                     productId,
                     status: 'APPROVED',
@@ -142,7 +142,7 @@ export async function GET(request) {
                 skip,
                 take: limit,
             }),
-            prisma.review.count({
+            prisma.reviews.count({
                 where: {
                     productId,
                     status: 'APPROVED',
@@ -151,7 +151,7 @@ export async function GET(request) {
         ]);
 
         // Calculate rating summary
-        const ratingSummary = await prisma.review.groupBy({
+        const ratingSummary = await prisma.reviews.groupBy({
             by: ['rating'],
             where: {
                 productId,
@@ -169,7 +169,7 @@ export async function GET(request) {
             summary[r.rating] = r._count.rating;
         });
 
-        const avgRating = await prisma.review.aggregate({
+        const avgRating = await prisma.reviews.aggregate({
             where: {
                 productId,
                 status: 'APPROVED',

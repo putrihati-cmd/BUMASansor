@@ -25,7 +25,7 @@ export async function GET(request) {
             );
         }
 
-        const wishlist = await prisma.wishlist.findMany({
+        const wishlist = await prisma.wishlists.findMany({
             where: { userId: user.id },
             include: {
                 product: {
@@ -77,7 +77,7 @@ export async function POST(request) {
         }
 
         // Check if product exists
-        const product = await prisma.product.findUnique({
+        const product = await prisma.products.findUnique({
             where: { id: productId }
         });
 
@@ -89,7 +89,7 @@ export async function POST(request) {
         }
 
         // Check if already in wishlist
-        const existing = await prisma.wishlist.findUnique({
+        const existing = await prisma.wishlists.findUnique({
             where: {
                 userId_productId: {
                     userId: user.id,
@@ -106,7 +106,7 @@ export async function POST(request) {
         }
 
         // Add to wishlist
-        const wishlistItem = await prisma.wishlist.create({
+        const wishlistItem = await prisma.wishlists.create({
             data: {
                 userId: user.id,
                 productId: productId
@@ -161,7 +161,7 @@ export async function DELETE(request) {
         }
 
         // Delete from wishlist
-        const deleted = await prisma.wishlist.deleteMany({
+        const deleted = await prisma.wishlists.deleteMany({
             where: {
                 userId: user.id,
                 productId: productId

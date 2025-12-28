@@ -28,7 +28,7 @@ export const GET = requireAuth(async function GET(request, context) {
             };
         }
 
-        const orders = await prisma.order.findMany({
+        const orders = await prisma.orders.findMany({
             where,
             include: {
                 user: { select: { name: true, email: true } },

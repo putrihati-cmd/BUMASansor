@@ -7,7 +7,7 @@ import prisma from '@/lib/prisma';
 // GET /api/categories - Get all categories
 export async function GET() {
     try {
-        const categories = await prisma.category.findMany({
+        const categories = await prisma.categories.findMany({
             orderBy: { name: 'asc' },
             include: {
                 _count: {

@@ -50,7 +50,7 @@ export async function GET(request) {
 
         // Get orders with pagination
         const [orders, total] = await Promise.all([
-            prisma.order.findMany({
+            prisma.orders.findMany({
                 where,
                 orderBy: { createdAt: 'desc' },
                 skip: (page - 1) * limit,
@@ -77,7 +77,7 @@ export async function GET(request) {
                     },
                 },
             }),
-            prisma.order.count({ where }),
+            prisma.orders.count({ where }),
         ]);
 
         // Format orders
@@ -155,7 +155,7 @@ export async function PATCH(request) {
         // CRITICAL GUARD: ADMIN TIDAK BOLEH OVERRIDE PAYMENT
         // ============================================================
         // Get current order status
-        const currentOrder = await prisma.order.findUnique({
+        const currentOrder = await prisma.orders.findUnique({
             where: { id: orderId },
             include: {
                 payment: true
@@ -256,7 +256,7 @@ export async function PATCH(request) {
         }
 
         // Get updated order with details for notification
-        const updatedOrder = await prisma.order.findUnique({
+        const updatedOrder = await prisma.orders.findUnique({
             where: { id: orderId },
             include: { user: true, address: true, shipment: true, items: true }
         });

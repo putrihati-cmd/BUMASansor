@@ -13,7 +13,7 @@ export async function POST(request, { params }) {
         const reviewId = params.id;
 
         // Check if review exists
-        const review = await prisma.review.findUnique({
+        const review = await prisma.reviews.findUnique({
             where: { id: reviewId },
         });
 
@@ -35,7 +35,7 @@ export async function POST(request, { params }) {
                 prisma.reviewHelpful.delete({
                     where: { id: existingHelpful.id },
                 }),
-                prisma.review.update({
+                prisma.reviews.update({
                     where: { id: reviewId },
                     data: {
                         helpfulCount: {
@@ -58,7 +58,7 @@ export async function POST(request, { params }) {
                         userId: auth.user.id,
                     },
                 }),
-                prisma.review.update({
+                prisma.reviews.update({
                     where: { id: reviewId },
                     data: {
                         helpfulCount: {

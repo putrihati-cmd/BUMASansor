@@ -31,7 +31,7 @@ export async function GET(request) {
         }
 
         const [refunds, total] = await Promise.all([
-            prisma.refundRequest.findMany({
+            prisma.refund_requests.findMany({
                 where,
                 include: {
                     order: {
@@ -55,15 +55,15 @@ export async function GET(request) {
                 skip: (page - 1) * limit,
                 take: limit,
             }),
-            prisma.refundRequest.count({ where }),
+            prisma.refund_requests.count({ where }),
         ]);
 
         // Get status counts
         const [pendingCount, approvedCount, rejectedCount, completedCount] = await Promise.all([
-            prisma.refundRequest.count({ where: { status: 'PENDING' } }),
-            prisma.refundRequest.count({ where: { status: 'APPROVED' } }),
-            prisma.refundRequest.count({ where: { status: 'REJECTED' } }),
-            prisma.refundRequest.count({ where: { status: 'COMPLETED' } }),
+            prisma.refund_requests.count({ where: { status: 'PENDING' } }),
+            prisma.refund_requests.count({ where: { status: 'APPROVED' } }),
+            prisma.refund_requests.count({ where: { status: 'REJECTED' } }),
+            prisma.refund_requests.count({ where: { status: 'COMPLETED' } }),
         ]);
 
         return NextResponse.json({
@@ -131,7 +131,7 @@ export const PUT = requireAdmin(async function PUT(request, context) {
             updateData.rejectionNote = note;
         }
 
-        const refund = await prisma.refundRequest.update({
+        const refund = await prisma.refund_requests.update({
             where: { id },
             data: updateData,
             include: {

@@ -20,7 +20,7 @@ export const GET = requireAuth(async function GET(request, context) {
         const limit = parseInt(searchParams.get('limit') || '10');
 
         // Get best selling products
-        const bestSellers = await prisma.orderItem.groupBy({
+        const bestSellers = await prisma.order_items.groupBy({
             by: ['productId'],
             _sum: {
                 quantity: true,
@@ -39,7 +39,7 @@ export const GET = requireAuth(async function GET(request, context) {
 
         // Get product details
         const productIds = bestSellers.map(item => item.productId);
-        const products = await prisma.product.findMany({
+        const products = await prisma.products.findMany({
             where: {
                 id: {
                     in: productIds,

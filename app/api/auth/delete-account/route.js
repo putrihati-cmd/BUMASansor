@@ -105,15 +105,15 @@ export async function DELETE(request) {
         });
 
         // Optionally: Delete personal data from other tables
-        await prisma.address.deleteMany({
+        await prisma.addresses.deleteMany({
             where: { userId: user.id }
         });
 
-        await prisma.cart.deleteMany({
+        await prisma.carts.deleteMany({
             where: { userId: user.id }
         });
 
-        await prisma.wishlist.deleteMany({
+        await prisma.wishlists.deleteMany({
             where: { userId: user.id }
         });
 

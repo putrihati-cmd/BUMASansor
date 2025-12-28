@@ -6,7 +6,7 @@ export async function GET(request, { params }) {
     try {
         const { id } = await params;
 
-        const voucher = await prisma.voucher.findUnique({
+        const voucher = await prisma.vouchers.findUnique({
             where: { id },
         });
 
@@ -41,7 +41,7 @@ export async function PATCH(request, { params }) {
         const { id } = await params;
         const body = await request.json();
 
-        const voucher = await prisma.voucher.update({
+        const voucher = await prisma.vouchers.update({
             where: { id },
             data: {
                 code: body.code?.toUpperCase(),
@@ -75,7 +75,7 @@ export async function DELETE(request, { params }) {
     try {
         const { id } = await params;
 
-        await prisma.voucher.delete({
+        await prisma.vouchers.delete({
             where: { id },
         });
 

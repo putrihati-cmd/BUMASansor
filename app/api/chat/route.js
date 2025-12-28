@@ -31,14 +31,14 @@ export async function GET(request) {
             where.createdAt = { lt: new Date(before) };
         }
 
-        const messages = await prisma.chatMessage.findMany({
+        const messages = await prisma.chat_messages.findMany({
             where,
             orderBy: { createdAt: 'desc' },
             take: limit,
         });
 
         // Mark unread messages as read
-        await prisma.chatMessage.updateMany({
+        await prisma.chat_messages.updateMany({
             where: {
                 userId: auth.user.id,
                 isAdmin: true, // Only mark admin messages as read
@@ -48,7 +48,7 @@ export async function GET(request) {
         });
 
         // Get unread count
-        const unreadCount = await prisma.chatMessage.count({
+        const unreadCount = await prisma.chat_messages.count({
             where: {
                 userId: auth.user.id,
                 isAdmin: true,
@@ -90,7 +90,7 @@ export async function POST(request) {
             );
         }
 
-        const chatMessage = await prisma.chatMessage.create({
+        const chatMessage = await prisma.chat_messages.create({
             data: {
                 userId: auth.user.id,
                 orderId: orderId || null,

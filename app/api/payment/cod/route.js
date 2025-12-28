@@ -42,7 +42,7 @@ export async function POST(request) {
         }
 
         // Get order
-        const order = await prisma.order.findUnique({
+        const order = await prisma.orders.findUnique({
             where: { id: orderId },
             include: {
                 user: true,
@@ -83,7 +83,7 @@ export async function POST(request) {
             let productName = '';
 
             if (item.variantId) {
-                const variant = await prisma.productVariant.findUnique({
+                const variant = await prisma.product_variants.findUnique({
                     where: { id: item.variantId },
                     include: { product: true }
                 });
@@ -98,7 +98,7 @@ export async function POST(request) {
                 currentStock = variant.stock;
                 productName = `${variant.product.name} - ${variant.name}`;
             } else {
-                const product = await prisma.product.findUnique({
+                const product = await prisma.products.findUnique({
                     where: { id: item.productId }
                 });
 
@@ -124,7 +124,7 @@ export async function POST(request) {
         }
 
         // Create COD payment record
-        const payment = await prisma.payment.create({
+        const payment = await prisma.payments.create({
             data: {
                 orderId: order.id,
                 paymentMethod: 'COD',
@@ -134,7 +134,7 @@ export async function POST(request) {
         });
 
         // Update order status to PROCESSING
-        await prisma.order.update({
+        await prisma.orders.update({
             where: { id: orderId },
             data: {
                 status: 'PROCESSING',

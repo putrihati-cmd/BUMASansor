@@ -19,7 +19,7 @@ export async function GET(request) {
 
         if (userId) {
             // Get messages for specific user
-            const messages = await prisma.chatMessage.findMany({
+            const messages = await prisma.chat_messages.findMany({
                 where: { userId },
                 orderBy: { createdAt: 'asc' },
                 include: {
@@ -90,7 +90,7 @@ export async function POST(request) {
             );
         }
 
-        const chatMessage = await prisma.chatMessage.create({
+        const chatMessage = await prisma.chat_messages.create({
             data: {
                 userId,
                 orderId: orderId || null,

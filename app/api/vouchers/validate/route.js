@@ -14,7 +14,7 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Kode voucher wajib diisi' }, { status: 400 });
         }
 
-        const voucher = await prisma.voucher.findUnique({
+        const voucher = await prisma.vouchers.findUnique({
             where: { code: code.toUpperCase() },
         });
 

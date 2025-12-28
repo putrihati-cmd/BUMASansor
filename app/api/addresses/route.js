@@ -13,7 +13,7 @@ export async function GET(request) {
         }
         const user = auth.user;
 
-        const addresses = await prisma.address.findMany({
+        const addresses = await prisma.addresses.findMany({
             where: { userId: user.id },
             orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
         });
@@ -44,13 +44,13 @@ export async function POST(request) {
 
         // If setting as default, unset other defaults
         if (isDefault) {
-            await prisma.address.updateMany({
+            await prisma.addresses.updateMany({
                 where: { userId: user.id },
                 data: { isDefault: false },
             });
         }
 
-        const address = await prisma.address.create({
+        const address = await prisma.addresses.create({
             data: {
                 userId: user.id,
                 label: label || 'HOME',
@@ -93,7 +93,7 @@ export async function PUT(request) {
         }
 
         // Check ownership
-        const existing = await prisma.address.findFirst({
+        const existing = await prisma.addresses.findFirst({
             where: { id: addressId, userId: user.id }
         });
 
@@ -106,13 +106,13 @@ export async function PUT(request) {
 
         // If setting as default, unset other defaults
         if (isDefault) {
-            await prisma.address.updateMany({
+            await prisma.addresses.updateMany({
                 where: { userId: user.id, id: { not: addressId } },
                 data: { isDefault: false },
             });
         }
 
-        const address = await prisma.address.update({
+        const address = await prisma.addresses.update({
             where: { id: addressId },
             data: {
                 label: label || existing.label,
@@ -155,7 +155,7 @@ export async function DELETE(request) {
         }
 
         // Check ownership
-        const existing = await prisma.address.findFirst({
+        const existing = await prisma.addresses.findFirst({
             where: { id: addressId, userId: user.id }
         });
 
@@ -163,7 +163,7 @@ export async function DELETE(request) {
             return NextResponse.json({ error: 'Alamat tidak ditemukan' }, { status: 404 });
         }
 
-        await prisma.address.delete({
+        await prisma.addresses.delete({
             where: { id: addressId }
         });
 

@@ -27,7 +27,7 @@ export const POST = requireAuth(async function POST(request, context) {
         }
 
         // Create chat message
-        const chatMessage = await prisma.chatMessage.create({
+        const chatMessage = await prisma.chat_messages.create({
             data: {
                 userId: context.user.id,
                 message,
@@ -68,14 +68,14 @@ export const GET = requireAuth(async function GET(request, context) {
             where.orderId = orderId;
         }
 
-        const messages = await prisma.chatMessage.findMany({
+        const messages = await prisma.chat_messages.findMany({
             where,
             orderBy: { createdAt: 'asc' },
             take: 100
         });
 
         // Mark admin messages as read
-        await prisma.chatMessage.updateMany({
+        await prisma.chat_messages.updateMany({
             where: {
                 userId: context.user.id,
                 isAdmin: true,

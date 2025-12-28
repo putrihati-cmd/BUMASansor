@@ -24,7 +24,7 @@ export const GET = asyncHandler(async function GET(request) {
 
     const where = isAdmin ? {} : { userId: auth.user.id };
 
-    const refunds = await prisma.refundRequest.findMany({
+    const refunds = await prisma.refund_requests.findMany({
         where,
         include: {
             order: {
@@ -65,7 +65,7 @@ export const POST = asyncHandler(async function POST(request) {
     }
 
     // Check order ownership
-    const order = await prisma.order.findFirst({
+    const order = await prisma.orders.findFirst({
         where: {
             id: orderId,
             userId: auth.user.id
@@ -94,7 +94,7 @@ export const POST = asyncHandler(async function POST(request) {
     }
 
     // Create refund request
-    const refund = await prisma.refundRequest.create({
+    const refund = await prisma.refund_requests.create({
         data: {
             orderId,
             userId: auth.user.id,

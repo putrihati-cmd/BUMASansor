@@ -29,7 +29,7 @@ export async function GET(request) {
         if (userId) where.userId = userId;
 
         const [logs, total] = await Promise.all([
-            prisma.activityLog.findMany({
+            prisma.activity_logs.findMany({
                 where,
                 include: {
                     user: {
@@ -40,7 +40,7 @@ export async function GET(request) {
                 skip: (page - 1) * limit,
                 take: limit,
             }),
-            prisma.activityLog.count({ where }),
+            prisma.activity_logs.count({ where }),
         ]);
 
         return NextResponse.json({
@@ -76,7 +76,7 @@ export async function POST(request) {
 
         const { action, entity, entityId, details } = await request.json();
 
-        const log = await prisma.activityLog.create({
+        const log = await prisma.activity_logs.create({
             data: {
                 userId: auth.user.id,
                 action,

@@ -11,7 +11,7 @@ import prisma from '@/lib/prisma';
 
 export async function GET() {
     try {
-        const categories = await prisma.category.findMany({
+        const categories = await prisma.categories.findMany({
             orderBy: {
                 createdAt: 'desc'
             },
@@ -62,7 +62,7 @@ export async function POST(request) {
         }
 
         // Check if slug already exists
-        const existing = await prisma.category.findUnique({
+        const existing = await prisma.categories.findUnique({
             where: { slug: slug.trim() }
         });
 
@@ -74,7 +74,7 @@ export async function POST(request) {
         }
 
         // Create category
-        const category = await prisma.category.create({
+        const category = await prisma.categories.create({
             data: {
                 name: name.trim(),
                 slug: slug.trim(),

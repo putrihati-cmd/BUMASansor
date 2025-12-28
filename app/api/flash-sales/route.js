@@ -32,7 +32,7 @@ export async function GET(request) {
                 endTime: { gte: now },
             };
 
-        const flashSales = await prisma.flashSale.findMany({
+        const flashSales = await prisma.flash_sales.findMany({
             where,
             include: {
                 products: {

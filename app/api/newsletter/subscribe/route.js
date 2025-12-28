@@ -22,7 +22,7 @@ export async function POST(request) {
         }
 
         // Check if already subscribed
-        const existingSubscriber = await prisma.newsletterSubscriber.findUnique({
+        const existingSubscriber = await prisma.newsletter_subscribers.findUnique({
             where: { email },
         });
 
@@ -33,7 +33,7 @@ export async function POST(request) {
                 }, { status: 400 });
             } else {
                 // Reactivate if previously unsubscribed
-                await prisma.newsletterSubscriber.update({
+                await prisma.newsletter_subscribers.update({
                     where: { email },
                     data: {
                         status: 'ACTIVE',
@@ -47,7 +47,7 @@ export async function POST(request) {
         }
 
         // Create new subscriber
-        await prisma.newsletterSubscriber.create({
+        await prisma.newsletter_subscribers.create({
             data: {
                 email,
                 name: name || null,
@@ -77,7 +77,7 @@ export async function DELETE(request) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 });
         }
 
-        const subscriber = await prisma.newsletterSubscriber.findUnique({
+        const subscriber = await prisma.newsletter_subscribers.findUnique({
             where: { email },
         });
 
@@ -85,7 +85,7 @@ export async function DELETE(request) {
             return NextResponse.json({ error: 'Email tidak ditemukan' }, { status: 404 });
         }
 
-        await prisma.newsletterSubscriber.update({
+        await prisma.newsletter_subscribers.update({
             where: { email },
             data: { status: 'UNSUBSCRIBED' },
         });

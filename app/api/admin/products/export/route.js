@@ -16,7 +16,7 @@ export const GET = requireAuth(async function GET(request, context) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
-        const products = await prisma.product.findMany({
+        const products = await prisma.products.findMany({
             include: { category: { select: { name: true } } }
         });
 

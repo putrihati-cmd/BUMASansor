@@ -13,7 +13,7 @@ export async function GET(request, { params }) {
 
         const { id } = await params;
 
-        const order = await prisma.order.findFirst({
+        const order = await prisma.orders.findFirst({
             where: {
                 id,
                 userId: user.id,
@@ -57,7 +57,7 @@ export async function PUT(request, { params }) {
         const body = await request.json();
         const { action } = body;
 
-        const order = await prisma.order.findFirst({
+        const order = await prisma.orders.findFirst({
             where: { id, userId: user.id },
             include: { items: true },
         });
@@ -113,7 +113,7 @@ export async function PUT(request, { params }) {
                 }, { status: 400 });
             }
 
-            await prisma.order.update({
+            await prisma.orders.update({
                 where: { id },
                 data: { status: 'COMPLETED' },
             });

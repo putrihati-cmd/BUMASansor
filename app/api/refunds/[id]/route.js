@@ -23,7 +23,7 @@ export async function PATCH(request, { params }) {
         const { action, adminNotes, rejectedReason } = body;
 
         // Get refund request
-        const refund = await prisma.refundRequest.findUnique({
+        const refund = await prisma.refund_requests.findUnique({
             where: { id },
             include: {
                 order: {
@@ -71,7 +71,7 @@ export async function PATCH(request, { params }) {
 
         } else if (action === 'REJECT') {
             // Reject refund
-            updatedRefund = await prisma.refundRequest.update({
+            updatedRefund = await prisma.refund_requests.update({
                 where: { id },
                 data: {
                     status: 'REJECTED',

@@ -6,7 +6,7 @@ export async function GET(request, { params }) {
     try {
         const { slug } = await params;
 
-        const product = await prisma.product.findUnique({
+        const product = await prisma.products.findUnique({
             where: { slug },
             include: {
                 category: {
@@ -36,14 +36,14 @@ export async function GET(request, { params }) {
         }
 
         // Get average rating
-        const avgRating = await prisma.review.aggregate({
+        const avgRating = await prisma.reviews.aggregate({
             where: { productId: product.id, status: 'APPROVED' },
             _avg: { rating: true },
             _count: { rating: true },
         });
 
         // Get related products
-        const relatedProducts = await prisma.product.findMany({
+        const relatedProducts = await prisma.products.findMany({
             where: {
                 categoryId: product.categoryId,
                 id: { not: product.id },

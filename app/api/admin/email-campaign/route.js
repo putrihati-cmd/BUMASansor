@@ -42,7 +42,7 @@ export const POST = requireAuth(async function POST(request, context) {
         switch (target) {
             case 'all':
                 // All active newsletter subscribers
-                const allSubscribers = await prisma.newsletterSubscriber.findMany({
+                const allSubscribers = await prisma.newsletter_subscribers.findMany({
                     where: { status: 'ACTIVE' },
                     select: { email: true, name: true }
                 });
@@ -107,7 +107,7 @@ export const POST = requireAuth(async function POST(request, context) {
         }
 
         // Create campaign record
-        const campaign = await prisma.emailCampaign.create({
+        const campaign = await prisma.email_campaigns.create({
             data: {
                 subject,
                 content,
@@ -206,7 +206,7 @@ async function sendEmailsInBackground(campaignId, recipients, subject, content, 
     }
 
     // Update campaign status
-    await prisma.emailCampaign.update({
+    await prisma.email_campaigns.update({
         where: { id: campaignId },
         data: {
             status: 'COMPLETED',
@@ -233,7 +233,7 @@ export const GET = requireAuth(async function GET(request, context) {
             );
         }
 
-        const campaigns = await prisma.emailCampaign.findMany({
+        const campaigns = await prisma.email_campaigns.findMany({
             orderBy: { createdAt: 'desc' },
             take: 50,
             include: {

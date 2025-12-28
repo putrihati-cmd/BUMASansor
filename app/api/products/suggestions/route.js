@@ -22,7 +22,7 @@ export async function GET(request) {
         }
 
         // Get product suggestions
-        const products = await prisma.product.findMany({
+        const products = await prisma.products.findMany({
             where: {
                 status: 'ACTIVE',
                 OR: [
@@ -45,7 +45,7 @@ export async function GET(request) {
         });
 
         // Get category suggestions
-        const categories = await prisma.category.findMany({
+        const categories = await prisma.categories.findMany({
             where: {
                 name: { contains: query, mode: 'insensitive' },
             },

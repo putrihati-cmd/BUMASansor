@@ -21,7 +21,7 @@ export async function GET(request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const cartItems = await prisma.cart.findMany({
+        const cartItems = await prisma.carts.findMany({
             where: { userId: user.userId },
             include: {
                 product: {
@@ -75,7 +75,7 @@ export async function POST(request) {
         const { productId, variantId, quantity = 1 } = body;
 
         // Validate product
-        const product = await prisma.product.findUnique({
+        const product = await prisma.products.findUnique({
             where: { id: productId },
             include: { variants: true },
         });
@@ -93,7 +93,7 @@ export async function POST(request) {
         }
 
         // Upsert cart item
-        const existingItem = await prisma.cart.findFirst({
+        const existingItem = await prisma.carts.findFirst({
             where: {
                 userId: user.userId,
                 productId,
@@ -107,12 +107,12 @@ export async function POST(request) {
             if (newQuantity > availableStock) {
                 return NextResponse.json({ error: 'Melebihi stok tersedia' }, { status: 400 });
             }
-            cartItem = await prisma.cart.update({
+            cartItem = await prisma.carts.update({
                 where: { id: existingItem.id },
                 data: { quantity: newQuantity },
             });
         } else {
-            cartItem = await prisma.cart.create({
+            cartItem = await prisma.carts.create({
                 data: {
                     userId: user.userId,
                     productId,
@@ -153,7 +153,7 @@ export async function PUT(request) {
             return NextResponse.json({ error: 'Quantity minimal 1' }, { status: 400 });
         }
 
-        const cartItem = await prisma.cart.findFirst({
+        const cartItem = await prisma.carts.findFirst({
             where: { id: cartItemId, userId: user.userId },
             include: { product: true, variant: true },
         });
@@ -167,7 +167,7 @@ export async function PUT(request) {
             return NextResponse.json({ error: 'Melebihi stok tersedia' }, { status: 400 });
         }
 
-        await prisma.cart.update({
+        await prisma.carts.update({
             where: { id: cartItemId },
             data: { quantity },
         });
@@ -198,13 +198,13 @@ export async function DELETE(request) {
 
         if (!cartItemId) {
             // Clear all cart
-            await prisma.cart.deleteMany({
+            await prisma.carts.deleteMany({
                 where: { userId: user.userId },
             });
             return NextResponse.json({ message: 'Keranjang dikosongkan' });
         }
 
-        await prisma.cart.deleteMany({
+        await prisma.carts.deleteMany({
             where: { id: cartItemId, userId: user.userId },
         });
 

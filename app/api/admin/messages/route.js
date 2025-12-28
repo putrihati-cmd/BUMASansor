@@ -32,21 +32,21 @@ export async function GET(request) {
         }
 
         const [messages, total] = await Promise.all([
-            prisma.contactMessage.findMany({
+            prisma.contact_messages.findMany({
                 where,
                 orderBy: { createdAt: 'desc' },
                 skip: (page - 1) * limit,
                 take: limit,
             }),
-            prisma.contactMessage.count({ where }),
+            prisma.contact_messages.count({ where }),
         ]);
 
         // Get status counts
         const [newCount, inProgressCount, resolvedCount, closedCount] = await Promise.all([
-            prisma.contactMessage.count({ where: { status: 'NEW' } }),
-            prisma.contactMessage.count({ where: { status: 'IN_PROGRESS' } }),
-            prisma.contactMessage.count({ where: { status: 'RESOLVED' } }),
-            prisma.contactMessage.count({ where: { status: 'CLOSED' } }),
+            prisma.contact_messages.count({ where: { status: 'NEW' } }),
+            prisma.contact_messages.count({ where: { status: 'IN_PROGRESS' } }),
+            prisma.contact_messages.count({ where: { status: 'RESOLVED' } }),
+            prisma.contact_messages.count({ where: { status: 'CLOSED' } }),
         ]);
 
         return NextResponse.json({
@@ -102,7 +102,7 @@ export const PUT = requireAdmin(async function PUT(request, context) {
             updateData.repliedBy = context.user.id;
         }
 
-        const message = await prisma.contactMessage.update({
+        const message = await prisma.contact_messages.update({
             where: { id },
             data: updateData,
         });

@@ -19,7 +19,7 @@ export const GET = requireAuth(async function GET(request, context) {
         }
 
         // Get payment with order
-        const payment = await prisma.payment.findUnique({
+        const payment = await prisma.payments.findUnique({
             where: { orderId },
             include: {
                 order: {

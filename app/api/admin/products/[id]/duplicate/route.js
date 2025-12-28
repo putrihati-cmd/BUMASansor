@@ -17,7 +17,7 @@ export async function POST(request, { params }) {
         const { id } = params;
 
         // Get original product
-        const original = await prisma.product.findUnique({
+        const original = await prisma.products.findUnique({
             where: { id },
             include: { variants: true },
         });
@@ -27,7 +27,7 @@ export async function POST(request, { params }) {
         }
 
         // Create duplicate
-        const duplicate = await prisma.product.create({
+        const duplicate = await prisma.products.create({
             data: {
                 name: `${original.name} (Copy)`,
                 slug: `${original.slug}-copy-${Date.now()}`,

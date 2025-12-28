@@ -20,7 +20,7 @@ export const POST = requireAuth(async function POST(request, context) {
         const { bankAccount } = await request.json();
 
         // Check if already registered
-        const existing = await prisma.affiliate.findUnique({
+        const existing = await prisma.affiliates.findUnique({
             where: { userId: context.user.id }
         });
 
@@ -35,7 +35,7 @@ export const POST = requireAuth(async function POST(request, context) {
         const referralCode = `REF${context.user.id.substring(0, 8).toUpperCase()}`;
 
         // Create affiliate record
-        const affiliate = await prisma.affiliate.create({
+        const affiliate = await prisma.affiliates.create({
             data: {
                 userId: context.user.id,
                 referralCode,
@@ -70,7 +70,7 @@ export const POST = requireAuth(async function POST(request, context) {
  */
 export const GET = requireAuth(async function GET(request, context) {
     try {
-        const affiliate = await prisma.affiliate.findUnique({
+        const affiliate = await prisma.affiliates.findUnique({
             where: { userId: context.user.id },
             include: {
                 _count: {

@@ -42,7 +42,7 @@ export async function GET(request) {
         }
 
         // Fetch products
-        const products = await prisma.product.findMany({
+        const products = await prisma.products.findMany({
             where: {
                 id: { in: ids }
             },

@@ -44,7 +44,7 @@ export async function GET(request) {
 
         // Get products with pagination
         const [products, total] = await Promise.all([
-            prisma.product.findMany({
+            prisma.products.findMany({
                 where,
                 orderBy: { createdAt: 'desc' },
                 skip: (page - 1) * limit,
@@ -59,7 +59,7 @@ export async function GET(request) {
                     },
                 },
             }),
-            prisma.product.count({ where }),
+            prisma.products.count({ where }),
         ]);
 
         // Format products
@@ -137,7 +137,7 @@ export async function POST(request) {
         let slug = slugify(name);
 
         // Check for duplicate slug
-        const existingProduct = await prisma.product.findUnique({
+        const existingProduct = await prisma.products.findUnique({
             where: { slug },
         });
 
@@ -146,7 +146,7 @@ export async function POST(request) {
         }
 
         // Create product with variants
-        const product = await prisma.product.create({
+        const product = await prisma.products.create({
             data: {
                 name,
                 slug,

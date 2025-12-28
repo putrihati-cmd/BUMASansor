@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 // GET /api/vouchers - Get all vouchers
 export async function GET(request) {
     try {
-        const vouchers = await prisma.voucher.findMany({
+        const vouchers = await prisma.vouchers.findMany({
             orderBy: { createdAt: 'desc' },
         });
 
@@ -40,7 +40,7 @@ export async function POST(request) {
     try {
         const body = await request.json();
 
-        const voucher = await prisma.voucher.create({
+        const voucher = await prisma.vouchers.create({
             data: {
                 code: body.code.toUpperCase(),
                 type: body.type || 'PERCENTAGE',

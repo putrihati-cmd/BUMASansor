@@ -41,7 +41,7 @@ export const GET = requireAuth(async function GET(request, context) {
         }
 
         // Get revenue data grouped by date
-        const revenueData = await prisma.order.groupBy({
+        const revenueData = await prisma.orders.groupBy({
             by: ['createdAt'],
             where: {
                 createdAt: {
@@ -90,7 +90,7 @@ export const GET = requireAuth(async function GET(request, context) {
         const previousStartDate = new Date(startDate);
         previousStartDate.setDate(previousStartDate.getDate() - (now.getDate() - startDate.getDate()));
 
-        const previousRevenue = await prisma.order.aggregate({
+        const previousRevenue = await prisma.orders.aggregate({
             where: {
                 createdAt: {
                     gte: previousStartDate,

@@ -33,7 +33,7 @@ export async function GET(request) {
             productsSoldLastMonth,
         ] = await Promise.all([
             // Revenue this month
-            prisma.payment.aggregate({
+            prisma.payments.aggregate({
                 where: {
                     status: 'SUCCESS',
                     paidAt: { gte: startOfMonth },
@@ -41,7 +41,7 @@ export async function GET(request) {
                 _sum: { amount: true },
             }),
             // Revenue last month
-            prisma.payment.aggregate({
+            prisma.payments.aggregate({
                 where: {
                     status: 'SUCCESS',
                     paidAt: { gte: startOfLastMonth, lte: endOfLastMonth },
@@ -49,11 +49,11 @@ export async function GET(request) {
                 _sum: { amount: true },
             }),
             // Orders this month
-            prisma.order.count({
+            prisma.orders.count({
                 where: { createdAt: { gte: startOfMonth } },
             }),
             // Orders last month
-            prisma.order.count({
+            prisma.orders.count({
                 where: { createdAt: { gte: startOfLastMonth, lte: endOfLastMonth } },
             }),
             // New customers this month
@@ -71,7 +71,7 @@ export async function GET(request) {
                 },
             }),
             // Products sold this month
-            prisma.orderItem.aggregate({
+            prisma.order_items.aggregate({
                 where: {
                     order: {
                         status: { in: ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'] },
@@ -81,7 +81,7 @@ export async function GET(request) {
                 _sum: { quantity: true },
             }),
             // Products sold last month
-            prisma.orderItem.aggregate({
+            prisma.order_items.aggregate({
                 where: {
                     order: {
                         status: { in: ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'] },
@@ -131,7 +131,7 @@ export async function GET(request) {
         ];
 
         // Get order status counts
-        const orderStatusCounts = await prisma.order.groupBy({
+        const orderStatusCounts = await prisma.orders.groupBy({
             by: ['status'],
             _count: { status: true },
         });
@@ -152,7 +152,7 @@ export async function GET(request) {
         });
 
         // Get recent orders
-        const recentOrders = await prisma.order.findMany({
+        const recentOrders = await prisma.orders.findMany({
             orderBy: { createdAt: 'desc' },
             take: 5,
             include: {
@@ -171,7 +171,7 @@ export async function GET(request) {
         }));
 
         // Get pending refunds count
-        const pendingRefunds = await prisma.refundRequest.count({
+        const pendingRefunds = await prisma.refund_requests.count({
             where: { status: 'PENDING' },
         });
 
@@ -182,7 +182,7 @@ export async function GET(request) {
             if (setting) lowStockThreshold = parseInt(setting.value);
         } catch (e) { /* ignore */ }
 
-        const lowStockCount = await prisma.product.count({
+        const lowStockCount = await prisma.products.count({
             where: {
                 stock: { lte: lowStockThreshold },
                 status: 'ACTIVE'

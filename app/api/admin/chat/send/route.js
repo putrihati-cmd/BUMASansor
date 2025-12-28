@@ -35,7 +35,7 @@ export const POST = requireAuth(async function POST(request, context) {
         }
 
         // Create chat message
-        const chatMessage = await prisma.chatMessage.create({
+        const chatMessage = await prisma.chat_messages.create({
             data: {
                 userId,
                 message,
@@ -92,7 +92,7 @@ export const GET = requireAuth(async function GET(request, context) {
         }
 
         // Get unique users who have sent messages
-        const conversations = await prisma.chatMessage.groupBy({
+        const conversations = await prisma.chat_messages.groupBy({
             by: ['userId'],
             _count: {
                 id: true
@@ -122,13 +122,13 @@ export const GET = requireAuth(async function GET(request, context) {
                 });
 
                 // Get last message
-                const lastMessage = await prisma.chatMessage.findFirst({
+                const lastMessage = await prisma.chat_messages.findFirst({
                     where: { userId: conv.userId },
                     orderBy: { createdAt: 'desc' }
                 });
 
                 // Count unread messages from customer
-                const unreadCount = await prisma.chatMessage.count({
+                const unreadCount = await prisma.chat_messages.count({
                     where: {
                         userId: conv.userId,
                         isAdmin: false,

@@ -38,7 +38,7 @@ export async function POST(request) {
         }
 
         // Get order with all related data
-        const order = await prisma.order.findUnique({
+        const order = await prisma.orders.findUnique({
             where: { id: orderId },
             include: {
                 user: {
@@ -104,7 +104,7 @@ export async function POST(request) {
             let productName = '';
 
             if (item.variantId) {
-                const variant = await prisma.productVariant.findUnique({
+                const variant = await prisma.product_variants.findUnique({
                     where: { id: item.variantId },
                     include: { product: true }
                 });
@@ -119,7 +119,7 @@ export async function POST(request) {
                 currentStock = variant.stock;
                 productName = `${variant.product.name} - ${variant.name}`;
             } else {
-                const product = await prisma.product.findUnique({
+                const product = await prisma.products.findUnique({
                     where: { id: item.productId }
                 });
 
@@ -150,7 +150,7 @@ export async function POST(request) {
         // If payment already PENDING, return existing transaction
         // Prevents: Multiple Midtrans transactions for same order
         // ============================================================
-        const existingPayment = await prisma.payment.findUnique({
+        const existingPayment = await prisma.payments.findUnique({
             where: { orderId: order.id },
         });
 
@@ -184,7 +184,7 @@ export async function POST(request) {
         const transaction = await createMidtransTransaction(transformedOrder);
 
         // Save or update payment record
-        const payment = await prisma.payment.upsert({
+        const payment = await prisma.payments.upsert({
             where: { orderId: order.id },
             update: {
                 gatewayTransactionId: transaction.token,

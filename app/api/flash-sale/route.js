@@ -10,7 +10,7 @@ export async function GET() {
         const now = new Date();
 
         // Get current active flash sale
-        const flashSale = await prisma.flashSale.findFirst({
+        const flashSale = await prisma.flash_sales.findFirst({
             where: {
                 startTime: { lte: now },
                 endTime: { gte: now },
@@ -36,7 +36,7 @@ export async function GET() {
 
         if (!flashSale) {
             // Get upcoming flash sale
-            const upcomingFlashSale = await prisma.flashSale.findFirst({
+            const upcomingFlashSale = await prisma.flash_sales.findFirst({
                 where: {
                     startTime: { gt: now },
                     status: 'UPCOMING',

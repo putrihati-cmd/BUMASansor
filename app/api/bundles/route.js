@@ -36,7 +36,7 @@ export async function GET(request) {
             };
         }
 
-        const bundles = await prisma.bundle.findMany({
+        const bundles = await prisma.bundles.findMany({
             where,
             include: {
                 products: {

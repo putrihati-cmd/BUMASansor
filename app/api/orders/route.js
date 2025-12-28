@@ -42,7 +42,7 @@ export async function GET(request) {
         if (status) where.status = status;
 
         const [orders, total] = await Promise.all([
-            prisma.order.findMany({
+            prisma.orders.findMany({
                 where,
                 orderBy: { createdAt: 'desc' },
                 skip: (page - 1) * limit,
@@ -59,7 +59,7 @@ export async function GET(request) {
                     shipment: true,
                 },
             }),
-            prisma.order.count({ where }),
+            prisma.orders.count({ where }),
         ]);
 
         return NextResponse.json({
@@ -146,7 +146,7 @@ export async function POST(request) {
                 where.userId = user.userId;
             }
 
-            const existingOrder = await prisma.order.findFirst({
+            const existingOrder = await prisma.orders.findFirst({
                 where,
                 include: {
                     items: true,
@@ -176,7 +176,7 @@ export async function POST(request) {
             // Authenticated user - support both saved addressId and manual shippingAddress
             if (addressId) {
                 // Using saved address from database
-                address = await prisma.address.findFirst({
+                address = await prisma.addresses.findFirst({
                     where: { id: addressId, userId: user.userId },
                 });
                 if (!address) {
@@ -231,7 +231,7 @@ export async function POST(request) {
         const now = new Date();
 
         for (const item of items) {
-            const product = await prisma.product.findUnique({
+            const product = await prisma.products.findUnique({
                 where: { id: item.productId },
                 include: {
                     variants: true,
@@ -296,7 +296,7 @@ export async function POST(request) {
         // Apply voucher discount
         let discount = 0;
         if (voucherCode) {
-            const voucher = await prisma.voucher.findUnique({
+            const voucher = await prisma.vouchers.findUnique({
                 where: { code: voucherCode },
             });
             if (voucher && voucher.status === 'ACTIVE' &&

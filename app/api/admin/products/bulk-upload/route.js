@@ -37,7 +37,7 @@ export const POST = requireAuth(async function POST(request, context) {
         for (let i = 0; i < data.length; i++) {
             const row = data[i];
             try {
-                await prisma.product.create({
+                await prisma.products.create({
                     data: {
                         name: row.name,
                         slug: row.slug || row.name.toLowerCase().replace(/\s+/g, '-'),

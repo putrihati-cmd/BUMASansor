@@ -27,19 +27,19 @@ export async function GET(request) {
         }
 
         const [subscribers, total] = await Promise.all([
-            prisma.newsletterSubscriber.findMany({
+            prisma.newsletter_subscribers.findMany({
                 where,
                 orderBy: { subscribedAt: 'desc' },
                 skip: (page - 1) * limit,
                 take: limit,
             }),
-            prisma.newsletterSubscriber.count({ where }),
+            prisma.newsletter_subscribers.count({ where }),
         ]);
 
         // Get status counts
         const [activeCount, unsubscribedCount] = await Promise.all([
-            prisma.newsletterSubscriber.count({ where: { status: 'ACTIVE' } }),
-            prisma.newsletterSubscriber.count({ where: { status: 'UNSUBSCRIBED' } }),
+            prisma.newsletter_subscribers.count({ where: { status: 'ACTIVE' } }),
+            prisma.newsletter_subscribers.count({ where: { status: 'UNSUBSCRIBED' } }),
         ]);
 
         return NextResponse.json({
@@ -82,7 +82,7 @@ export const DELETE = requireAdmin(async function DELETE(request, context) {
             );
         }
 
-        await prisma.newsletterSubscriber.delete({
+        await prisma.newsletter_subscribers.delete({
             where: { id },
         });
 
@@ -104,7 +104,7 @@ export const DELETE = requireAdmin(async function DELETE(request, context) {
  * Export active subscribers as CSV
  */
 export async function exportSubscribers() {
-    const subscribers = await prisma.newsletterSubscriber.findMany({
+    const subscribers = await prisma.newsletter_subscribers.findMany({
         where: { status: 'ACTIVE' },
         select: { email: true, subscribedAt: true },
     });

@@ -24,7 +24,7 @@ export async function POST(request) {
         }
 
         // Save to database
-        const contact = await prisma.contactMessage.create({
+        const contact = await prisma.contact_messages.create({
             data: {
                 name,
                 email,

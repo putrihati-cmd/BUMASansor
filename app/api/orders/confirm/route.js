@@ -32,7 +32,7 @@ export async function POST(request) {
         }
 
         // Get order
-        const order = await prisma.order.findUnique({
+        const order = await prisma.orders.findUnique({
             where: { id: orderId },
             include: { user: true }
         });
@@ -64,7 +64,7 @@ export async function POST(request) {
         }
 
         // Update status to COMPLETED
-        const updatedOrder = await prisma.order.update({
+        const updatedOrder = await prisma.orders.update({
             where: { id: orderId },
             data: {
                 status: 'COMPLETED',

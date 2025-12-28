@@ -10,7 +10,7 @@ export async function GET(request, { params }) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const product = await prisma.product.findUnique({
+        const product = await prisma.products.findUnique({
             where: { id: params.id },
             include: {
                 category: { select: { id: true, name: true } },
@@ -78,7 +78,7 @@ export async function PATCH(request, { params }) {
         } = body;
 
         // Update product
-        const product = await prisma.product.update({
+        const product = await prisma.products.update({
             where: { id: params.id },
             data: {
                 name,
@@ -98,13 +98,13 @@ export async function PATCH(request, { params }) {
         // Handle variants update
         if (variants) {
             // Delete existing variants
-            await prisma.productVariant.deleteMany({
+            await prisma.product_variants.deleteMany({
                 where: { productId: params.id },
             });
 
             // Create new variants
             if (variants.length > 0) {
-                await prisma.productVariant.createMany({
+                await prisma.product_variants.createMany({
                     data: variants.map(v => ({
                         productId: params.id,
                         name: v.name,
@@ -138,7 +138,7 @@ export async function DELETE(request, { params }) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        await prisma.product.delete({
+        await prisma.products.delete({
             where: { id: params.id },
         });
 

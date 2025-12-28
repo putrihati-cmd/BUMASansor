@@ -15,7 +15,7 @@ export async function PUT(request, { params }) {
         const { rating, title, comment } = body;
 
         // Check if review exists and belongs to user
-        const review = await prisma.review.findFirst({
+        const review = await prisma.reviews.findFirst({
             where: {
                 id: reviewId,
                 userId: auth.user.id,
@@ -36,7 +36,7 @@ export async function PUT(request, { params }) {
         }
 
         // Update review
-        const updatedReview = await prisma.review.update({
+        const updatedReview = await prisma.reviews.update({
             where: { id: reviewId },
             data: {
                 ...(rating && { rating }),
@@ -74,7 +74,7 @@ export async function DELETE(request, { params }) {
         const reviewId = params.id;
 
         // Check if review exists and belongs to user
-        const review = await prisma.review.findFirst({
+        const review = await prisma.reviews.findFirst({
             where: {
                 id: reviewId,
                 userId: auth.user.id,
@@ -88,7 +88,7 @@ export async function DELETE(request, { params }) {
         }
 
         // Delete review
-        await prisma.review.delete({
+        await prisma.reviews.delete({
             where: { id: reviewId },
         });
 
