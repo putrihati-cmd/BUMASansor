@@ -9,7 +9,7 @@ export async function GET() {
                 id: '1',
                 title: 'Flash Sale Ramadhan 2026',
                 subtitle: 'Diskon hingga 50%',
-                image_url: 'https://placehold.co/1200x400/1a5f7a/white?text=Flash+Sale+Ramadhan+2026',
+                image_url: 'https://res.cloudinary.com/dac5ij6la/image/upload/v1766947487/banners/banner-ramadhan-2026.jpg',
                 link: '/flash-sale',
                 is_active: true,
                 order: 1
@@ -18,7 +18,7 @@ export async function GET() {
                 id: '2',
                 title: 'Kurma Premium',
                 subtitle: 'Kualitas terbaik untuk Anda',
-                image_url: 'https://placehold.co/1200x400/d4af37/white?text=Kurma+Premium',
+                image_url: 'https://res.cloudinary.com/dac5ij6la/image/upload/v1766947488/banners/banner-kurma-premium.jpg',
                 link: '/products?category=kurma',
                 is_active: true,
                 order: 2

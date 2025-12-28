@@ -1,0 +1,90 @@
+{
+    "name": "WA - Order Created (n8n Cloud)",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "order-created",
+                "responseMode": "onReceived",
+                "options": {}
+            },
+            "id": "webhook-order-created",
+            "name": "Webhook - Order Created",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                250,
+                300
+            ],
+            "webhookId": "order-created"
+        },
+        {
+            "parameters": {
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "method": "POST",
+                "url": "https://waha.YOUR_DOMAIN.com/api/sendText",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": []
+                },
+                "sendBody": true","bodyParameters": {
+                    "parameters": []
+                },
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"session\": \"default\",\n  \"chatId\": \"{{ $json.phone }}@c.us\",\n  \"text\": \"🎉 *PESANAN BARU*\\n\\nHalo {{ $json.customerName }}!\\n\\nPesanan Anda telah dibuat:\\n📋 No. Order: *{{ $json.orderNumber }}*\\n💰 Total: {{ $json.total }}\\n📦 Jumlah Item: {{ $json.itemsCount }}\\n\\nSilakan lakukan pembayaran.\\nTerima kasih! 🙏\"\n}",
+                "options": {}
+            },
+            "id": "http-send-wa",
+            "name": "Send WhatsApp - Order Created",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                500,
+                300
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "CREDENTIAL_ID_PLACEHOLDER",
+                    "name": "WAHA API Key"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Webhook - Order Created": {
+            "main": [
+                [
+                    {
+                        "node": "Send WhatsApp - Order Created",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": false,
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "versionId": "1",
+    "meta": {
+        "instanceId": "n8n-cloud-infiatin-store"
+    },
+    "tags": [],
+    "notes": [
+        {
+            "id": "note-1",
+            "content": "## Setup Instructions\n\n1. Update WAHA URL in HTTP Request node\n2. Create credential: WAHA API Key (Header Auth)\n   - Header Name: X-Api-Key\n   - Header Value: infiatin-store-2025DEC-9K7XQ2M8L4A6\n3. Test with sample payload:\n   {\n     \"orderNumber\": \"INV-TEST-001\",\n     \"customerName\": \"Test User\",\n     \"phone\": \"6281234567890\",\n     \"total\": \"Rp 500,000\",\n     \"itemsCount\": 3\n   }\n4. Activate workflow\n5. Copy webhook URL to .env",
+            "position": [
+                250,
+                100
+            ],
+            "dimensions": {
+                "width": 400,
+                "height": 300
+            }
+        }
+    ]
+}
