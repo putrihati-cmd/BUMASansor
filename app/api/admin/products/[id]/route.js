@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
                 name: product.name,
                 slug: product.slug,
                 description: product.description,
-                category_id: product.categoriesId,
+                category_id: product.category_id,
                 category: product.categories,
                 base_price: Number(product.base_price),
                 sale_price: product.sale_price ? Number(product.sale_price) : null,
@@ -83,15 +83,15 @@ export async function PATCH(request, { params }) {
             data: {
                 name,
                 description,
-                categoryId,
-                basePrice,
+                category_id: categoryId,
+                base_price: basePrice,
                 sale_price: salePrice || null,
                 stock,
                 weight,
                 dimensions,
                 images,
                 status,
-                isFeatured,
+                is_featured: isFeatured,
             },
         });
 

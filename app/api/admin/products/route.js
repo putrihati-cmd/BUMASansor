@@ -68,7 +68,7 @@ export async function GET(request) {
             name: product.name,
             slug: product.slug,
             category: product.categories?.name || '-',
-            category_id: product.categoriesId,
+            category_id: product.category_id,
             base_price: Number(product.base_price),
             sale_price: product.sale_price ? Number(product.sale_price) : null,
             stock: product.stock,
