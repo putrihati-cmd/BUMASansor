@@ -1,0 +1,19 @@
+import { ReceivableStatus } from '@prisma/client';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+
+export class QueryReceivableDto extends PaginationDto {
+  @IsOptional()
+  @IsUUID()
+  warungId?: string;
+
+  @IsOptional()
+  @IsEnum(ReceivableStatus)
+  status?: ReceivableStatus;
+
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  overdueOnly?: boolean;
+}

@@ -1,0 +1,310 @@
+openapi: 3.0.3
+info:
+  title: BUMAS Ansor API
+  version: 1.0.0
+  description: REST API contract baseline untuk platform distribusi BUMAS Ansor.
+servers:
+  - url: http://localhost:3000/api
+tags:
+  - name: Auth
+  - name: Users
+  - name: Categories
+  - name: Suppliers
+  - name: Warehouses
+  - name: Products
+  - name: Warungs
+  - name: Stocks
+  - name: Distribution
+  - name: Sales
+  - name: Finance
+  - name: Reports
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register user
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login user
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user profile
+
+  /users:
+    get:
+      tags: [Users]
+      summary: List users
+
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List categories
+    post:
+      tags: [Categories]
+      summary: Create category
+  /categories/{id}:
+    get:
+      tags: [Categories]
+      summary: Get category by id
+    patch:
+      tags: [Categories]
+      summary: Update category
+    delete:
+      tags: [Categories]
+      summary: Soft delete category
+
+  /suppliers:
+    get:
+      tags: [Suppliers]
+      summary: List suppliers
+    post:
+      tags: [Suppliers]
+      summary: Create supplier
+  /suppliers/{id}:
+    get:
+      tags: [Suppliers]
+      summary: Get supplier by id
+    patch:
+      tags: [Suppliers]
+      summary: Update supplier
+    delete:
+      tags: [Suppliers]
+      summary: Soft delete supplier
+
+  /warehouses:
+    get:
+      tags: [Warehouses]
+      summary: List warehouses
+    post:
+      tags: [Warehouses]
+      summary: Create warehouse
+  /warehouses/{id}:
+    get:
+      tags: [Warehouses]
+      summary: Get warehouse by id
+    patch:
+      tags: [Warehouses]
+      summary: Update warehouse
+    delete:
+      tags: [Warehouses]
+      summary: Soft delete warehouse
+
+  /products:
+    get:
+      tags: [Products]
+      summary: List products
+    post:
+      tags: [Products]
+      summary: Create product
+  /products/export:
+    get:
+      tags: [Products]
+      summary: Export products
+  /products/barcode/{barcode}:
+    get:
+      tags: [Products]
+      summary: Find product by barcode
+  /products/{id}:
+    get:
+      tags: [Products]
+      summary: Get product by id
+    put:
+      tags: [Products]
+      summary: Update product
+    delete:
+      tags: [Products]
+      summary: Soft delete product
+  /products/bulk-import:
+    post:
+      tags: [Products]
+      summary: Bulk import products
+
+  /warungs:
+    get:
+      tags: [Warungs]
+      summary: List warungs
+    post:
+      tags: [Warungs]
+      summary: Create warung
+  /warungs/{id}:
+    get:
+      tags: [Warungs]
+      summary: Get warung by id
+    put:
+      tags: [Warungs]
+      summary: Update warung
+    delete:
+      tags: [Warungs]
+      summary: Soft delete warung
+  /warungs/{id}/block:
+    put:
+      tags: [Warungs]
+      summary: Block warung
+  /warungs/{id}/unblock:
+    put:
+      tags: [Warungs]
+      summary: Unblock warung
+  /warungs/{id}/credit-status:
+    get:
+      tags: [Warungs]
+      summary: Get warung credit status
+
+  /stocks:
+    get:
+      tags: [Stocks]
+      summary: List stocks
+  /stocks/{warehouseId}/{productId}:
+    get:
+      tags: [Stocks]
+      summary: Get stock detail
+  /stocks/movement:
+    post:
+      tags: [Stocks]
+      summary: Record stock movement
+  /stocks/opname:
+    post:
+      tags: [Stocks]
+      summary: Perform stock opname
+  /stocks/movements/history:
+    get:
+      tags: [Stocks]
+      summary: Get stock movement history
+  /stocks/alerts/low-stock:
+    get:
+      tags: [Stocks]
+      summary: Get low stock alerts
+  /stocks/valuation/total:
+    get:
+      tags: [Stocks]
+      summary: Get stock valuation
+
+  /purchase-orders:
+    post:
+      tags: [Distribution]
+      summary: Create PO
+    get:
+      tags: [Distribution]
+      summary: List POs
+  /purchase-orders/{id}:
+    get:
+      tags: [Distribution]
+      summary: Get PO detail
+    delete:
+      tags: [Distribution]
+      summary: Cancel PO
+  /purchase-orders/{id}/approve:
+    put:
+      tags: [Distribution]
+      summary: Approve PO
+  /purchase-orders/{id}/receive:
+    post:
+      tags: [Distribution]
+      summary: Receive PO and update stock
+
+  /delivery-orders:
+    post:
+      tags: [Distribution]
+      summary: Create DO
+    get:
+      tags: [Distribution]
+      summary: List DOs
+  /delivery-orders/{id}:
+    get:
+      tags: [Distribution]
+      summary: Get DO detail
+    delete:
+      tags: [Distribution]
+      summary: Cancel DO
+  /delivery-orders/{id}/assign-kurir:
+    put:
+      tags: [Distribution]
+      summary: Assign kurir
+  /delivery-orders/{id}/start-delivery:
+    put:
+      tags: [Distribution]
+      summary: Start delivery
+  /delivery-orders/{id}/mark-delivered:
+    put:
+      tags: [Distribution]
+      summary: Mark delivered
+  /delivery-orders/{id}/confirm:
+    post:
+      tags: [Distribution]
+      summary: Confirm DO and create receivable
+
+  /sales:
+    post:
+      tags: [Sales]
+      summary: Create sale
+    get:
+      tags: [Sales]
+      summary: List sales
+  /sales/daily-summary:
+    get:
+      tags: [Sales]
+      summary: Get daily sales summary
+  /sales/{id}:
+    get:
+      tags: [Sales]
+      summary: Get sale detail
+
+  /finance/receivables:
+    get:
+      tags: [Finance]
+      summary: List receivables
+  /finance/payments:
+    post:
+      tags: [Finance]
+      summary: Record payment
+  /finance/receivables/aging:
+    get:
+      tags: [Finance]
+      summary: Receivable aging report
+  /finance/receivables/warung/{id}/status:
+    get:
+      tags: [Finance]
+      summary: Warung credit status
+  /finance/receivables/refresh-overdue:
+    post:
+      tags: [Finance]
+      summary: Refresh overdue and auto block status
+
+  /reports/dashboard:
+    get:
+      tags: [Reports]
+      summary: Dashboard summary
+  /reports/daily:
+    get:
+      tags: [Reports]
+      summary: Daily report
+  /reports/monthly:
+    get:
+      tags: [Reports]
+      summary: Monthly report
+  /reports/top-products:
+    get:
+      tags: [Reports]
+      summary: Top selling products
+  /reports/warungs:
+    get:
+      tags: [Reports]
+      summary: Warung performance report
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

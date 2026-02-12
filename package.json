@@ -1,16 +1,17 @@
 {
-  "name": "bumas-ansor",
-  "version": "0.1.0",
+  "name": "bumas-ansor-platform",
+  "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "backend"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "15.5.9",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "install:backend": "npm --workspace backend install",
+    "dev:backend": "npm --workspace backend run start:dev",
+    "build:backend": "npm --workspace backend run build",
+    "test:backend": "npm --workspace backend run test",
+    "prisma:generate": "npm --workspace backend run prisma:generate",
+    "prisma:migrate": "npm --workspace backend run prisma:migrate",
+    "prisma:seed": "npm --workspace backend run prisma:seed"
   }
 }
