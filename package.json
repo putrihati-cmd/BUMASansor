@@ -1,62 +1,16 @@
 {
-  "name": "infiya-store",
+  "name": "bumas-ansor",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:studio": "prisma studio",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "@huggingface/inference": "^4.13.5",
-    "@prisma/client": "^6.1.0",
-    "@sentry/nextjs": "^10.32.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.1",
-    "bcryptjs": "^3.0.3",
-    "cloudinary": "^2.8.0",
-    "clsx": "^2.1.1",
-    "dotenv": "^17.2.3",
-    "exceljs": "^4.4.0",
-    "groq-sdk": "^0.37.0",
-    "ioredis": "^5.8.2",
-    "jest": "^30.2.0",
-    "jose": "^6.1.3",
-    "jspdf": "^3.0.4",
-    "jspdf-autotable": "^5.0.2",
-    "lucide-react": "^0.562.0",
-    "midtrans-client": "^1.4.3",
     "next": "15.5.9",
-    "node-fetch": "^2.7.0",
-    "nodemailer": "^7.0.12",
-    "rate-limiter-flexible": "^9.0.1",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "recharts": "^3.6.0",
-    "resend": "^6.6.0",
-    "supertest": "^7.1.4",
-    "winston": "^3.19.0",
-    "zod": "^4.2.1",
-    "zustand": "^5.0.2"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.20",
-    "eslint": "^9.17.0",
-    "eslint-config-next": "15.1.0",
-    "postcss": "^8.4.49",
-    "prisma": "^6.1.0",
-    "sharp": "^0.34.5",
-    "tailwindcss": "^3.4.17"
-  },
-  "prisma": {
-    "seed": "node prisma/seed.mjs"
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   }
 }
