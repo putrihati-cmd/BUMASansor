@@ -40,6 +40,8 @@ enum DOStatus {
 enum SalePaymentMethod {
   CASH
   TRANSFER
+  QRIS
+  EDC
   CREDIT
 }
 

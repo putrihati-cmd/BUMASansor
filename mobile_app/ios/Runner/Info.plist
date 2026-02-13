@@ -66,5 +66,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+\t<key>NSCameraUsageDescription</key>
+\t<string>Digunakan untuk scan barcode.</string>
 </dict>
 </plist>

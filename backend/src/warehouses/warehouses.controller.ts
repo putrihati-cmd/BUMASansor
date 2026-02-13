@@ -13,13 +13,13 @@ export class WarehousesController {
   constructor(private readonly warehousesService: WarehousesService) {}
 
   @Get()
-  @Roles(Role.ADMIN, Role.GUDANG, Role.KURIR)
+  @Roles(Role.ADMIN, Role.GUDANG, Role.KURIR, Role.WARUNG)
   list() {
     return this.warehousesService.list();
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.GUDANG, Role.KURIR)
+  @Roles(Role.ADMIN, Role.GUDANG, Role.KURIR, Role.WARUNG)
   findOne(@Param('id') id: string) {
     return this.warehousesService.findOne(id);
   }

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasources/local/secure_storage_service.dart';
 import '../../data/datasources/remote/auth_remote_datasource.dart';
+import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 
 enum UserRole { admin, gudang, kurir, warung, unknown }
@@ -11,24 +12,28 @@ class AuthState {
     required this.loading,
     required this.isLoggedIn,
     required this.role,
+    this.user,
     this.errorMessage,
   });
 
   final bool loading;
   final bool isLoggedIn;
   final UserRole role;
+  final UserModel? user;
   final String? errorMessage;
 
   AuthState copyWith({
     bool? loading,
     bool? isLoggedIn,
     UserRole? role,
+    UserModel? user,
     String? errorMessage,
   }) {
     return AuthState(
       loading: loading ?? this.loading,
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
       role: role ?? this.role,
+      user: user ?? this.user,
       errorMessage: errorMessage,
     );
   }
@@ -42,15 +47,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final SecureStorageService _secureStorageService;
 
   Future<void> bootstrap() async {
-    final token = await _secureStorageService.getAccessToken();
-    final role = await _secureStorageService.getRole();
-
-    if (token == null || token.isEmpty) {
+    final isLoggedIn = await _authRepository.isLoggedIn();
+    if (!isLoggedIn) {
       state = const AuthState(loading: false, isLoggedIn: false, role: UserRole.unknown);
       return;
     }
 
-    state = AuthState(loading: false, isLoggedIn: true, role: _parseRole(role));
+    final role = await _secureStorageService.getRole();
+    final user = _authRepository.getStoredUser();
+
+    state = AuthState(
+      loading: false,
+      isLoggedIn: true,
+      role: _parseRole(role ?? user?.role),
+      user: user,
+    );
   }
 
   Future<void> login({required String email, required String password}) async {
@@ -60,13 +71,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState(
         loading: false,
         isLoggedIn: true,
-        role: _parseRole(response.user.role.toLowerCase()),
+        role: _parseRole(response.user.role),
+        user: response.user,
       );
     } catch (error) {
       state = AuthState(
         loading: false,
         isLoggedIn: false,
         role: UserRole.unknown,
+        user: null,
         errorMessage: error.toString(),
       );
     }
@@ -75,7 +88,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> mockLogin(UserRole role) async {
     await _secureStorageService.saveAuth(accessToken: 'mock-access-token', refreshToken: 'mock-refresh-token');
     await _secureStorageService.saveRole(role.name);
-    state = AuthState(loading: false, isLoggedIn: true, role: role);
+    state = AuthState(
+      loading: false,
+      isLoggedIn: true,
+      role: role,
+      user: null,
+    );
   }
 
   Future<void> logout() async {
@@ -84,7 +102,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   UserRole _parseRole(String? role) {
-    switch (role) {
+    switch (role?.toLowerCase()) {
       case 'admin':
         return UserRole.admin;
       case 'gudang':
@@ -113,4 +131,8 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final repository = ref.read(authRepositoryProvider);
   final storage = ref.read(secureStorageProvider);
   return AuthNotifier(repository, storage);
+});
+
+final currentUserProvider = Provider<UserModel?>((ref) {
+  return ref.watch(authProvider).user;
 });

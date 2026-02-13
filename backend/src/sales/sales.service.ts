@@ -166,7 +166,7 @@ export class SalesService {
         where,
         include: {
           warung: true,
-          items: true,
+          items: { include: { product: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,

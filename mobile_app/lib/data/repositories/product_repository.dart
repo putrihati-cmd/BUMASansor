@@ -9,4 +9,7 @@ class ProductRepository {
   Future<List<ProductModel>> fetchProducts({String? search}) {
     return _remoteDataSource.fetchProducts(search: search);
   }
+  Future<ProductModel> fetchByBarcode(String barcode) {
+    return _remoteDataSource.fetchByBarcode(barcode);
+  }
 }

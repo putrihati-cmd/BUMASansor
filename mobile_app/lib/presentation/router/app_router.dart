@@ -6,7 +6,7 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/splash_screen.dart';
 import '../screens/gudang/gudang_home_screen.dart';
 import '../screens/kurir/kurir_home_screen.dart';
-import '../screens/warung/warung_home_screen.dart';
+import '../screens/warung/pos_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -15,7 +15,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/admin', builder: (context, state) => const AdminDashboardScreen()),
-      GoRoute(path: '/warung', builder: (context, state) => const WarungHomeScreen()),
+      GoRoute(path: '/warung', builder: (context, state) => const POSScreen()),
       GoRoute(path: '/kurir', builder: (context, state) => const KurirHomeScreen()),
       GoRoute(path: '/gudang', builder: (context, state) => const GudangHomeScreen()),
     ],
