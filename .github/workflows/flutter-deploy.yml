@@ -52,7 +52,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: flutter build apk --flavor staging --release --dart-define=API_BASE_URL=https://staging-api.bumasansor.com/api
+        run: flutter build apk --flavor staging --release --dart-define=API_BASE_URL=https://bumas.infiatin.cloud/api
 
       - name: Build prod AAB (release)
         if: ${{ secrets.KEYSTORE_BASE64 != '' }}
@@ -61,7 +61,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: flutter build appbundle --flavor prod --release --dart-define=API_BASE_URL=https://api.bumasansor.com/api
+        run: flutter build appbundle --flavor prod --release --dart-define=API_BASE_URL=https://bumas.infiatin.cloud/api
 
       - name: Upload dev APK
         uses: actions/upload-artifact@v4
@@ -82,4 +82,3 @@ jobs:
           name: app-prod-release.aab
           path: mobile_app/build/app/outputs/bundle/prodRelease/app-prod-release.aab
           if-no-files-found: ignore
-
