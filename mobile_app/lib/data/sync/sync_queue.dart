@@ -17,6 +17,10 @@ class SyncQueue {
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
   }
 
+  Future<void> update(SyncTaskModel task) async {
+    await _box.put(task.id, task.toJson());
+  }
+
   Future<void> remove(String id) async {
     await _box.delete(id);
   }

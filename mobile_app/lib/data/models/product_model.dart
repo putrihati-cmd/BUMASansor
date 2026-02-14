@@ -13,6 +13,13 @@ class CategoryModel {
       name: json['name'] as String,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+    };
+  }
 }
 
 class ProductModel {
@@ -69,5 +76,23 @@ class ProductModel {
       category: category,
       currentStock: json['currentStock'] as int?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'barcode': barcode,
+      'categoryId': categoryId,
+      'buyPrice': buyPrice,
+      'sellPrice': sellPrice,
+      'margin': margin,
+      'unit': unit,
+      'description': description,
+      'imageUrl': imageUrl,
+      'isActive': isActive,
+      'category': category?.toJson(),
+      'currentStock': currentStock,
+    };
   }
 }

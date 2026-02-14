@@ -89,7 +89,7 @@ export class DistributionController {
   }
 
   @Post('delivery-orders/:id/confirm')
-  @Roles(Role.ADMIN, Role.WARUNG)
+  @Roles(Role.ADMIN, Role.WARUNG, Role.KURIR)
   confirmDelivery(
     @Param('id') id: string,
     @CurrentUser('sub') userId: string,

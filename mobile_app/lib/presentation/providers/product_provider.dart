@@ -15,3 +15,13 @@ final productListProvider = FutureProvider<List<ProductModel>>((ref) async {
   final repository = ref.read(productRepositoryProvider);
   return repository.fetchProducts();
 });
+
+final productSearchProvider = FutureProvider.family<List<ProductModel>, String?>((ref, search) async {
+  final repository = ref.read(productRepositoryProvider);
+  return repository.fetchProducts(search: search);
+});
+
+final productDetailProvider = FutureProvider.family<ProductModel, String>((ref, productId) async {
+  final repository = ref.read(productRepositoryProvider);
+  return repository.fetchById(productId);
+});

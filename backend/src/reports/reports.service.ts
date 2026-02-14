@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ReceivableStatus } from '@prisma/client';
+import { POStatus, ReceivableStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -13,7 +13,8 @@ export class ReportsService {
     const end = new Date(now);
     end.setHours(23, 59, 59, 999);
 
-    const [salesToday, unpaidReceivables, activeWarungs, blockedWarungs, stocks, topProducts] = await Promise.all([
+    const [salesToday, unpaidReceivables, activeWarungs, blockedWarungs, stocks, topProducts, profitEstimate, collectedToday, chart] =
+      await Promise.all([
       this.prisma.sale.aggregate({
         where: { createdAt: { gte: start, lte: end }, deletedAt: null },
         _sum: { totalAmount: true, paidAmount: true },
@@ -30,18 +31,26 @@ export class ReportsService {
       this.prisma.warung.count({ where: { deletedAt: null, isBlocked: true } }),
       this.prisma.stock.findMany({ include: { product: true } }),
       this.topProducts(30, 5),
+      this.profitEstimate(start, end),
+      this.collectedPayments(start, end),
+      this.monthlyChart(12),
     ]);
 
     const lowStockCount = stocks.filter((stock) => stock.quantity < stock.minStock).length;
     const stockValue = stocks.reduce((sum, stock) => sum + stock.quantity * Number(stock.product.buyPrice), 0);
 
+    const cashIn = Number(salesToday._sum.paidAmount ?? 0);
+    const kasBank = cashIn + collectedToday;
+
     return {
       today: {
         transactions: salesToday._count,
         omzet: Number(salesToday._sum.totalAmount ?? 0),
-        cashIn: Number(salesToday._sum.paidAmount ?? 0),
+        cashIn,
         receivableIncrease:
           Number(salesToday._sum.totalAmount ?? 0) - Number(salesToday._sum.paidAmount ?? 0),
+        profitEstimate,
+        kasBank,
       },
       receivables: {
         outstanding: Number(unpaidReceivables._sum.balance ?? 0),
@@ -55,6 +64,89 @@ export class ReportsService {
         totalValue: stockValue,
       },
       topProducts,
+      chart,
+    };
+  }
+
+  private async profitEstimate(start: Date, end: Date) {
+    const items = await this.prisma.saleItem.findMany({
+      where: {
+        sale: {
+          createdAt: { gte: start, lte: end },
+          deletedAt: null,
+        },
+      },
+      select: {
+        quantity: true,
+        price: true,
+        product: {
+          select: {
+            buyPrice: true,
+          },
+        },
+      },
+    });
+
+    return items.reduce((sum, item) => {
+      const sell = Number(item.price ?? 0);
+      const buy = Number(item.product.buyPrice ?? 0);
+      return sum + (sell - buy) * item.quantity;
+    }, 0);
+  }
+
+  private async collectedPayments(start: Date, end: Date) {
+    const result = await this.prisma.payment.aggregate({
+      where: {
+        paymentDate: { gte: start, lte: end },
+      },
+      _sum: { amount: true },
+    });
+
+    return Number(result._sum.amount ?? 0);
+  }
+
+  private async monthlyChart(monthCount = 12) {
+    const now = new Date();
+    const months = Array.from({ length: monthCount }).map((_, index) => {
+      const offset = monthCount - 1 - index;
+      const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+      const start = new Date(date.getFullYear(), date.getMonth(), 1);
+      const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+      const label = `${start.getFullYear()}-${(start.getMonth() + 1).toString().padStart(2, '0')}`;
+      return { label, start, end };
+    });
+
+    const results = await Promise.all(
+      months.map(async (month) => {
+        const [sales, purchases] = await Promise.all([
+          this.prisma.sale.aggregate({
+            where: { createdAt: { gte: month.start, lte: month.end }, deletedAt: null },
+            _sum: { totalAmount: true },
+          }),
+          this.prisma.purchaseOrder.aggregate({
+            where: {
+              deletedAt: null,
+              status: POStatus.RECEIVED,
+              receivedAt: { gte: month.start, lte: month.end },
+            },
+            _sum: { totalAmount: true },
+          }),
+        ]);
+
+        return {
+          label: month.label,
+          omzet: Number(sales._sum.totalAmount ?? 0),
+          pengeluaran: Number(purchases._sum.totalAmount ?? 0),
+        };
+      }),
+    );
+
+    return {
+      omzetBulanan: {
+        labels: results.map((row) => row.label),
+        omzet: results.map((row) => row.omzet),
+        pengeluaran: results.map((row) => row.pengeluaran),
+      },
     };
   }
 

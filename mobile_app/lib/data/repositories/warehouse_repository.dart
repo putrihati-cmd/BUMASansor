@@ -1,5 +1,6 @@
 import '../datasources/local/hive_service.dart';
 import '../datasources/remote/warehouse_remote_datasource.dart';
+import '../models/warehouse_model.dart';
 
 class WarehouseRepository {
   WarehouseRepository(this._remoteDataSource);
@@ -7,6 +8,10 @@ class WarehouseRepository {
   final WarehouseRemoteDataSource _remoteDataSource;
 
   static const String _defaultWarehouseIdKey = 'default_warehouse_id';
+
+  Future<List<WarehouseModel>> fetchWarehouses() {
+    return _remoteDataSource.fetchWarehouses();
+  }
 
   Future<String> getDefaultWarehouseId() async {
     final cached = HiveService.cacheBox.get(_defaultWarehouseIdKey);

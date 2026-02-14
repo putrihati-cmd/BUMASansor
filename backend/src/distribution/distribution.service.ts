@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { DOStatus, POStatus, ReceivableStatus, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import { AssignKurirDto } from './dto/assign-kurir.dto';
 import { ConfirmDeliveryDto } from './dto/confirm-delivery.dto';
 import { CreateDODto } from './dto/create-do.dto';
@@ -8,7 +9,10 @@ import { CreatePODto } from './dto/create-po.dto';
 
 @Injectable()
 export class DistributionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly realtime: RealtimeService,
+  ) {}
 
   async createPurchaseOrder(userId: string, dto: CreatePODto) {
     await this.ensureSupplier(dto.supplierId);
@@ -27,7 +31,7 @@ export class DistributionService {
 
     const totalAmount = dto.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    return this.prisma.purchaseOrder.create({
+    const po = await this.prisma.purchaseOrder.create({
       data: {
         poNumber: await this.generateDocumentNumber('PO'),
         supplierId: dto.supplierId,
@@ -50,6 +54,18 @@ export class DistributionService {
         warehouse: true,
       },
     });
+
+    this.realtime.emit('po.created', {
+      poId: po.id,
+      poNumber: po.poNumber,
+      supplierId: po.supplierId,
+      warehouseId: po.warehouseId,
+      status: po.status,
+      totalAmount: po.totalAmount,
+      createdAt: po.createdAt,
+    });
+
+    return po;
   }
 
   listPurchaseOrders(status?: POStatus, supplierId?: string) {
@@ -91,7 +107,7 @@ export class DistributionService {
       throw new BadRequestException('Only pending PO can be approved');
     }
 
-    return this.prisma.purchaseOrder.update({
+    const updated = await this.prisma.purchaseOrder.update({
       where: { id },
       data: {
         status: POStatus.APPROVED,
@@ -99,6 +115,15 @@ export class DistributionService {
         approvedAt: new Date(),
       },
     });
+
+    this.realtime.emit('po.updated', {
+      poId: updated.id,
+      status: updated.status,
+      approvedBy: updated.approvedBy,
+      approvedAt: updated.approvedAt,
+    });
+
+    return updated;
   }
 
   async receivePurchaseOrder(id: string, userId: string) {
@@ -107,7 +132,7 @@ export class DistributionService {
       throw new BadRequestException('PO must be approved before receiving');
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const updatedPO = await this.prisma.$transaction(async (tx) => {
       const updatedPO = await tx.purchaseOrder.update({
         where: { id },
         data: {
@@ -150,6 +175,22 @@ export class DistributionService {
 
       return updatedPO;
     });
+
+    this.realtime.emit('po.updated', {
+      poId: updatedPO.id,
+      status: updatedPO.status,
+      receivedBy: updatedPO.receivedBy,
+      receivedAt: updatedPO.receivedAt,
+    });
+
+    this.realtime.emit('stocks.updated', {
+      warehouseId: po.warehouseId,
+      productIds: po.items.map((i) => i.productId),
+      referenceType: 'PO',
+      referenceId: po.id,
+    });
+
+    return updatedPO;
   }
 
   async cancelPurchaseOrder(id: string) {
@@ -158,10 +199,17 @@ export class DistributionService {
       throw new BadRequestException('Only pending PO can be cancelled');
     }
 
-    return this.prisma.purchaseOrder.update({
+    const updated = await this.prisma.purchaseOrder.update({
       where: { id },
       data: { status: POStatus.CANCELLED },
     });
+
+    this.realtime.emit('po.updated', {
+      poId: updated.id,
+      status: updated.status,
+    });
+
+    return updated;
   }
 
   async createDeliveryOrder(userId: string, dto: CreateDODto) {
@@ -196,7 +244,7 @@ export class DistributionService {
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + creditDays);
 
-    return this.prisma.deliveryOrder.create({
+    const delivery = await this.prisma.deliveryOrder.create({
       data: {
         doNumber: await this.generateDocumentNumber('DO'),
         warungId: dto.warungId,
@@ -221,6 +269,19 @@ export class DistributionService {
         items: { include: { product: true } },
       },
     });
+
+    this.realtime.emit('do.created', {
+      doId: delivery.id,
+      doNumber: delivery.doNumber,
+      warungId: delivery.warungId,
+      warehouseId: delivery.warehouseId,
+      totalAmount: delivery.totalAmount,
+      status: delivery.status,
+      dueDate: delivery.dueDate,
+      createdAt: delivery.createdAt,
+    });
+
+    return delivery;
   }
 
   listDeliveryOrders(status?: DOStatus, warungId?: string, kurirId?: string) {
@@ -270,7 +331,7 @@ export class DistributionService {
       throw new BadRequestException('Kurir not found');
     }
 
-    return this.prisma.deliveryOrder.update({
+    const updated = await this.prisma.deliveryOrder.update({
       where: { id },
       data: {
         kurirId: dto.kurirId,
@@ -278,6 +339,15 @@ export class DistributionService {
         assignedAt: new Date(),
       },
     });
+
+    this.realtime.emit('do.updated', {
+      doId: updated.id,
+      status: updated.status,
+      kurirId: updated.kurirId,
+      assignedAt: updated.assignedAt,
+    });
+
+    return updated;
   }
 
   async startDelivery(id: string, userId: string, role: string) {
@@ -289,10 +359,17 @@ export class DistributionService {
       throw new BadRequestException('This delivery is assigned to another kurir');
     }
 
-    return this.prisma.deliveryOrder.update({
+    const updated = await this.prisma.deliveryOrder.update({
       where: { id },
       data: { status: DOStatus.ON_DELIVERY },
     });
+
+    this.realtime.emit('do.updated', {
+      doId: updated.id,
+      status: updated.status,
+    });
+
+    return updated;
   }
 
   async markDelivered(id: string, userId: string, role: string) {
@@ -304,13 +381,21 @@ export class DistributionService {
       throw new BadRequestException('This delivery is assigned to another kurir');
     }
 
-    return this.prisma.deliveryOrder.update({
+    const updated = await this.prisma.deliveryOrder.update({
       where: { id },
       data: {
         status: DOStatus.DELIVERED,
         deliveredAt: new Date(),
       },
     });
+
+    this.realtime.emit('do.updated', {
+      doId: updated.id,
+      status: updated.status,
+      deliveredAt: updated.deliveredAt,
+    });
+
+    return updated;
   }
 
   async confirmDelivery(id: string, userId: string, dto: ConfirmDeliveryDto) {
@@ -330,7 +415,7 @@ export class DistributionService {
       throw new BadRequestException('Delivery order already confirmed');
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const confirmed = await this.prisma.$transaction(async (tx) => {
       for (const item of delivery.items) {
         const stock = await tx.stock.findUnique({
           where: {
@@ -403,6 +488,29 @@ export class DistributionService {
 
       return confirmed;
     });
+
+    this.realtime.emit('do.updated', {
+      doId: confirmed.id,
+      status: confirmed.status,
+      confirmedBy: confirmed.confirmedBy,
+      confirmedAt: confirmed.confirmedAt,
+    });
+
+    this.realtime.emit('receivable.created', {
+      warungId: delivery.warungId,
+      deliveryOrderId: delivery.id,
+      amount: delivery.totalAmount,
+      dueDate: delivery.dueDate,
+    });
+
+    this.realtime.emit('stocks.updated', {
+      warehouseId: delivery.warehouseId,
+      productIds: delivery.items.map((i) => i.productId),
+      referenceType: 'DO',
+      referenceId: delivery.id,
+    });
+
+    return confirmed;
   }
 
   async cancelDeliveryOrder(id: string) {
@@ -411,10 +519,17 @@ export class DistributionService {
       throw new BadRequestException('Only pending/assigned delivery can be cancelled');
     }
 
-    return this.prisma.deliveryOrder.update({
+    const updated = await this.prisma.deliveryOrder.update({
       where: { id },
       data: { status: DOStatus.CANCELLED },
     });
+
+    this.realtime.emit('do.updated', {
+      doId: updated.id,
+      status: updated.status,
+    });
+
+    return updated;
   }
 
   private async generateDocumentNumber(prefix: 'PO' | 'DO'): Promise<string> {

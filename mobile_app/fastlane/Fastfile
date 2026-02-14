@@ -1,0 +1,23 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build & upload prod AAB to Play Store internal track"
+  lane :internal do
+    # Requires service account JSON:
+    #   export SUPPLY_JSON_KEY=/path/to/play-store.json
+    #
+    # Note: this repo uses Flutter flavors (dev/staging/prod).
+
+    sh("cd .. && flutter pub get")
+    sh("cd .. && flutter build appbundle --flavor prod --release --dart-define=API_BASE_URL=https://api.bumasansor.com/api")
+
+    upload_to_play_store(
+      track: "internal",
+      aab: "../build/app/outputs/bundle/prodRelease/app-prod-release.aab",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
+

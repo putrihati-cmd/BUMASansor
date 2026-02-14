@@ -29,7 +29,9 @@ export class AuthService {
       throw new BadRequestException('warungId is required for WARUNG role');
     }
 
-    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS', 10);
+    const saltRoundsConfig = this.configService.get<string | number>('BCRYPT_SALT_ROUNDS', 10);
+    const parsedSaltRounds = typeof saltRoundsConfig === 'number' ? saltRoundsConfig : Number.parseInt(saltRoundsConfig, 10);
+    const saltRounds = Number.isFinite(parsedSaltRounds) && parsedSaltRounds > 0 ? parsedSaltRounds : 10;
     const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
 
     const user = await this.usersService.create({

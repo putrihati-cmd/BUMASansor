@@ -7,10 +7,11 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
-import '../../providers/sales_provider.dart';
+import '../../providers/warehouse_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../widgets/cart_bottom_sheet.dart';
 import '../../widgets/product_card.dart';
+import '../../widgets/sync_indicator.dart';
 import 'checkout_screen.dart';
 import 'daily_summary_screen.dart';
 import 'sales_history_screen.dart';
@@ -146,9 +147,8 @@ class _POSScreenState extends ConsumerState<POSScreen> {
       appBar: AppBar(
         title: const Text('Warung POS'),
         actions: [
-          IconButton(
-            tooltip: 'Sync Queue',
-            onPressed: () async {
+          SyncIndicator(
+            onTap: () async {
               final count = await ref.read(syncServiceProvider).processQueue();
               if (!context.mounted) {
                 return;
@@ -157,7 +157,6 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                 SnackBar(content: Text('Sync berhasil: $count task')),
               );
             },
-            icon: const Icon(Icons.sync),
           ),
           IconButton(
             tooltip: 'Riwayat',

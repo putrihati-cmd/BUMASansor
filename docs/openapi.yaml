@@ -18,7 +18,15 @@ tags:
   - name: Sales
   - name: Finance
   - name: Reports
+  - name: Utility
 paths:
+  /health:
+    get:
+      tags: [Utility]
+      summary: Health check (no auth, outside /api prefix)
+      servers:
+        - url: http://localhost:3000
+
   /auth/register:
     post:
       tags: [Auth]
@@ -299,6 +307,11 @@ paths:
     get:
       tags: [Reports]
       summary: Warung performance report
+
+  /uploads:
+    post:
+      tags: [Utility]
+      summary: Upload image (multipart file)
 
 components:
   securitySchemes:

@@ -13,6 +13,10 @@ Variabel minimum:
 - `BCRYPT_SALT_ROUNDS`
 - `REDIS_URL`
 
+Template:
+
+- `backend/.env.production.example`
+
 ## 2. Build dan migrasi
 
 ```bash
@@ -24,23 +28,50 @@ npm run build
 npm run start:prod
 ```
 
-## 3. Docker runtime (opsional)
+## 3. Docker runtime
 
 ```bash
-docker compose up -d
+cd backend
+docker compose -f docker-compose.yml up -d
 ```
 
-Lalu deploy backend container terpisah menggunakan `backend/Dockerfile`.
+Komponen baru:
 
-## 4. Mobile release
+- `backend/docker-compose.yml` (dev/staging)
+- `backend/docker-compose.prod.yml` (produksi)
+- `backend/nginx/nginx.conf`
+- `backend/scripts/deploy.sh`
+- `backend/scripts/backup-db.sh`
+
+## 4. Health check
+
+Endpoint:
+
+- `GET /health` (tanpa prefix `/api`)
+
+Respons berisi status database dan redis.
+
+## 5. Mobile release
 
 ```bash
 cd mobile_app
 flutter pub get
-flutter build apk --release
+flutter build apk --flavor dev --debug
+flutter build apk --flavor staging --release
+flutter build appbundle --flavor prod --release
 ```
 
-## 5. Wajib sebelum go-live
+Gunakan helper script:
+
+- `mobile_app/scripts/build-all.sh`
+- `mobile_app/scripts/build-all.ps1`
+
+## 6. CI/CD
+
+- Backend deploy: `.github/workflows/deploy.yml`
+- Mobile artifact build: `.github/workflows/flutter-deploy.yml`
+
+## 7. Wajib sebelum go-live
 
 - Ganti seluruh credential default seed
 - Aktifkan monitoring log + error tracking

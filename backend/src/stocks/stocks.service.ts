@@ -1,13 +1,17 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { MovementType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import { QueryStockDto } from './dto/query-stock.dto';
 import { StockMovementDto } from './dto/stock-movement.dto';
 import { StockOpnameDto } from './dto/stock-opname.dto';
 
 @Injectable()
 export class StocksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly realtime: RealtimeService,
+  ) {}
 
   async list(query: QueryStockDto) {
     const where = {
@@ -55,7 +59,7 @@ export class StocksService {
   async recordMovement(dto: StockMovementDto, userId: string) {
     await this.ensureProductExists(dto.productId);
 
-    return this.prisma.$transaction(async (tx) => {
+    const movement = await this.prisma.$transaction(async (tx) => {
       if (dto.movementType === MovementType.IN) {
         if (!dto.toWarehouseId) {
           throw new BadRequestException('toWarehouseId is required for IN movement');
@@ -201,12 +205,24 @@ export class StocksService {
 
       throw new BadRequestException('Use opname endpoint for ADJUSTMENT movement');
     });
+
+    this.realtime.emit('stocks.updated', {
+      movementType: dto.movementType,
+      productId: dto.productId,
+      fromWarehouseId: dto.fromWarehouseId,
+      toWarehouseId: dto.toWarehouseId,
+      quantity: dto.quantity,
+      createdBy: userId,
+      createdAt: movement.createdAt,
+    });
+
+    return movement;
   }
 
   async performOpname(dto: StockOpnameDto, userId: string) {
     await this.ensureProductExists(dto.productId);
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       await this.ensureWarehouseExists(tx, dto.warehouseId);
 
       const currentStock = await tx.stock.upsert({
@@ -269,6 +285,20 @@ export class StocksService {
         stock: updatedStock,
       };
     });
+
+    this.realtime.emit('stocks.updated', {
+      movementType: MovementType.ADJUSTMENT,
+      productId: dto.productId,
+      fromWarehouseId: dto.warehouseId,
+      toWarehouseId: dto.warehouseId,
+      quantity: Math.abs(result.opname.difference),
+      referenceType: 'OPNAME',
+      referenceId: result.opname.id,
+      createdBy: userId,
+      createdAt: result.opname.createdAt,
+    });
+
+    return result;
   }
 
   history(query: { warehouseId?: string; productId?: string; movementType?: MovementType }) {

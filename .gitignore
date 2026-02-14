@@ -21,6 +21,8 @@ backend/prisma/dev.db-journal
 .env.*
 !.env.example
 backend/.env
+backend/.env.*
+!backend/.env.production.example
 
 # Flutter
 .dart_tool/
@@ -32,6 +34,11 @@ mobile_app/.dart_tool/
 mobile_app/build/
 mobile_app/ios/Pods/
 mobile_app/android/.gradle/
+mobile_app/.tmp_symlink_test/
+mobile_app/distribution/v*/
+
+# Runtime data
+backend/uploads/
 
 # IDE/OS
 .vscode/

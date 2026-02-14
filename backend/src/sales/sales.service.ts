@@ -1,12 +1,16 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { MovementType, Prisma, ReceivableStatus, SalePaymentMethod } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { QuerySaleDto } from './dto/query-sale.dto';
 
 @Injectable()
 export class SalesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly realtime: RealtimeService,
+  ) {}
 
   async create(userId: string, dto: CreateSaleDto) {
     const warung = await this.prisma.warung.findFirst({ where: { id: dto.warungId, deletedAt: null } });
@@ -53,7 +57,7 @@ export class SalesService {
       throw new BadRequestException('paidAmount cannot be greater than totalAmount');
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const sale = await this.prisma.$transaction(async (tx) => {
       for (const item of lineItems) {
         const stock = await tx.stock.findUnique({
           where: {
@@ -142,6 +146,18 @@ export class SalesService {
 
       return sale;
     });
+
+    this.realtime.emit('sales.created', {
+      saleId: sale.id,
+      warungId: sale.warungId,
+      warehouseId: sale.warehouseId,
+      totalAmount: sale.totalAmount,
+      paidAmount: sale.paidAmount,
+      paymentMethod: sale.paymentMethod,
+      createdAt: sale.createdAt,
+    });
+
+    return sale;
   }
 
   async list(query: QuerySaleDto) {

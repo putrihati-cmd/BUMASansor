@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../data/models/sale_model.dart';
+import '../../widgets/bluetooth_printer_sheet.dart';
 
 class ReceiptScreen extends StatelessWidget {
   const ReceiptScreen({
@@ -61,9 +65,21 @@ class ReceiptScreen extends StatelessWidget {
     return sb.toString();
   }
 
+  List<int> _buildReceiptBytes(String text) {
+    // Minimal ESC/POS compatible payload.
+    // Most thermal printers accept plain text + new lines. Cut command is optional.
+    final bytes = <int>[];
+    bytes.addAll(utf8.encode(text));
+    bytes.addAll(const [0x0A, 0x0A, 0x0A]);
+    // ESC/POS cut (some printers ignore this).
+    bytes.addAll(const [0x1D, 0x56, 0x00]);
+    return bytes;
+  }
+
   @override
   Widget build(BuildContext context) {
     final text = _buildReceiptText();
+    final bytes = _buildReceiptBytes(text);
 
     return Scaffold(
       appBar: AppBar(
@@ -82,16 +98,26 @@ class ReceiptScreen extends StatelessWidget {
             icon: const Icon(Icons.copy),
           ),
           IconButton(
-            tooltip: 'Print (TODO)',
-            onPressed: () {
-              showDialog<void>(
+            tooltip: 'Share',
+            onPressed: () async {
+              await SharePlus.instance.share(
+                ShareParams(
+                  text: text,
+                  subject: 'Struk ${sale.invoiceNumber}',
+                ),
+              );
+            },
+            icon: const Icon(Icons.share),
+          ),
+          IconButton(
+            tooltip: 'Print',
+            onPressed: () async {
+              await showModalBottomSheet<void>(
                 context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Print'),
-                  content: const Text('Belum diimplementasi (bluetooth printer).'),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK')),
-                  ],
+                isScrollControlled: true,
+                builder: (_) => BluetoothPrinterSheet(
+                  bytes: bytes,
+                  title: 'Print Struk',
                 ),
               );
             },

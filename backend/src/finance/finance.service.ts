@@ -1,12 +1,16 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ReceivableStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { QueryReceivableDto } from './dto/query-receivable.dto';
 
 @Injectable()
 export class FinanceService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly realtime: RealtimeService,
+  ) {}
 
   async listReceivables(query: QueryReceivableDto) {
     const page = query.page ?? 1;
@@ -112,6 +116,23 @@ export class FinanceService {
 
     await this.syncWarungBlocks();
 
+    this.realtime.emit('receivable.updated', {
+      receivableId: result.receivable.id,
+      warungId: receivable.warungId,
+      amount: result.receivable.amount,
+      paidAmount: result.receivable.paidAmount,
+      balance: result.receivable.balance,
+      status: result.receivable.status,
+      dueDate: result.receivable.dueDate,
+      payment: {
+        id: result.payment.id,
+        amount: result.payment.amount,
+        method: result.payment.method,
+        proofUrl: result.payment.proofUrl,
+        paymentDate: result.payment.paymentDate,
+      },
+    });
+
     return result;
   }
 
@@ -198,6 +219,12 @@ export class FinanceService {
     });
 
     const blocked = await this.syncWarungBlocks();
+
+    this.realtime.emit('finance.overdueRefreshed', {
+      updatedOverdue: result.count,
+      blockedWarungs: blocked.blocked,
+      unblockedWarungs: blocked.unblocked,
+    });
 
     return {
       updatedOverdue: result.count,

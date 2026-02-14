@@ -49,6 +49,15 @@ flutter run
 
 - Backend CI: `.github/workflows/backend-ci.yml`
 - Mobile CI: `.github/workflows/mobile-ci.yml`
+- Backend Deploy (Docker): `.github/workflows/deploy.yml`
+- Mobile Build Artifacts: `.github/workflows/flutter-deploy.yml`
+
+## Dokumentasi
+
+- API: `docs/API.md`
+- Panduan Warung: `docs/USER_MANUAL_WARUNG.md`
+- Troubleshooting: `docs/TROUBLESHOOTING.md`
+- Deployment: `docs/DEPLOYMENT.md`
 
 ## Catatan Kebijakan
 

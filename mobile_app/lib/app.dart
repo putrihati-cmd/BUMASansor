@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/theme_config.dart';
 import 'presentation/router/app_router.dart';
+import 'presentation/widgets/realtime_auto_connector.dart';
+import 'presentation/widgets/sync_auto_processor.dart';
 
 class BumasApp extends ConsumerWidget {
   const BumasApp({super.key});
@@ -11,11 +13,15 @@ class BumasApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
-    return MaterialApp.router(
-      title: 'BUMAS Ansor',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeConfig.lightTheme,
-      routerConfig: router,
+    return SyncAutoProcessor(
+      child: RealtimeAutoConnector(
+        child: MaterialApp.router(
+          title: 'BUMAS Ansor',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeConfig.lightTheme,
+          routerConfig: router,
+        ),
+      ),
     );
   }
 }

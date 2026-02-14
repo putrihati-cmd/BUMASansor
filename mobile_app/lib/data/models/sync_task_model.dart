@@ -5,6 +5,8 @@ class SyncTaskModel {
     required this.method,
     required this.payload,
     required this.createdAt,
+    this.retryCount = 0,
+    this.error,
   });
 
   final String id;
@@ -12,6 +14,20 @@ class SyncTaskModel {
   final String method;
   final Map<String, dynamic> payload;
   final DateTime createdAt;
+  final int retryCount;
+  final String? error;
+
+  SyncTaskModel copyWith({int? retryCount, String? error}) {
+    return SyncTaskModel(
+      id: id,
+      endpoint: endpoint,
+      method: method,
+      payload: payload,
+      createdAt: createdAt,
+      retryCount: retryCount ?? this.retryCount,
+      error: error,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -20,6 +36,8 @@ class SyncTaskModel {
       'method': method,
       'payload': payload,
       'createdAt': createdAt.toIso8601String(),
+      'retryCount': retryCount,
+      'error': error,
     };
   }
 
@@ -30,6 +48,8 @@ class SyncTaskModel {
       method: map['method'] as String,
       payload: Map<String, dynamic>.from(map['payload'] as Map),
       createdAt: DateTime.parse(map['createdAt'] as String),
+      retryCount: int.tryParse(map['retryCount']?.toString() ?? '') ?? 0,
+      error: map['error'] as String?,
     );
   }
 }
