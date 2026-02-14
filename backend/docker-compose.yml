@@ -67,7 +67,7 @@ services:
       - bumas-network
     volumes:
       - uploads:/app/uploads
-    command: sh -c "npx prisma migrate deploy && node dist/main"
+    command: sh -c "npx prisma migrate deploy && node dist/src/main"
 
   nginx:
     image: nginx:alpine
@@ -93,4 +93,3 @@ volumes:
 networks:
   bumas-network:
     driver: bridge
-
