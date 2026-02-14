@@ -6,6 +6,7 @@ import {
   authHeader,
   closeTestApp,
   createTestApp,
+  loginBootstrapAdmin,
   registerAndLogin,
   resetDatabase,
   unwrapData,
@@ -30,8 +31,10 @@ describe('Authentication (e2e)', () => {
   });
 
   it('registers a new user', async () => {
+    const bootstrap = await loginBootstrapAdmin(app, prisma);
     const res = await api(app)
       .post('/api/auth/register')
+      .set(authHeader(bootstrap.accessToken))
       .send({
         email: 'auth.register@bumas.test',
         password: 'password123',
@@ -53,9 +56,23 @@ describe('Authentication (e2e)', () => {
     expect(data.password).toBeUndefined();
   });
 
-  it('fails registration with invalid payload', async () => {
+  it('rejects registration without auth', async () => {
     await api(app)
       .post('/api/auth/register')
+      .send({
+        email: 'auth.noauth@bumas.test',
+        password: 'password123',
+        name: 'No Auth',
+        role: Role.ADMIN,
+      })
+      .expect(401);
+  });
+
+  it('fails registration with invalid payload', async () => {
+    const bootstrap = await loginBootstrapAdmin(app, prisma);
+    await api(app)
+      .post('/api/auth/register')
+      .set(authHeader(bootstrap.accessToken))
       .send({
         email: 'invalid-email',
         password: 'short',
@@ -66,8 +83,10 @@ describe('Authentication (e2e)', () => {
   });
 
   it('fails registration when email already exists', async () => {
+    const bootstrap = await loginBootstrapAdmin(app, prisma);
     await api(app)
       .post('/api/auth/register')
+      .set(authHeader(bootstrap.accessToken))
       .send({
         email: 'auth.duplicate@bumas.test',
         password: 'password123',
@@ -78,6 +97,7 @@ describe('Authentication (e2e)', () => {
 
     await api(app)
       .post('/api/auth/register')
+      .set(authHeader(bootstrap.accessToken))
       .send({
         email: 'auth.duplicate@bumas.test',
         password: 'password123',
@@ -88,7 +108,7 @@ describe('Authentication (e2e)', () => {
   });
 
   it('logs in and accesses protected endpoint', async () => {
-    const user = await registerAndLogin(app, {
+    const user = await registerAndLogin(app, prisma, {
       email: 'auth.login@bumas.test',
       password: 'password123',
       name: 'Auth Login',
@@ -106,8 +126,10 @@ describe('Authentication (e2e)', () => {
   });
 
   it('fails login with wrong password', async () => {
+    const bootstrap = await loginBootstrapAdmin(app, prisma);
     await api(app)
       .post('/api/auth/register')
+      .set(authHeader(bootstrap.accessToken))
       .send({
         email: 'auth.wrongpass@bumas.test',
         password: 'password123',
@@ -126,7 +148,7 @@ describe('Authentication (e2e)', () => {
   });
 
   it('refreshes token with a valid refresh token', async () => {
-    const user = await registerAndLogin(app, {
+    const user = await registerAndLogin(app, prisma, {
       email: 'auth.refresh@bumas.test',
       password: 'password123',
       name: 'Auth Refresh',
@@ -156,7 +178,7 @@ describe('Authentication (e2e)', () => {
   });
 
   it('revokes refresh token on logout', async () => {
-    const user = await registerAndLogin(app, {
+    const user = await registerAndLogin(app, prisma, {
       email: 'auth.logout@bumas.test',
       password: 'password123',
       name: 'Auth Logout',

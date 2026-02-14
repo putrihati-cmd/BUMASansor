@@ -1,6 +1,7 @@
 import { INestApplication, RequestMethod, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Role } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
@@ -25,6 +26,13 @@ type LoginResponseData = {
     role: Role;
     warungId: string | null;
   };
+};
+
+const BOOTSTRAP_ADMIN: RegisterUserInput = {
+  email: 'bootstrap.admin@bumas.test',
+  password: 'password123',
+  name: 'Bootstrap Admin',
+  role: Role.ADMIN,
 };
 
 export async function createTestApp(): Promise<{
@@ -57,9 +65,13 @@ export async function createTestApp(): Promise<{
   };
 }
 
-export async function closeTestApp(app: INestApplication, prisma: PrismaService) {
-  await prisma.$disconnect();
-  await app.close();
+export async function closeTestApp(app: INestApplication | undefined, prisma: PrismaService | undefined) {
+  if (prisma) {
+    await prisma.$disconnect().catch(() => undefined);
+  }
+  if (app) {
+    await app.close();
+  }
 }
 
 export async function resetDatabase(prisma: PrismaService) {
@@ -126,11 +138,74 @@ export function formatLocalMonth(date: Date): string {
   return `${y}-${m}`;
 }
 
+async function upsertUser(prisma: PrismaService, payload: RegisterUserInput) {
+  if (payload.role === Role.WARUNG && !payload.warungId) {
+    throw new Error('warungId is required for WARUNG role');
+  }
+
+  const passwordHash = await bcrypt.hash(payload.password, 10);
+
+  await prisma.user.upsert({
+    where: { email: payload.email },
+    update: {
+      name: payload.name,
+      role: payload.role,
+      warungId: payload.warungId ?? null,
+    },
+    create: {
+      email: payload.email,
+      password: passwordHash,
+      name: payload.name,
+      role: payload.role,
+      warungId: payload.warungId ?? null,
+    },
+  });
+}
+
+async function ensureBootstrapAdmin(prisma: PrismaService) {
+  const existing = await prisma.user.findUnique({
+    where: { email: BOOTSTRAP_ADMIN.email },
+  });
+  if (existing) {
+    return;
+  }
+  await upsertUser(prisma, BOOTSTRAP_ADMIN);
+}
+
+export async function loginBootstrapAdmin(
+  app: INestApplication,
+  prisma: PrismaService,
+): Promise<{ accessToken: string; refreshToken: string; user: LoginResponseData['user'] }> {
+  await ensureBootstrapAdmin(prisma);
+
+  const login = await api(app)
+    .post('/api/auth/login')
+    .send({
+      email: BOOTSTRAP_ADMIN.email,
+      password: BOOTSTRAP_ADMIN.password,
+    })
+    .expect(201);
+
+  const data = unwrapData<LoginResponseData>(login);
+  return {
+    accessToken: data.accessToken,
+    refreshToken: data.refreshToken,
+    user: data.user,
+  };
+}
+
 export async function registerAndLogin(
   app: INestApplication,
+  prisma: PrismaService,
   payload: RegisterUserInput,
 ): Promise<{ accessToken: string; refreshToken: string; user: LoginResponseData['user'] }> {
-  await api(app).post('/api/auth/register').send(payload).expect(201);
+  const admin = await loginBootstrapAdmin(app, prisma);
+
+  await api(app)
+    .post('/api/auth/register')
+    .set(authHeader(admin.accessToken))
+    .send(payload)
+    .expect(201);
 
   const login = await api(app)
     .post('/api/auth/login')

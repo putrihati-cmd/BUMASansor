@@ -37,7 +37,7 @@ describe('Products API (e2e)', () => {
   });
 
   async function seedBaseData() {
-    const admin = await registerAndLogin(app, {
+    const admin = await registerAndLogin(app, prisma, {
       email: 'admin.products@bumas.test',
       password: 'password123',
       name: 'Admin Products',
@@ -57,7 +57,7 @@ describe('Products API (e2e)', () => {
       .expect(201);
     const warungId = unwrapData<{ id: string }>(warungRes).id;
 
-    const warung = await registerAndLogin(app, {
+    const warung = await registerAndLogin(app, prisma, {
       email: 'warung.products@bumas.test',
       password: 'password123',
       name: 'Warung Products',

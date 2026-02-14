@@ -42,7 +42,7 @@ describe('Finance API (e2e)', () => {
   });
 
   async function seedBaseData() {
-    const admin = await registerAndLogin(app, {
+    const admin = await registerAndLogin(app, prisma, {
       email: 'admin.finance@bumas.test',
       password: 'password123',
       name: 'Admin Finance',
@@ -50,7 +50,7 @@ describe('Finance API (e2e)', () => {
     });
     adminToken = admin.accessToken;
 
-    const gudang = await registerAndLogin(app, {
+    const gudang = await registerAndLogin(app, prisma, {
       email: 'gudang.finance@bumas.test',
       password: 'password123',
       name: 'Gudang Finance',
@@ -58,7 +58,7 @@ describe('Finance API (e2e)', () => {
     });
     gudangToken = gudang.accessToken;
 
-    const kurir = await registerAndLogin(app, {
+    const kurir = await registerAndLogin(app, prisma, {
       email: 'kurir.finance@bumas.test',
       password: 'password123',
       name: 'Kurir Finance',
@@ -110,7 +110,7 @@ describe('Finance API (e2e)', () => {
       .expect(201);
     warungId = unwrapData<{ id: string }>(warungRes).id;
 
-    const warung = await registerAndLogin(app, {
+    const warung = await registerAndLogin(app, prisma, {
       email: 'warung.finance@bumas.test',
       password: 'password123',
       name: 'Warung Finance User',

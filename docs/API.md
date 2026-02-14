@@ -9,7 +9,7 @@ Dokumen ringkas endpoint utama. Kontrak lengkap tetap di `docs/openapi.yaml`.
 
 ## Authentication
 
-Semua endpoint (kecuali login/register/refresh) menggunakan Bearer token:
+Semua endpoint (kecuali login/refresh) menggunakan Bearer token:
 
 `Authorization: Bearer <access_token>`
 
@@ -33,6 +33,12 @@ Semua endpoint (kecuali login/register/refresh) menggunakan Bearer token:
   "refreshToken": "..."
 }
 ```
+
+### Register user (admin only)
+
+`POST /auth/register`
+
+Harus memakai akses token admin pada header `Authorization`.
 
 ## Modul Endpoint
 

@@ -16,7 +16,7 @@ describe('Health & Uploads (e2e)', () => {
 
     await resetDatabase(prisma);
 
-    const admin = await registerAndLogin(app, {
+    const admin = await registerAndLogin(app, prisma, {
       email: 'admin@local.test',
       password: 'password123',
       name: 'Admin',
@@ -61,4 +61,3 @@ describe('Health & Uploads (e2e)', () => {
     expect(data.url).toContain('/uploads/');
   });
 });
-

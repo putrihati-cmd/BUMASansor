@@ -43,7 +43,7 @@ describe('Reports API (e2e)', () => {
   });
 
   async function seedReportData() {
-    const admin = await registerAndLogin(app, {
+    const admin = await registerAndLogin(app, prisma, {
       email: 'admin.reports@bumas.test',
       password: 'password123',
       name: 'Admin Reports',
@@ -51,7 +51,7 @@ describe('Reports API (e2e)', () => {
     });
     adminToken = admin.accessToken;
 
-    const gudang = await registerAndLogin(app, {
+    const gudang = await registerAndLogin(app, prisma, {
       email: 'gudang.reports@bumas.test',
       password: 'password123',
       name: 'Gudang Reports',
@@ -59,7 +59,7 @@ describe('Reports API (e2e)', () => {
     });
     gudangToken = gudang.accessToken;
 
-    const kurir = await registerAndLogin(app, {
+    const kurir = await registerAndLogin(app, prisma, {
       email: 'kurir.reports@bumas.test',
       password: 'password123',
       name: 'Kurir Reports',
@@ -124,7 +124,7 @@ describe('Reports API (e2e)', () => {
       .expect(201);
     warungId = unwrapData<{ id: string }>(warungRes).id;
 
-    const warung = await registerAndLogin(app, {
+    const warung = await registerAndLogin(app, prisma, {
       email: 'warung.reports@bumas.test',
       password: 'password123',
       name: 'Warung Reports User',

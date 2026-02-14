@@ -40,7 +40,7 @@ describe('Stocks API (e2e)', () => {
   });
 
   async function seedMasterData() {
-    const admin = await registerAndLogin(app, {
+    const admin = await registerAndLogin(app, prisma, {
       email: 'admin.stocks@bumas.test',
       password: 'password123',
       name: 'Admin Stocks',
@@ -48,7 +48,7 @@ describe('Stocks API (e2e)', () => {
     });
     adminToken = admin.accessToken;
 
-    const gudang = await registerAndLogin(app, {
+    const gudang = await registerAndLogin(app, prisma, {
       email: 'gudang.stocks@bumas.test',
       password: 'password123',
       name: 'Gudang Stocks',
@@ -109,7 +109,7 @@ describe('Stocks API (e2e)', () => {
       .expect(201);
     const warungId = unwrapData<{ id: string }>(warungRes).id;
 
-    const warung = await registerAndLogin(app, {
+    const warung = await registerAndLogin(app, prisma, {
       email: 'warung.stocks@bumas.test',
       password: 'password123',
       name: 'Warung Stocks User',
