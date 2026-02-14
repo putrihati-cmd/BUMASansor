@@ -56,7 +56,10 @@ class _GudangHomeScreenState extends ConsumerState<GudangHomeScreen> {
             Expanded(
               child: deliveryAsync.when(
                 data: (deliveries) {
-                  final active = deliveries.where((d) => d.status == 'PENDING' || d.status == 'ASSIGNED').toList();
+                  final active = deliveries
+                      .where((d) =>
+                          d.status == 'PENDING' || d.status == 'ASSIGNED')
+                      .toList();
                   if (active.isEmpty) {
                     return const Text('Belum ada delivery order.');
                   }
@@ -68,14 +71,17 @@ class _GudangHomeScreenState extends ConsumerState<GudangHomeScreen> {
                       final delivery = active[index];
                       return ListTile(
                         title: Text(delivery.doNumber),
-                        subtitle: Text('${delivery.warungName} - ${delivery.status}'),
-                        trailing: Text('Rp ${delivery.totalAmount.toStringAsFixed(0)}'),
+                        subtitle:
+                            Text('${delivery.warungName} - ${delivery.status}'),
+                        trailing: Text(
+                            'Rp ${delivery.totalAmount.toStringAsFixed(0)}'),
                       );
                     },
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, _) => Text('Gagal mengambil delivery list: $error'),
+                error: (error, _) =>
+                    Text('Gagal mengambil delivery list: $error'),
               ),
             ),
           ],

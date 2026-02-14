@@ -8,10 +8,12 @@ class ProductManagementScreen extends ConsumerStatefulWidget {
   const ProductManagementScreen({super.key});
 
   @override
-  ConsumerState<ProductManagementScreen> createState() => _ProductManagementScreenState();
+  ConsumerState<ProductManagementScreen> createState() =>
+      _ProductManagementScreenState();
 }
 
-class _ProductManagementScreenState extends ConsumerState<ProductManagementScreen> {
+class _ProductManagementScreenState
+    extends ConsumerState<ProductManagementScreen> {
   final _searchController = TextEditingController();
 
   @override
@@ -74,7 +76,8 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
                 return RefreshIndicator(
                   onRefresh: () async {
                     ref.invalidate(productSearchProvider(_search));
-                    await Future<void>.delayed(const Duration(milliseconds: 200));
+                    await Future<void>.delayed(
+                        const Duration(milliseconds: 200));
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.only(bottom: 80),
@@ -86,7 +89,8 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
                       return ListTile(
                         onTap: () => context.push('/admin/products/${p.id}'),
                         title: Text(p.name),
-                        subtitle: Text('${p.barcode} | ${p.category?.name ?? p.categoryId} | ${p.unit}'),
+                        subtitle: Text(
+                            '${p.barcode} | ${p.category?.name ?? p.categoryId} | ${p.unit}'),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -118,7 +122,8 @@ class _ProductManagementScreenState extends ConsumerState<ProductManagementScree
                       Text('Gagal load produk: $error'),
                       const SizedBox(height: 12),
                       FilledButton(
-                        onPressed: () => ref.invalidate(productSearchProvider(_search)),
+                        onPressed: () =>
+                            ref.invalidate(productSearchProvider(_search)),
                         child: const Text('Retry'),
                       ),
                     ],

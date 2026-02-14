@@ -30,22 +30,28 @@ final deliveryRepositoryProvider = Provider<DeliveryRepository>((ref) {
   return DeliveryRepository(remote);
 });
 
-final deliveryListProvider = FutureProvider.family<List<DeliveryOrderModel>, DeliveryQuery>((ref, query) async {
+final deliveryListProvider =
+    FutureProvider.family<List<DeliveryOrderModel>, DeliveryQuery>(
+        (ref, query) async {
   final repository = ref.read(deliveryRepositoryProvider);
-  return repository.fetchDeliveryOrders(status: query.status, warungId: query.warungId, kurirId: query.kurirId);
+  return repository.fetchDeliveryOrders(
+      status: query.status, warungId: query.warungId, kurirId: query.kurirId);
 });
 
-final deliveryDetailProvider = FutureProvider.family<DeliveryOrderModel, String>((ref, id) async {
+final deliveryDetailProvider =
+    FutureProvider.family<DeliveryOrderModel, String>((ref, id) async {
   final repository = ref.read(deliveryRepositoryProvider);
   return repository.fetchDeliveryOrderById(id);
 });
 
-final deliveryProvider = StateNotifierProvider<DeliveryNotifier, AsyncValue<List<DeliveryOrderModel>>>((ref) {
+final deliveryProvider = StateNotifierProvider<DeliveryNotifier,
+    AsyncValue<List<DeliveryOrderModel>>>((ref) {
   final repository = ref.read(deliveryRepositoryProvider);
   return DeliveryNotifier(repository);
 });
 
-class DeliveryNotifier extends StateNotifier<AsyncValue<List<DeliveryOrderModel>>> {
+class DeliveryNotifier
+    extends StateNotifier<AsyncValue<List<DeliveryOrderModel>>> {
   DeliveryNotifier(this._repository) : super(const AsyncValue.loading());
 
   final DeliveryRepository _repository;
@@ -54,19 +60,22 @@ class DeliveryNotifier extends StateNotifier<AsyncValue<List<DeliveryOrderModel>
   String? _warungId;
   String? _kurirId;
 
-  Future<void> loadDeliveries({String? status, String? warungId, String? kurirId}) async {
+  Future<void> loadDeliveries(
+      {String? status, String? warungId, String? kurirId}) async {
     _status = status;
     _warungId = warungId;
     _kurirId = kurirId;
 
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() {
-      return _repository.fetchDeliveryOrders(status: status, warungId: warungId, kurirId: kurirId);
+      return _repository.fetchDeliveryOrders(
+          status: status, warungId: warungId, kurirId: kurirId);
     });
   }
 
   Future<void> refresh() async {
-    await loadDeliveries(status: _status, warungId: _warungId, kurirId: _kurirId);
+    await loadDeliveries(
+        status: _status, warungId: _warungId, kurirId: _kurirId);
   }
 
   Future<void> startDelivery(String id) async {

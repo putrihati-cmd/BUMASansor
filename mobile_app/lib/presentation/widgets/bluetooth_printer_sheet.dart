@@ -99,7 +99,8 @@ class _BluetoothPrinterSheetState extends State<BluetoothPrinterSheet> {
       return true;
     }
 
-    final permanentlyDenied = statuses.values.any((status) => status.isPermanentlyDenied);
+    final permanentlyDenied =
+        statuses.values.any((status) => status.isPermanentlyDenied);
     if (permanentlyDenied) {
       await openAppSettings();
     }
@@ -113,7 +114,8 @@ class _BluetoothPrinterSheetState extends State<BluetoothPrinterSheet> {
     });
 
     try {
-      final connected = await PrintBluetoothThermal.connect(macPrinterAddress: device.macAdress);
+      final connected = await PrintBluetoothThermal.connect(
+          macPrinterAddress: device.macAdress);
       if (!connected) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -129,7 +131,8 @@ class _BluetoothPrinterSheetState extends State<BluetoothPrinterSheet> {
 
       if (!ok) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gagal print. Coba ulang / ganti printer.')),
+          const SnackBar(
+              content: Text('Gagal print. Coba ulang / ganti printer.')),
         );
         return;
       }
@@ -157,7 +160,8 @@ class _BluetoothPrinterSheetState extends State<BluetoothPrinterSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final defaultName = HiveService.cacheBox.get(_keyDefaultPrinterName) as String?;
+    final defaultName =
+        HiveService.cacheBox.get(_keyDefaultPrinterName) as String?;
 
     return SafeArea(
       child: Padding(
@@ -170,7 +174,8 @@ class _BluetoothPrinterSheetState extends State<BluetoothPrinterSheet> {
                 Expanded(
                   child: Text(
                     widget.title ?? 'Pilih Printer Bluetooth',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
@@ -203,7 +208,8 @@ class _BluetoothPrinterSheetState extends State<BluetoothPrinterSheet> {
             ] else if (_devices.isEmpty) ...[
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text('Belum ada printer ter-pair. Pair printer via Bluetooth Settings dulu.'),
+                child: Text(
+                    'Belum ada printer ter-pair. Pair printer via Bluetooth Settings dulu.'),
               ),
             ] else ...[
               Flexible(
@@ -213,13 +219,19 @@ class _BluetoothPrinterSheetState extends State<BluetoothPrinterSheet> {
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final device = _devices[index];
-                    final isDefault = _defaultMac != null && _defaultMac == device.macAdress;
+                    final isDefault =
+                        _defaultMac != null && _defaultMac == device.macAdress;
                     return ListTile(
                       enabled: !_printing,
                       leading: Icon(isDefault ? Icons.star : Icons.print),
                       title: Text(device.name),
                       subtitle: Text(device.macAdress),
-                      trailing: _printing ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : null,
+                      trailing: _printing
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2))
+                          : null,
                       onTap: _printing ? null : () => _printTo(device),
                     );
                   },

@@ -39,6 +39,7 @@ class _POSScreenState extends ConsumerState<POSScreen> {
       }
     });
   }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -75,7 +76,8 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Scan Barcode', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Scan Barcode',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close),
@@ -231,7 +233,9 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                       ? products
                       : products
                           .where(
-                            (p) => p.name.toLowerCase().contains(query) || p.barcode.toLowerCase().contains(query),
+                            (p) =>
+                                p.name.toLowerCase().contains(query) ||
+                                p.barcode.toLowerCase().contains(query),
                           )
                           .toList();
 
@@ -242,7 +246,8 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                   if (_isGridView) {
                     return GridView.builder(
                       itemCount: filtered.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         childAspectRatio: 0.9,
                         crossAxisSpacing: 12,
@@ -252,7 +257,9 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                         final product = filtered[index];
                         return ProductCard(
                           product: product,
-                          onTap: () => ref.read(cartProvider.notifier).addProduct(product),
+                          onTap: () => ref
+                              .read(cartProvider.notifier)
+                              .addProduct(product),
                         );
                       },
                     );
@@ -266,13 +273,15 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                       return ProductCard(
                         product: product,
                         isListView: true,
-                        onTap: () => ref.read(cartProvider.notifier).addProduct(product),
+                        onTap: () =>
+                            ref.read(cartProvider.notifier).addProduct(product),
                       );
                     },
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, _) => Center(child: Text('Gagal mengambil produk: $error')),
+                error: (error, _) =>
+                    Center(child: Text('Gagal mengambil produk: $error')),
               ),
             ),
           ],

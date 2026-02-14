@@ -10,7 +10,8 @@ class PurchaseOrderRemoteDataSource {
 
   final Dio _dio;
 
-  Future<List<PurchaseOrderModel>> fetchPurchaseOrders({String? status, String? supplierId}) async {
+  Future<List<PurchaseOrderModel>> fetchPurchaseOrders(
+      {String? status, String? supplierId}) async {
     final response = await _dio.get(
       '/purchase-orders',
       queryParameters: {
@@ -20,7 +21,9 @@ class PurchaseOrderRemoteDataSource {
     );
 
     final data = (response.data['data'] ?? []) as List<dynamic>;
-    return data.map((row) => PurchaseOrderModel.fromJson(row as Map<String, dynamic>)).toList();
+    return data
+        .map((row) => PurchaseOrderModel.fromJson(row as Map<String, dynamic>))
+        .toList();
   }
 
   Future<void> receivePurchaseOrder(String id) async {

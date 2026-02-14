@@ -57,7 +57,9 @@ class ProductModel {
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     final categoryJson = json['category'];
-    final category = categoryJson is Map<String, dynamic> ? CategoryModel.fromJson(categoryJson) : null;
+    final category = categoryJson is Map<String, dynamic>
+        ? CategoryModel.fromJson(categoryJson)
+        : null;
 
     final categoryId = (json['categoryId'] as String?) ?? category?.id ?? '';
 

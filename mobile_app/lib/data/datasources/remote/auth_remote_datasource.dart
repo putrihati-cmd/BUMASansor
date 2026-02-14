@@ -10,15 +10,18 @@ class AuthRemoteDataSource {
 
   final Dio _dio;
 
-  Future<AuthResponseModel> login({required String email, required String password}) async {
-    final response = await _dio.post('/auth/login', data: {'email': email, 'password': password});
+  Future<AuthResponseModel> login(
+      {required String email, required String password}) async {
+    final response = await _dio
+        .post('/auth/login', data: {'email': email, 'password': password});
 
     final data = response.data['data'] as Map<String, dynamic>;
     return AuthResponseModel.fromJson(data);
   }
 
   Future<AuthResponseModel> refreshToken(String refreshToken) async {
-    final response = await _dio.post('/auth/refresh', data: {'refreshToken': refreshToken});
+    final response =
+        await _dio.post('/auth/refresh', data: {'refreshToken': refreshToken});
     final data = response.data['data'] as Map<String, dynamic>;
     return AuthResponseModel.fromJson(data);
   }

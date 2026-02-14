@@ -32,7 +32,8 @@ class FinanceRemoteDataSource {
     return ReceivableListResponse.fromJson(data);
   }
 
-  Future<Map<String, dynamic>> createPayment(Map<String, dynamic> payload) async {
+  Future<Map<String, dynamic>> createPayment(
+      Map<String, dynamic> payload) async {
     final response = await _dio.post('/finance/payments', data: payload);
     return response.data['data'] as Map<String, dynamic>;
   }

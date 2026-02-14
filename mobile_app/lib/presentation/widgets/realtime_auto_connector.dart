@@ -18,7 +18,8 @@ class RealtimeAutoConnector extends ConsumerStatefulWidget {
   final Widget child;
 
   @override
-  ConsumerState<RealtimeAutoConnector> createState() => _RealtimeAutoConnectorState();
+  ConsumerState<RealtimeAutoConnector> createState() =>
+      _RealtimeAutoConnectorState();
 }
 
 class _RealtimeAutoConnectorState extends ConsumerState<RealtimeAutoConnector> {
@@ -66,7 +67,8 @@ class _RealtimeAutoConnectorState extends ConsumerState<RealtimeAutoConnector> {
         return;
       }
 
-      final socket = RealtimeSocket(apiBaseUrl: ApiConfig.baseUrl, token: token);
+      final socket =
+          RealtimeSocket(apiBaseUrl: ApiConfig.baseUrl, token: token);
 
       // Register listeners before connecting to avoid races.
       socket.on('stocks.updated', (_) {

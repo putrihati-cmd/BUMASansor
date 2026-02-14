@@ -8,10 +8,12 @@ class WarungManagementScreen extends ConsumerStatefulWidget {
   const WarungManagementScreen({super.key});
 
   @override
-  ConsumerState<WarungManagementScreen> createState() => _WarungManagementScreenState();
+  ConsumerState<WarungManagementScreen> createState() =>
+      _WarungManagementScreenState();
 }
 
-class _WarungManagementScreenState extends ConsumerState<WarungManagementScreen> {
+class _WarungManagementScreenState
+    extends ConsumerState<WarungManagementScreen> {
   final _searchController = TextEditingController();
   bool _blockedOnly = false;
 
@@ -23,7 +25,9 @@ class _WarungManagementScreenState extends ConsumerState<WarungManagementScreen>
 
   WarungQuery get _query {
     return WarungQuery(
-      search: _searchController.text.trim().isEmpty ? null : _searchController.text.trim(),
+      search: _searchController.text.trim().isEmpty
+          ? null
+          : _searchController.text.trim(),
       blocked: _blockedOnly ? true : null,
       page: 1,
       limit: 200,
@@ -41,8 +45,12 @@ class _WarungManagementScreenState extends ConsumerState<WarungManagementScreen>
             title: const Text('Unblock warung'),
             content: const Text('Yakin ingin unblock warung ini?'),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-              FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Unblock')),
+              TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Batal')),
+              FilledButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Unblock')),
             ],
           );
         },
@@ -75,8 +83,12 @@ class _WarungManagementScreenState extends ConsumerState<WarungManagementScreen>
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-              FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Block')),
+              TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Batal')),
+              FilledButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Block')),
             ],
           );
         },
@@ -89,7 +101,8 @@ class _WarungManagementScreenState extends ConsumerState<WarungManagementScreen>
         return;
       }
 
-      await repo.blockWarung(warungId, reason: reason.isEmpty ? 'Blocked by admin' : reason);
+      await repo.blockWarung(warungId,
+          reason: reason.isEmpty ? 'Blocked by admin' : reason);
     }
 
     if (!mounted) {
@@ -98,7 +111,8 @@ class _WarungManagementScreenState extends ConsumerState<WarungManagementScreen>
 
     ref.invalidate(warungListProvider(_query));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(isBlocked ? 'Warung di-unblock.' : 'Warung di-block.')),
+      SnackBar(
+          content: Text(isBlocked ? 'Warung di-unblock.' : 'Warung di-block.')),
     );
   }
 
@@ -151,7 +165,8 @@ class _WarungManagementScreenState extends ConsumerState<WarungManagementScreen>
                 return RefreshIndicator(
                   onRefresh: () async {
                     ref.invalidate(warungListProvider(_query));
-                    await Future<void>.delayed(const Duration(milliseconds: 200));
+                    await Future<void>.delayed(
+                        const Duration(milliseconds: 200));
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.only(bottom: 80),
@@ -170,7 +185,8 @@ class _WarungManagementScreenState extends ConsumerState<WarungManagementScreen>
                         trailing: OutlinedButton(
                           onPressed: () => _toggleBlock(w.id, w.isBlocked),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: w.isBlocked ? Colors.green : Colors.red,
+                            foregroundColor:
+                                w.isBlocked ? Colors.green : Colors.red,
                           ),
                           child: Text(w.isBlocked ? 'Unblock' : 'Block'),
                         ),
@@ -189,7 +205,8 @@ class _WarungManagementScreenState extends ConsumerState<WarungManagementScreen>
                       Text('Gagal load warung: $error'),
                       const SizedBox(height: 12),
                       FilledButton(
-                        onPressed: () => ref.invalidate(warungListProvider(_query)),
+                        onPressed: () =>
+                            ref.invalidate(warungListProvider(_query)),
                         child: const Text('Retry'),
                       ),
                     ],

@@ -56,7 +56,9 @@ class ProductRepository {
 
       return cached
           .where(
-            (p) => p.name.toLowerCase().contains(q) || p.barcode.toLowerCase().contains(q),
+            (p) =>
+                p.name.toLowerCase().contains(q) ||
+                p.barcode.toLowerCase().contains(q),
           )
           .toList();
     }
@@ -105,13 +107,16 @@ class ProductRepository {
   }) {
     return _remoteDataSource.createProduct({
       'name': name,
-      if (barcode != null && barcode.trim().isNotEmpty) 'barcode': barcode.trim(),
+      if (barcode != null && barcode.trim().isNotEmpty)
+        'barcode': barcode.trim(),
       'categoryId': categoryId,
       'buyPrice': buyPrice,
       'sellPrice': sellPrice,
       'unit': unit,
-      if (description != null && description.trim().isNotEmpty) 'description': description.trim(),
-      if (imageUrl != null && imageUrl.trim().isNotEmpty) 'imageUrl': imageUrl.trim(),
+      if (description != null && description.trim().isNotEmpty)
+        'description': description.trim(),
+      if (imageUrl != null && imageUrl.trim().isNotEmpty)
+        'imageUrl': imageUrl.trim(),
       if (isActive != null) 'isActive': isActive,
     });
   }

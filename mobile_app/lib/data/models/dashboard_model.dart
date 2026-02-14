@@ -17,12 +17,14 @@ class DashboardModel {
 
   factory DashboardModel.fromJson(Map<String, dynamic> json) {
     final today = json['today'] as Map<String, dynamic>? ?? const {};
-    final receivables = json['receivables'] as Map<String, dynamic>? ?? const {};
+    final receivables =
+        json['receivables'] as Map<String, dynamic>? ?? const {};
     final warungs = json['warungs'] as Map<String, dynamic>? ?? const {};
     final stocks = json['stocks'] as Map<String, dynamic>? ?? const {};
     final chart = json['chart'] as Map<String, dynamic>?;
 
-    final topProductsRaw = (json['topProducts'] as List<dynamic>? ?? const []).cast<dynamic>();
+    final topProductsRaw =
+        (json['topProducts'] as List<dynamic>? ?? const []).cast<dynamic>();
 
     return DashboardModel(
       today: DashboardToday.fromJson(today),
@@ -30,7 +32,8 @@ class DashboardModel {
       warungs: DashboardWarungs.fromJson(warungs),
       stocks: DashboardStocks.fromJson(stocks),
       topProducts: topProductsRaw
-          .map((row) => DashboardTopProduct.fromJson(row as Map<String, dynamic>))
+          .map((row) =>
+              DashboardTopProduct.fromJson(row as Map<String, dynamic>))
           .toList(),
       chart: chart == null ? null : DashboardChart.fromJson(chart),
     );
@@ -67,7 +70,8 @@ class DashboardMonthlyChart {
       return list.map((item) => double.tryParse(item.toString()) ?? 0).toList();
     }
 
-    final labelsRaw = (json['labels'] as List<dynamic>? ?? const []).cast<dynamic>();
+    final labelsRaw =
+        (json['labels'] as List<dynamic>? ?? const []).cast<dynamic>();
 
     return DashboardMonthlyChart(
       labels: labelsRaw.map((item) => item.toString()).toList(),
@@ -96,7 +100,8 @@ class DashboardToday {
   final double profitEstimate;
 
   factory DashboardToday.fromJson(Map<String, dynamic> json) {
-    double toDouble(dynamic value) => double.tryParse(value?.toString() ?? '0') ?? 0;
+    double toDouble(dynamic value) =>
+        double.tryParse(value?.toString() ?? '0') ?? 0;
 
     return DashboardToday(
       transactions: int.tryParse(json['transactions']?.toString() ?? '0') ?? 0,
@@ -141,7 +146,8 @@ class DashboardStocks {
 
   factory DashboardStocks.fromJson(Map<String, dynamic> json) {
     return DashboardStocks(
-      lowStockCount: int.tryParse(json['lowStockCount']?.toString() ?? '0') ?? 0,
+      lowStockCount:
+          int.tryParse(json['lowStockCount']?.toString() ?? '0') ?? 0,
       totalValue: double.tryParse(json['totalValue']?.toString() ?? '0') ?? 0,
     );
   }
@@ -165,7 +171,8 @@ class DashboardTopProduct {
   final double revenue;
 
   factory DashboardTopProduct.fromJson(Map<String, dynamic> json) {
-    double toDouble(dynamic value) => double.tryParse(value?.toString() ?? '0') ?? 0;
+    double toDouble(dynamic value) =>
+        double.tryParse(value?.toString() ?? '0') ?? 0;
 
     return DashboardTopProduct(
       rank: int.tryParse(json['rank']?.toString() ?? '0') ?? 0,

@@ -12,7 +12,8 @@ class ReportsScreen extends ConsumerStatefulWidget {
   ConsumerState<ReportsScreen> createState() => _ReportsScreenState();
 }
 
-class _ReportsScreenState extends ConsumerState<ReportsScreen> with SingleTickerProviderStateMixin {
+class _ReportsScreenState extends ConsumerState<ReportsScreen>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   DateTime? _dailyDate;
@@ -89,7 +90,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> with SingleTicker
   Widget build(BuildContext context) {
     final dailyAsync = ref.watch(dailyReportProvider(_dailyDateParam));
     final monthlyAsync = ref.watch(monthlyReportProvider(_monthParam));
-    final topAsync = ref.watch(topProductsProvider(TopProductsQuery(days: _topDays, top: _topN)));
+    final topAsync = ref.watch(
+        topProductsProvider(TopProductsQuery(days: _topDays, top: _topN)));
     final warungAsync = ref.watch(warungPerformanceProvider(_warungPeriod));
 
     return Scaffold(
@@ -161,7 +163,9 @@ class _DailyTab extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text('Tanggal: $dateText', style: const TextStyle(fontWeight: FontWeight.bold))),
+            Expanded(
+                child: Text('Tanggal: $dateText',
+                    style: const TextStyle(fontWeight: FontWeight.bold))),
             OutlinedButton.icon(
               onPressed: onPickDate,
               icon: const Icon(Icons.date_range),
@@ -176,13 +180,22 @@ class _DailyTab extends StatelessWidget {
               children: [
                 _MetricCard(title: 'Omzet', value: money(report.omzet)),
                 const SizedBox(height: 8),
-                _MetricCard(title: 'Paid (Sales)', value: money(report.paid), subtitle: '${report.transactions} transaksi'),
+                _MetricCard(
+                    title: 'Paid (Sales)',
+                    value: money(report.paid),
+                    subtitle: '${report.transactions} transaksi'),
                 const SizedBox(height: 8),
-                _MetricCard(title: 'Collections', value: money(report.collected), subtitle: '${report.paymentsCount} pembayaran'),
+                _MetricCard(
+                    title: 'Collections',
+                    value: money(report.collected),
+                    subtitle: '${report.paymentsCount} pembayaran'),
               ],
             );
           },
-          loading: () => const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+          loading: () => const Center(
+              child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: CircularProgressIndicator())),
           error: (e, _) => Text('Gagal load laporan harian: $e'),
         ),
       ],
@@ -210,7 +223,9 @@ class _MonthlyTab extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text('Periode: $monthText', style: const TextStyle(fontWeight: FontWeight.bold))),
+            Expanded(
+                child: Text('Periode: $monthText',
+                    style: const TextStyle(fontWeight: FontWeight.bold))),
             OutlinedButton.icon(
               onPressed: onPickMonth,
               icon: const Icon(Icons.calendar_month),
@@ -223,19 +238,31 @@ class _MonthlyTab extends StatelessWidget {
           data: (report) {
             return Column(
               children: [
-                _MetricCard(title: 'Omzet', value: money(report.omzet), subtitle: '${report.transactions} transaksi'),
+                _MetricCard(
+                    title: 'Omzet',
+                    value: money(report.omzet),
+                    subtitle: '${report.transactions} transaksi'),
                 const SizedBox(height: 8),
                 _MetricCard(title: 'Paid (Sales)', value: money(report.paid)),
                 const SizedBox(height: 8),
-                _MetricCard(title: 'Receivables Created', value: money(report.receivablesCreated)),
+                _MetricCard(
+                    title: 'Receivables Created',
+                    value: money(report.receivablesCreated)),
                 const SizedBox(height: 8),
-                _MetricCard(title: 'Receivables Outstanding', value: money(report.receivablesOutstanding)),
+                _MetricCard(
+                    title: 'Receivables Outstanding',
+                    value: money(report.receivablesOutstanding)),
                 const SizedBox(height: 8),
-                _MetricCard(title: 'Collections', value: money(report.collectionsAmount)),
+                _MetricCard(
+                    title: 'Collections',
+                    value: money(report.collectionsAmount)),
               ],
             );
           },
-          loading: () => const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+          loading: () => const Center(
+              child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: CircularProgressIndicator())),
           error: (e, _) => Text('Gagal load laporan bulanan: $e'),
         ),
       ],
@@ -269,7 +296,8 @@ class _TopProductsTab extends StatelessWidget {
           children: [
             Expanded(
               child: InputDecorator(
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Range (days)'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Range (days)'),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<int>(
                     isExpanded: true,
@@ -287,7 +315,8 @@ class _TopProductsTab extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: InputDecorator(
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Top'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Top'),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<int>(
                     isExpanded: true,
@@ -317,8 +346,10 @@ class _TopProductsTab extends StatelessWidget {
                       (p) => ListTile(
                         dense: true,
                         leading: CircleAvatar(child: Text(p.rank.toString())),
-                        title: Text(p.productName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        subtitle: Text('${p.quantitySold} terjual | ${p.barcode}'),
+                        title: Text(p.productName,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        subtitle:
+                            Text('${p.quantitySold} terjual | ${p.barcode}'),
                         trailing: Text(money(p.revenue)),
                       ),
                     )
@@ -326,7 +357,10 @@ class _TopProductsTab extends StatelessWidget {
               ),
             );
           },
-          loading: () => const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+          loading: () => const Center(
+              child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: CircularProgressIndicator())),
           error: (e, _) => Text('Gagal load top products: $e'),
         ),
       ],
@@ -353,14 +387,17 @@ class _WarungPerformanceTab extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         InputDecorator(
-          decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Periode'),
+          decoration: const InputDecoration(
+              border: OutlineInputBorder(), labelText: 'Periode'),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               isExpanded: true,
               value: period,
               items: const [
-                DropdownMenuItem(value: 'monthly', child: Text('Monthly (30 hari)')),
-                DropdownMenuItem(value: 'weekly', child: Text('Weekly (7 hari)')),
+                DropdownMenuItem(
+                    value: 'monthly', child: Text('Monthly (30 hari)')),
+                DropdownMenuItem(
+                    value: 'weekly', child: Text('Weekly (7 hari)')),
               ],
               onChanged: (v) => v == null ? null : onPeriodChanged(v),
             ),
@@ -380,15 +417,20 @@ class _WarungPerformanceTab extends StatelessWidget {
                     .map(
                       (w) => ListTile(
                         dense: true,
-                        title: Text(w.warungName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        subtitle: Text('Score: ${w.paymentScore} | Orders: ${w.totalOrders} | ${w.status}'),
+                        title: Text(w.warungName,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        subtitle: Text(
+                            'Score: ${w.paymentScore} | Orders: ${w.totalOrders} | ${w.status}'),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('Buy: ${money(w.totalPurchase)}', style: const TextStyle(fontSize: 11)),
-                            Text('Pay: ${money(w.totalPayment)}', style: const TextStyle(fontSize: 11)),
-                            Text('Debt: ${money(w.currentDebt)}', style: const TextStyle(fontSize: 11)),
+                            Text('Buy: ${money(w.totalPurchase)}',
+                                style: const TextStyle(fontSize: 11)),
+                            Text('Pay: ${money(w.totalPayment)}',
+                                style: const TextStyle(fontSize: 11)),
+                            Text('Debt: ${money(w.currentDebt)}',
+                                style: const TextStyle(fontSize: 11)),
                           ],
                         ),
                       ),
@@ -397,7 +439,10 @@ class _WarungPerformanceTab extends StatelessWidget {
               ),
             );
           },
-          loading: () => const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+          loading: () => const Center(
+              child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: CircularProgressIndicator())),
           error: (e, _) => Text('Gagal load warung performance: $e'),
         ),
       ],
@@ -423,10 +468,13 @@ class _MetricCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
-                    Text(subtitle!, style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+                    Text(subtitle!,
+                        style: TextStyle(
+                            color: Colors.grey.shade700, fontSize: 12)),
                   ],
                 ],
               ),

@@ -7,7 +7,8 @@ class SecureStorageService {
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  Future<void> saveAuth({required String accessToken, required String refreshToken}) async {
+  Future<void> saveAuth(
+      {required String accessToken, required String refreshToken}) async {
     await _storage.write(key: _accessTokenKey, value: accessToken);
     await _storage.write(key: _refreshTokenKey, value: refreshToken);
   }
@@ -16,7 +17,8 @@ class SecureStorageService {
 
   Future<String?> getRefreshToken() => _storage.read(key: _refreshTokenKey);
 
-  Future<void> saveRole(String role) => _storage.write(key: _roleKey, value: role);
+  Future<void> saveRole(String role) =>
+      _storage.write(key: _roleKey, value: role);
 
   Future<String?> getRole() => _storage.read(key: _roleKey);
 

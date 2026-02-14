@@ -23,7 +23,8 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
     routes: [
-      GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
+      GoRoute(
+          path: '/splash', builder: (context, state) => const SplashScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/admin',
@@ -33,10 +34,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'warungs',
             builder: (context, state) => const WarungManagementScreen(),
             routes: [
-              GoRoute(path: 'new', builder: (context, state) => const WarungFormScreen()),
+              GoRoute(
+                  path: 'new',
+                  builder: (context, state) => const WarungFormScreen()),
               GoRoute(
                 path: ':id',
-                builder: (context, state) => WarungFormScreen(warungId: state.pathParameters['id']),
+                builder: (context, state) =>
+                    WarungFormScreen(warungId: state.pathParameters['id']),
               ),
             ],
           ),
@@ -44,16 +48,25 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'products',
             builder: (context, state) => const ProductManagementScreen(),
             routes: [
-              GoRoute(path: 'new', builder: (context, state) => const ProductFormScreen()),
+              GoRoute(
+                  path: 'new',
+                  builder: (context, state) => const ProductFormScreen()),
               GoRoute(
                 path: ':id',
-                builder: (context, state) => ProductFormScreen(productId: state.pathParameters['id']),
+                builder: (context, state) =>
+                    ProductFormScreen(productId: state.pathParameters['id']),
               ),
             ],
           ),
-          GoRoute(path: 'create-do', builder: (context, state) => const CreateDOScreen()),
-          GoRoute(path: 'verify-payments', builder: (context, state) => const VerifyPaymentsScreen()),
-          GoRoute(path: 'reports', builder: (context, state) => const ReportsScreen()),
+          GoRoute(
+              path: 'create-do',
+              builder: (context, state) => const CreateDOScreen()),
+          GoRoute(
+              path: 'verify-payments',
+              builder: (context, state) => const VerifyPaymentsScreen()),
+          GoRoute(
+              path: 'reports',
+              builder: (context, state) => const ReportsScreen()),
         ],
       ),
       GoRoute(path: '/warung', builder: (context, state) => const POSScreen()),
@@ -63,7 +76,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: 'deliveries/:id',
-            builder: (context, state) => DeliveryDetailScreen(deliveryId: state.pathParameters['id'] ?? ''),
+            builder: (context, state) => DeliveryDetailScreen(
+                deliveryId: state.pathParameters['id'] ?? ''),
           ),
         ],
       ),
@@ -71,8 +85,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/gudang',
         builder: (context, state) => const StockOverviewScreen(),
         routes: [
-          GoRoute(path: 'receive-goods', builder: (context, state) => const ReceiveGoodsScreen()),
-          GoRoute(path: 'prepare-delivery', builder: (context, state) => const PrepareDeliveryScreen()),
+          GoRoute(
+              path: 'receive-goods',
+              builder: (context, state) => const ReceiveGoodsScreen()),
+          GoRoute(
+              path: 'prepare-delivery',
+              builder: (context, state) => const PrepareDeliveryScreen()),
           GoRoute(
             path: 'opname',
             builder: (context, state) => StockOpnameScreen(

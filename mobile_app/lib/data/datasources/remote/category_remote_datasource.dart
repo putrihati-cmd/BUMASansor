@@ -12,7 +12,8 @@ class CategoryRemoteDataSource {
 
   Future<List<CategoryModel>> fetchCategories() async {
     final response = await _dio.get('/categories');
-    final data = (response.data['data'] as List<dynamic>? ?? const []).cast<dynamic>();
+    final data =
+        (response.data['data'] as List<dynamic>? ?? const []).cast<dynamic>();
     return data
         .map((item) => CategoryModel.fromJson(item as Map<String, dynamic>))
         .toList();

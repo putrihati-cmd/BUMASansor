@@ -19,11 +19,13 @@ class ReportsRepository {
     return _remoteDataSource.fetchMonthly(month: month);
   }
 
-  Future<List<DashboardTopProduct>> fetchTopProducts({int days = 30, int top = 10}) {
+  Future<List<DashboardTopProduct>> fetchTopProducts(
+      {int days = 30, int top = 10}) {
     return _remoteDataSource.fetchTopProducts(days: days, top: top);
   }
 
-  Future<WarungPerformanceResponse> fetchWarungPerformance({String period = 'monthly'}) {
+  Future<WarungPerformanceResponse> fetchWarungPerformance(
+      {String period = 'monthly'}) {
     return _remoteDataSource.fetchWarungPerformance(period: period);
   }
 }

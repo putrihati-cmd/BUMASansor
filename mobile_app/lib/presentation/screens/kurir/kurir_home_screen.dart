@@ -51,9 +51,14 @@ class _KurirHomeScreenState extends ConsumerState<KurirHomeScreen> {
         padding: const EdgeInsets.all(16),
         child: deliveryAsync.when(
           data: (deliveries) {
-            final assigned = deliveries.where((d) => d.status == 'ASSIGNED').toList();
-            final onDelivery = deliveries.where((d) => d.status == 'ON_DELIVERY').toList();
-            final delivered = deliveries.where((d) => d.status == 'DELIVERED' || d.status == 'CONFIRMED').toList();
+            final assigned =
+                deliveries.where((d) => d.status == 'ASSIGNED').toList();
+            final onDelivery =
+                deliveries.where((d) => d.status == 'ON_DELIVERY').toList();
+            final delivered = deliveries
+                .where(
+                    (d) => d.status == 'DELIVERED' || d.status == 'CONFIRMED')
+                .toList();
 
             return ListView(
               children: [
@@ -96,7 +101,8 @@ class _Section extends StatelessWidget {
                   dense: true,
                   title: Text(delivery.doNumber),
                   subtitle: Text('${delivery.warungName} - ${delivery.status}'),
-                  trailing: Text('Rp ${delivery.totalAmount.toStringAsFixed(0)}'),
+                  trailing:
+                      Text('Rp ${delivery.totalAmount.toStringAsFixed(0)}'),
                 ),
               ),
           ],

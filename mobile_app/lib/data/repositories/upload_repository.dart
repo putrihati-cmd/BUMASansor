@@ -11,4 +11,3 @@ class UploadRepository {
     return _remoteDataSource.uploadBytes(bytes, filename: filename);
   }
 }
-

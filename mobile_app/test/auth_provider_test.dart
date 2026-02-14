@@ -60,7 +60,8 @@ void main() {
     );
 
     when(repo.login(email: 'admin@bumas.local', password: 'secret')).thenAnswer(
-      (_) async => AuthResponseModel(accessToken: 'a', refreshToken: 'r', user: user),
+      (_) async =>
+          AuthResponseModel(accessToken: 'a', refreshToken: 'r', user: user),
     );
 
     await notifier.login(email: 'admin@bumas.local', password: 'secret');
@@ -76,7 +77,8 @@ void main() {
     final storage = MockSecureStorageService();
     final notifier = AuthNotifier(repo, storage);
 
-    when(repo.login(email: 'x', password: 'y')).thenThrow(Exception('bad creds'));
+    when(repo.login(email: 'x', password: 'y'))
+        .thenThrow(Exception('bad creds'));
 
     await notifier.login(email: 'x', password: 'y');
 

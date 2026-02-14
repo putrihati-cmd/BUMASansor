@@ -12,7 +12,8 @@ class WarungRepository {
     int page = 1,
     int limit = 100,
   }) {
-    return _remote.fetchWarungs(search: search, blocked: blocked, page: page, limit: limit);
+    return _remote.fetchWarungs(
+        search: search, blocked: blocked, page: page, limit: limit);
   }
 
   Future<WarungModel> fetchWarungById(String id) {

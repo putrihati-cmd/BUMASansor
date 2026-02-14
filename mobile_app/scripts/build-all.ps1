@@ -20,10 +20,10 @@ Write-Host "[mobile] build dev apk"
 flutter build apk --flavor dev --debug --dart-define=API_BASE_URL=http://10.0.2.2:3000/api
 
 Write-Host "[mobile] build staging apk"
-flutter build apk --flavor staging --release --dart-define=API_BASE_URL=https://staging-api.bumasansor.com/api
+flutter build apk --flavor staging --release --dart-define=API_BASE_URL=https://bumas.infiatin.cloud/api
 
 Write-Host "[mobile] build prod aab"
-flutter build appbundle --flavor prod --release --dart-define=API_BASE_URL=https://api.bumasansor.com/api
+flutter build appbundle --flavor prod --release --dart-define=API_BASE_URL=https://bumas.infiatin.cloud/api
 
 $distDir = Join-Path $root ("distribution\\v{0}-{1}" -f $version, $buildNumber)
 New-Item -ItemType Directory -Force $distDir | Out-Null

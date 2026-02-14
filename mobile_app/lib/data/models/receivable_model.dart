@@ -22,7 +22,8 @@ class PaymentModel {
   final String? verifiedBy;
 
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
-    double toDouble(dynamic value) => double.tryParse(value?.toString() ?? '0') ?? 0;
+    double toDouble(dynamic value) =>
+        double.tryParse(value?.toString() ?? '0') ?? 0;
 
     DateTime? parseDate(dynamic value) {
       if (value == null) {
@@ -75,14 +76,19 @@ class ReceivableModel {
   double get paidAmount => amount - balance;
 
   factory ReceivableModel.fromJson(Map<String, dynamic> json) {
-    double toDouble(dynamic value) => double.tryParse(value?.toString() ?? '0') ?? 0;
+    double toDouble(dynamic value) =>
+        double.tryParse(value?.toString() ?? '0') ?? 0;
 
     final warungJson = json['warung'];
-    final warung = warungJson is Map<String, dynamic> ? WarungModel.fromJson(warungJson) : null;
+    final warung = warungJson is Map<String, dynamic>
+        ? WarungModel.fromJson(warungJson)
+        : null;
 
-    final paymentsJson = (json['payments'] as List<dynamic>? ?? const []).cast<dynamic>();
+    final paymentsJson =
+        (json['payments'] as List<dynamic>? ?? const []).cast<dynamic>();
 
-    final due = DateTime.tryParse(json['dueDate']?.toString() ?? '') ?? DateTime.now();
+    final due =
+        DateTime.tryParse(json['dueDate']?.toString() ?? '') ?? DateTime.now();
     final created = DateTime.tryParse(json['createdAt']?.toString() ?? '');
 
     return ReceivableModel(
@@ -134,7 +140,8 @@ class ReceivableListResponse {
   final ReceivableMeta meta;
 
   factory ReceivableListResponse.fromJson(Map<String, dynamic> json) {
-    final itemsJson = (json['items'] as List<dynamic>? ?? const []).cast<dynamic>();
+    final itemsJson =
+        (json['items'] as List<dynamic>? ?? const []).cast<dynamic>();
     final metaJson = (json['meta'] as Map<String, dynamic>? ?? const {});
 
     return ReceivableListResponse(

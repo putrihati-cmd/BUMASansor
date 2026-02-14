@@ -6,8 +6,10 @@ class PurchaseOrderRepository {
 
   final PurchaseOrderRemoteDataSource _remoteDataSource;
 
-  Future<List<PurchaseOrderModel>> fetchPurchaseOrders({String? status, String? supplierId}) {
-    return _remoteDataSource.fetchPurchaseOrders(status: status, supplierId: supplierId);
+  Future<List<PurchaseOrderModel>> fetchPurchaseOrders(
+      {String? status, String? supplierId}) {
+    return _remoteDataSource.fetchPurchaseOrders(
+        status: status, supplierId: supplierId);
   }
 
   Future<void> receivePurchaseOrder(String id) {

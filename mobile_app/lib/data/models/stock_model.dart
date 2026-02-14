@@ -25,15 +25,18 @@ class StockModel {
   bool get isLowStock => quantity < minStock;
 
   factory StockModel.fromJson(Map<String, dynamic> json) {
-    final warehouseJson = json['warehouse'] as Map<String, dynamic>? ?? const {};
+    final warehouseJson =
+        json['warehouse'] as Map<String, dynamic>? ?? const {};
     final productJson = json['product'] as Map<String, dynamic>? ?? const {};
 
     final updated = DateTime.tryParse(json['updatedAt']?.toString() ?? '');
 
     return StockModel(
       id: json['id'] as String,
-      warehouseId: json['warehouseId'] as String? ?? (warehouseJson['id'] as String? ?? '-'),
-      productId: json['productId'] as String? ?? (productJson['id'] as String? ?? '-'),
+      warehouseId: json['warehouseId'] as String? ??
+          (warehouseJson['id'] as String? ?? '-'),
+      productId:
+          json['productId'] as String? ?? (productJson['id'] as String? ?? '-'),
       quantity: int.tryParse(json['quantity']?.toString() ?? '0') ?? 0,
       minStock: int.tryParse(json['minStock']?.toString() ?? '10') ?? 10,
       warehouse: WarehouseModel.fromJson(warehouseJson),
@@ -78,7 +81,8 @@ class StockMovementModel {
     return StockMovementModel(
       id: json['id'] as String,
       movementType: json['movementType'] as String? ?? '-',
-      productId: json['productId'] as String? ?? (productJson?['id'] as String? ?? '-'),
+      productId: json['productId'] as String? ??
+          (productJson?['id'] as String? ?? '-'),
       productName: productJson?['name'] as String? ?? '-',
       quantity: int.tryParse(json['quantity']?.toString() ?? '0') ?? 0,
       fromWarehouseName: fromWarehouseJson?['name'] as String?,

@@ -26,11 +26,14 @@ class PurchaseOrderModel {
   final DateTime? createdAt;
 
   factory PurchaseOrderModel.fromJson(Map<String, dynamic> json) {
-    double toDouble(dynamic value) => double.tryParse(value?.toString() ?? '0') ?? 0;
+    double toDouble(dynamic value) =>
+        double.tryParse(value?.toString() ?? '0') ?? 0;
 
     final supplierJson = json['supplier'] as Map<String, dynamic>? ?? const {};
-    final warehouseJson = json['warehouse'] as Map<String, dynamic>? ?? const {};
-    final itemsJson = (json['items'] as List<dynamic>? ?? const []).cast<dynamic>();
+    final warehouseJson =
+        json['warehouse'] as Map<String, dynamic>? ?? const {};
+    final itemsJson =
+        (json['items'] as List<dynamic>? ?? const []).cast<dynamic>();
 
     return PurchaseOrderModel(
       id: json['id'] as String,
@@ -67,13 +70,15 @@ class PurchaseOrderItemModel {
   final ProductModel product;
 
   factory PurchaseOrderItemModel.fromJson(Map<String, dynamic> json) {
-    double toDouble(dynamic value) => double.tryParse(value?.toString() ?? '0') ?? 0;
+    double toDouble(dynamic value) =>
+        double.tryParse(value?.toString() ?? '0') ?? 0;
 
     final productJson = json['product'] as Map<String, dynamic>? ?? const {};
 
     return PurchaseOrderItemModel(
       id: json['id'] as String,
-      productId: json['productId'] as String? ?? (productJson['id'] as String? ?? '-'),
+      productId:
+          json['productId'] as String? ?? (productJson['id'] as String? ?? '-'),
       quantity: int.tryParse(json['quantity']?.toString() ?? '0') ?? 0,
       price: toDouble(json['price']),
       subtotal: toDouble(json['subtotal']),

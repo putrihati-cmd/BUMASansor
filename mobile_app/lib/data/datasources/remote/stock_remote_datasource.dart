@@ -10,7 +10,8 @@ class StockRemoteDataSource {
 
   final Dio _dio;
 
-  Future<List<StockModel>> fetchStocks({String? warehouseId, String? productId, bool? lowStock}) async {
+  Future<List<StockModel>> fetchStocks(
+      {String? warehouseId, String? productId, bool? lowStock}) async {
     final response = await _dio.get(
       '/stocks',
       queryParameters: {
@@ -21,13 +22,17 @@ class StockRemoteDataSource {
     );
 
     final data = (response.data['data'] ?? []) as List<dynamic>;
-    return data.map((row) => StockModel.fromJson(row as Map<String, dynamic>)).toList();
+    return data
+        .map((row) => StockModel.fromJson(row as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<StockModel>> fetchLowStockAlerts() async {
     final response = await _dio.get('/stocks/alerts/low-stock');
     final data = (response.data['data'] ?? []) as List<dynamic>;
-    return data.map((row) => StockModel.fromJson(row as Map<String, dynamic>)).toList();
+    return data
+        .map((row) => StockModel.fromJson(row as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<StockMovementModel>> fetchMovementHistory({
@@ -45,7 +50,9 @@ class StockRemoteDataSource {
     );
 
     final data = (response.data['data'] ?? []) as List<dynamic>;
-    return data.map((row) => StockMovementModel.fromJson(row as Map<String, dynamic>)).toList();
+    return data
+        .map((row) => StockMovementModel.fromJson(row as Map<String, dynamic>))
+        .toList();
   }
 
   Future<void> performOpname({

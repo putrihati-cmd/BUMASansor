@@ -79,7 +79,8 @@ class _DailySummaryScreenState extends ConsumerState<DailySummaryScreen> {
 
             final sales = snapshot.data ?? const [];
             final totalTx = sales.length;
-            final totalAmount = sales.fold(0.0, (sum, s) => sum + s.totalAmount);
+            final totalAmount =
+                sales.fold(0.0, (sum, s) => sum + s.totalAmount);
 
             final csv = _toCsv(sales);
 
@@ -95,7 +96,8 @@ class _DailySummaryScreenState extends ConsumerState<DailySummaryScreen> {
                       children: [
                         Text('Total transaksi: $totalTx'),
                         const SizedBox(height: 6),
-                        Text('Total omzet: Rp ${totalAmount.toStringAsFixed(0)}'),
+                        Text(
+                            'Total omzet: Rp ${totalAmount.toStringAsFixed(0)}'),
                       ],
                     ),
                   ),
@@ -106,7 +108,9 @@ class _DailySummaryScreenState extends ConsumerState<DailySummaryScreen> {
                     await Clipboard.setData(ClipboardData(text: csv));
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('CSV disalin (bisa paste ke Excel).')),
+                        const SnackBar(
+                            content:
+                                Text('CSV disalin (bisa paste ke Excel).')),
                       );
                     }
                   },
@@ -114,7 +118,8 @@ class _DailySummaryScreenState extends ConsumerState<DailySummaryScreen> {
                   label: const Text('Export CSV (Copy)'),
                 ),
                 const SizedBox(height: 12),
-                const Text('Daftar transaksi', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Daftar transaksi',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 ...sales.map(
                   (s) => ListTile(

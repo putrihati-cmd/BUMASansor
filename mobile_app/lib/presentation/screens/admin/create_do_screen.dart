@@ -41,8 +41,10 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
     final existingIndex = _items.indexWhere((it) => it.productId == product.id);
     final existing = existingIndex >= 0 ? _items[existingIndex] : null;
 
-    final qtyController = TextEditingController(text: (existing?.quantity ?? 1).toString());
-    final priceController = TextEditingController(text: (existing?.price ?? product.sellPrice).toStringAsFixed(0));
+    final qtyController =
+        TextEditingController(text: (existing?.quantity ?? 1).toString());
+    final priceController = TextEditingController(
+        text: (existing?.price ?? product.sellPrice).toStringAsFixed(0));
 
     final ok = await showDialog<bool>(
       context: context,
@@ -57,26 +59,33 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
               TextField(
                 controller: qtyController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Qty'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Qty'),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: priceController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Harga'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Harga'),
               ),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Simpan')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal')),
+            FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Simpan')),
           ],
         );
       },
     );
 
     final qty = int.tryParse(qtyController.text.trim()) ?? 1;
-    final price = double.tryParse(priceController.text.trim()) ?? product.sellPrice;
+    final price =
+        double.tryParse(priceController.text.trim()) ?? product.sellPrice;
     qtyController.dispose();
     priceController.dispose();
 
@@ -89,7 +98,8 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
     }
 
     if (qty < 1) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Qty minimal 1.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Qty minimal 1.')));
       return;
     }
 
@@ -112,15 +122,18 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
 
   Future<void> _submit() async {
     if (_selectedWarungId == null || _selectedWarungId!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih warung.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Pilih warung.')));
       return;
     }
     if (_selectedWarehouseId == null || _selectedWarehouseId!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih gudang/warehouse.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Pilih gudang/warehouse.')));
       return;
     }
     if (_items.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Item DO masih kosong.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Item DO masih kosong.')));
       return;
     }
 
@@ -145,7 +158,9 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
             )
             .toList(),
         creditDays: creditDays,
-        notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
       );
 
       if (!mounted) {
@@ -174,27 +189,32 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final warungsAsync = ref.watch(warungListProvider(const WarungQuery(limit: 200)));
+    final warungsAsync =
+        ref.watch(warungListProvider(const WarungQuery(limit: 200)));
     final warehousesAsync = ref.watch(warehouseListProvider);
 
     final productSearch = _productSearchController.text.trim();
-    final productsAsync = ref.watch(productSearchProvider(productSearch.isEmpty ? null : productSearch));
+    final productsAsync = ref.watch(
+        productSearchProvider(productSearch.isEmpty ? null : productSearch));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Buat Delivery Order')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text('Target Warung', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Target Warung',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           warungsAsync.when(
             data: (items) {
-              if (items.isNotEmpty && (_selectedWarungId == null || _selectedWarungId!.isEmpty)) {
+              if (items.isNotEmpty &&
+                  (_selectedWarungId == null || _selectedWarungId!.isEmpty)) {
                 _selectedWarungId = items.first.id;
               }
               return DropdownButtonFormField<String>(
                 initialValue: _selectedWarungId,
-                decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Pilih warung'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), hintText: 'Pilih warung'),
                 items: items
                     .map(
                       (w) => DropdownMenuItem(
@@ -210,16 +230,20 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
             error: (e, _) => Text('Gagal load warung: $e'),
           ),
           const SizedBox(height: 16),
-          const Text('Warehouse', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Warehouse',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           warehousesAsync.when(
             data: (items) {
-              if (items.isNotEmpty && (_selectedWarehouseId == null || _selectedWarehouseId!.isEmpty)) {
+              if (items.isNotEmpty &&
+                  (_selectedWarehouseId == null ||
+                      _selectedWarehouseId!.isEmpty)) {
                 _selectedWarehouseId = items.first.id;
               }
               return DropdownButtonFormField<String>(
                 initialValue: _selectedWarehouseId,
-                decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Pilih warehouse'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), hintText: 'Pilih warehouse'),
                 items: items
                     .map(
                       (w) => DropdownMenuItem(
@@ -228,7 +252,8 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
                       ),
                     )
                     .toList(),
-                onChanged: (value) => setState(() => _selectedWarehouseId = value),
+                onChanged: (value) =>
+                    setState(() => _selectedWarehouseId = value),
               );
             },
             loading: () => const LinearProgressIndicator(),
@@ -262,7 +287,8 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
           TextField(
             controller: _notesController,
             maxLines: 2,
-            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Catatan (opsional)'),
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), labelText: 'Catatan (opsional)'),
           ),
           const SizedBox(height: 16),
           const Divider(),
@@ -277,7 +303,8 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
                     .map(
                       (e) => ListTile(
                         title: Text(e.productName),
-                        subtitle: Text('${e.quantity} ${e.unit ?? ''} x Rp ${e.price.toStringAsFixed(0)}'),
+                        subtitle: Text(
+                            '${e.quantity} ${e.unit ?? ''} x Rp ${e.price.toStringAsFixed(0)}'),
                         trailing: IconButton(
                           onPressed: () => setState(() => _items.remove(e)),
                           icon: const Icon(Icons.delete),
@@ -288,11 +315,13 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
               ),
             ),
           const SizedBox(height: 16),
-          const Text('Tambah Produk', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Tambah Produk',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           TextField(
             controller: _productSearchController,
-            decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Cari produk...'),
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), hintText: 'Cari produk...'),
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 12),
@@ -311,8 +340,10 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
                   itemBuilder: (context, index) {
                     final p = items[index];
                     return ListTile(
-                      title: Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      subtitle: Text('${p.barcode} | Rp ${p.sellPrice.toStringAsFixed(0)}'),
+                      title: Text(p.name,
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(
+                          '${p.barcode} | Rp ${p.sellPrice.toStringAsFixed(0)}'),
                       trailing: IconButton(
                         onPressed: () => _addOrEditItem(p),
                         icon: const Icon(Icons.add_circle_outline),
@@ -329,7 +360,10 @@ class _CreateDOScreenState extends ConsumerState<CreateDOScreen> {
           FilledButton.icon(
             onPressed: _saving ? null : _submit,
             icon: _saving
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.check_circle),
             label: Text(_saving ? 'Memproses...' : 'Buat DO'),
           ),

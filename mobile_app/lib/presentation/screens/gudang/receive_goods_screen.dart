@@ -9,16 +9,22 @@ class ReceiveGoodsScreen extends ConsumerWidget {
 
   String _money(double value) => 'Rp ${value.toStringAsFixed(0)}';
 
-  Future<void> _receive(BuildContext context, WidgetRef ref, PurchaseOrderModel po) async {
+  Future<void> _receive(
+      BuildContext context, WidgetRef ref, PurchaseOrderModel po) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Terima Barang'),
-          content: Text('Terima PO ${po.poNumber}? Ini akan menambah stock ke warehouse ${po.warehouse.name}.'),
+          content: Text(
+              'Terima PO ${po.poNumber}? Ini akan menambah stock ke warehouse ${po.warehouse.name}.'),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Terima')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal')),
+            FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Terima')),
           ],
         );
       },
@@ -37,12 +43,14 @@ class ReceiveGoodsScreen extends ConsumerWidget {
       }
 
       ref.invalidate(approvedPurchaseOrdersProvider);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PO diterima.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('PO diterima.')));
     } catch (e) {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal receive: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal receive: $e')));
     }
   }
 
@@ -59,16 +67,20 @@ class ReceiveGoodsScreen extends ConsumerWidget {
               controller: scrollController,
               padding: const EdgeInsets.all(16),
               children: [
-                Text('PO ${po.poNumber}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text('PO ${po.poNumber}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
                 Text('Supplier: ${po.supplier.name}'),
                 Text('Warehouse: ${po.warehouse.name}'),
                 Text('Status: ${po.status}'),
                 const SizedBox(height: 8),
-                Text('Total: ${_money(po.totalAmount)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('Total: ${_money(po.totalAmount)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 const Divider(),
-                const Text('Items', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Items',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Card(
                   child: Column(
@@ -76,8 +88,10 @@ class ReceiveGoodsScreen extends ConsumerWidget {
                         .map(
                           (i) => ListTile(
                             dense: true,
-                            title: Text(i.product.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-                            subtitle: Text('${i.quantity} ${i.product.unit} x ${_money(i.price)}'),
+                            title: Text(i.product.name,
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
+                            subtitle: Text(
+                                '${i.quantity} ${i.product.unit} x ${_money(i.price)}'),
                             trailing: Text(_money(i.subtotal)),
                           ),
                         )
@@ -136,7 +150,8 @@ class ReceiveGoodsScreen extends ConsumerWidget {
                 return ListTile(
                   onTap: () => _showDetail(context, ref, po),
                   title: Text('PO ${po.poNumber}'),
-                  subtitle: Text('${po.supplier.name} | ${po.warehouse.name} | ${_money(po.totalAmount)}'),
+                  subtitle: Text(
+                      '${po.supplier.name} | ${po.warehouse.name} | ${_money(po.totalAmount)}'),
                   trailing: OutlinedButton(
                     onPressed: () => _receive(context, ref, po),
                     child: const Text('Receive'),

@@ -10,7 +10,8 @@ class PrepareDeliveryScreen extends ConsumerWidget {
 
   String _money(double value) => 'Rp ${value.toStringAsFixed(0)}';
 
-  Future<void> _assignKurir(BuildContext context, WidgetRef ref, DeliveryOrderModel delivery) async {
+  Future<void> _assignKurir(
+      BuildContext context, WidgetRef ref, DeliveryOrderModel delivery) async {
     final kurirsAsync = await ref.read(kurirListProvider.future);
     if (!context.mounted) {
       return;
@@ -18,7 +19,8 @@ class PrepareDeliveryScreen extends ConsumerWidget {
 
     if (kurirsAsync.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak ada user role KURIR.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Tidak ada user role KURIR.')));
       }
       return;
     }
@@ -33,23 +35,31 @@ class PrepareDeliveryScreen extends ConsumerWidget {
             return AlertDialog(
               title: const Text('Assign Kurir'),
               content: InputDecorator(
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Kurir'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Kurir'),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     isExpanded: true,
                     value: selectedKurirId,
                     items: kurirsAsync
                         .map(
-                          (k) => DropdownMenuItem(value: k.id, child: Text('${k.name} (${k.email})')),
+                          (k) => DropdownMenuItem(
+                              value: k.id,
+                              child: Text('${k.name} (${k.email})')),
                         )
                         .toList(),
-                    onChanged: (value) => setState(() => selectedKurirId = value),
+                    onChanged: (value) =>
+                        setState(() => selectedKurirId = value),
                   ),
                 ),
               ),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-                FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Assign')),
+                TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Batal')),
+                FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Assign')),
               ],
             );
           },
@@ -75,16 +85,19 @@ class PrepareDeliveryScreen extends ConsumerWidget {
       }
 
       ref.invalidate(deliveryListProvider(const DeliveryQuery()));
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kurir berhasil di-assign.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Kurir berhasil di-assign.')));
     } catch (e) {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal assign: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal assign: $e')));
     }
   }
 
-  Future<void> _startDelivery(BuildContext context, WidgetRef ref, DeliveryOrderModel delivery) async {
+  Future<void> _startDelivery(
+      BuildContext context, WidgetRef ref, DeliveryOrderModel delivery) async {
     try {
       final repo = ref.read(deliveryRepositoryProvider);
       await repo.startDelivery(delivery.id);
@@ -94,18 +107,21 @@ class PrepareDeliveryScreen extends ConsumerWidget {
       }
 
       ref.invalidate(deliveryListProvider(const DeliveryQuery()));
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Delivery dimulai.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Delivery dimulai.')));
     } catch (e) {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal start: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal start: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final deliveriesAsync = ref.watch(deliveryListProvider(const DeliveryQuery()));
+    final deliveriesAsync =
+        ref.watch(deliveryListProvider(const DeliveryQuery()));
 
     return Scaffold(
       appBar: AppBar(
@@ -113,14 +129,17 @@ class PrepareDeliveryScreen extends ConsumerWidget {
         actions: [
           IconButton(
             tooltip: 'Refresh',
-            onPressed: () => ref.invalidate(deliveryListProvider(const DeliveryQuery())),
+            onPressed: () =>
+                ref.invalidate(deliveryListProvider(const DeliveryQuery())),
             icon: const Icon(Icons.refresh),
           ),
         ],
       ),
       body: deliveriesAsync.when(
         data: (items) {
-          final active = items.where((d) => d.status == 'PENDING' || d.status == 'ASSIGNED').toList();
+          final active = items
+              .where((d) => d.status == 'PENDING' || d.status == 'ASSIGNED')
+              .toList();
           if (active.isEmpty) {
             return const Center(child: Text('Tidak ada DO untuk disiapkan.'));
           }
@@ -183,12 +202,16 @@ class PrepareDeliveryScreen extends ConsumerWidget {
               controller: controller,
               padding: const EdgeInsets.all(16),
               children: [
-                Text(d.doNumber, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(d.doNumber,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
                 Text('Warung: ${d.warung.name}'),
-                if (d.warung.address != null) Text('Alamat: ${d.warung.address}'),
+                if (d.warung.address != null)
+                  Text('Alamat: ${d.warung.address}'),
                 const SizedBox(height: 12),
-                const Text('Items', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Items',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Card(
                   child: Column(
@@ -197,8 +220,10 @@ class PrepareDeliveryScreen extends ConsumerWidget {
                           (i) => ListTile(
                             dense: true,
                             title: Text(i.productName),
-                            subtitle: Text('${i.quantity} ${i.unit ?? ''} x Rp ${i.price.toStringAsFixed(0)}'),
-                            trailing: Text('Rp ${i.subtotal.toStringAsFixed(0)}'),
+                            subtitle: Text(
+                                '${i.quantity} ${i.unit ?? ''} x Rp ${i.price.toStringAsFixed(0)}'),
+                            trailing:
+                                Text('Rp ${i.subtotal.toStringAsFixed(0)}'),
                           ),
                         )
                         .toList(),

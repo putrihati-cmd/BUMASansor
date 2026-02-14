@@ -12,7 +12,8 @@ class DeliveryListScreen extends ConsumerStatefulWidget {
   ConsumerState<DeliveryListScreen> createState() => _DeliveryListScreenState();
 }
 
-class _DeliveryListScreenState extends ConsumerState<DeliveryListScreen> with SingleTickerProviderStateMixin {
+class _DeliveryListScreenState extends ConsumerState<DeliveryListScreen>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
@@ -30,7 +31,8 @@ class _DeliveryListScreenState extends ConsumerState<DeliveryListScreen> with Si
   @override
   Widget build(BuildContext context) {
     final userId = ref.watch(authProvider).user?.id;
-    final deliveriesAsync = ref.watch(deliveryListProvider(DeliveryQuery(kurirId: userId)));
+    final deliveriesAsync =
+        ref.watch(deliveryListProvider(DeliveryQuery(kurirId: userId)));
 
     return Scaffold(
       appBar: AppBar(
@@ -46,7 +48,8 @@ class _DeliveryListScreenState extends ConsumerState<DeliveryListScreen> with Si
         actions: [
           IconButton(
             tooltip: 'Refresh',
-            onPressed: () => ref.invalidate(deliveryListProvider(DeliveryQuery(kurirId: userId))),
+            onPressed: () => ref.invalidate(
+                deliveryListProvider(DeliveryQuery(kurirId: userId))),
             icon: const Icon(Icons.refresh),
           ),
           IconButton(
@@ -64,8 +67,11 @@ class _DeliveryListScreenState extends ConsumerState<DeliveryListScreen> with Si
       body: deliveriesAsync.when(
         data: (items) {
           final assigned = items.where((d) => d.status == 'ASSIGNED').toList();
-          final onDelivery = items.where((d) => d.status == 'ON_DELIVERY').toList();
-          final completed = items.where((d) => d.status == 'DELIVERED' || d.status == 'CONFIRMED').toList();
+          final onDelivery =
+              items.where((d) => d.status == 'ON_DELIVERY').toList();
+          final completed = items
+              .where((d) => d.status == 'DELIVERED' || d.status == 'CONFIRMED')
+              .toList();
 
           return TabBarView(
             controller: _tabController,
@@ -96,7 +102,8 @@ class _DeliveryListScreenState extends ConsumerState<DeliveryListScreen> with Si
 }
 
 class _DeliveryList extends StatelessWidget {
-  const _DeliveryList({required this.items, required this.emptyText, required this.onTap});
+  const _DeliveryList(
+      {required this.items, required this.emptyText, required this.onTap});
 
   final List<dynamic> items;
   final String emptyText;

@@ -38,13 +38,15 @@ class ReceiptScreen extends StatelessWidget {
     sb.writeln('BUMAS Ansor');
     sb.writeln('====================');
     sb.writeln('Invoice: ${sale.invoiceNumber}');
-    sb.writeln('Tanggal: ${DateFormat('yyyy-MM-dd HH:mm').format(sale.createdAt)}');
+    sb.writeln(
+        'Tanggal: ${DateFormat('yyyy-MM-dd HH:mm').format(sale.createdAt)}');
     sb.writeln('Metode: ${_methodLabel(sale.paymentMethod)}');
     sb.writeln('--------------------');
 
     for (final item in sale.items) {
       sb.writeln(item.productName);
-      sb.writeln('  ${item.quantity} x ${item.price.toStringAsFixed(0)} = ${item.subtotal.toStringAsFixed(0)}');
+      sb.writeln(
+          '  ${item.quantity} x ${item.price.toStringAsFixed(0)} = ${item.subtotal.toStringAsFixed(0)}');
     }
 
     sb.writeln('--------------------');
@@ -144,11 +146,14 @@ class ReceiptScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Center(
-                      child: Text('BUMAS Ansor', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      child: Text('BUMAS Ansor',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 12),
                     Text('Invoice: ${sale.invoiceNumber}'),
-                    Text('Tanggal: ${DateFormat('yyyy-MM-dd HH:mm').format(sale.createdAt)}'),
+                    Text(
+                        'Tanggal: ${DateFormat('yyyy-MM-dd HH:mm').format(sale.createdAt)}'),
                     Text('Metode: ${_methodLabel(sale.paymentMethod)}'),
                     const Divider(),
                     ...sale.items.map(
@@ -157,7 +162,8 @@ class ReceiptScreen extends StatelessWidget {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text(item.productName, maxLines: 1, overflow: TextOverflow.ellipsis),
+                              child: Text(item.productName,
+                                  maxLines: 1, overflow: TextOverflow.ellipsis),
                             ),
                             Text('${item.quantity}x'),
                             const SizedBox(width: 12),
@@ -170,8 +176,11 @@ class ReceiptScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('TOTAL', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('Rp ${sale.totalAmount.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const Text('TOTAL',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Rp ${sale.totalAmount.toStringAsFixed(0)}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                     if (cashReceived != null) ...[

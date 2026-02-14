@@ -52,7 +52,9 @@ class SaleItemModel {
 
   factory SaleItemModel.fromJson(Map<String, dynamic> json) {
     final productJson = json['product'];
-    final product = productJson is Map<String, dynamic> ? ProductModel.fromJson(productJson) : null;
+    final product = productJson is Map<String, dynamic>
+        ? ProductModel.fromJson(productJson)
+        : null;
 
     return SaleItemModel(
       productId: json['productId'] as String,

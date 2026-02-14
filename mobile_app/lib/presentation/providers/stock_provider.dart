@@ -25,7 +25,8 @@ class StockQuery {
 }
 
 class StockHistoryQuery {
-  const StockHistoryQuery({this.warehouseId, this.productId, this.movementType});
+  const StockHistoryQuery(
+      {this.warehouseId, this.productId, this.movementType});
 
   final String? warehouseId;
   final String? productId;
@@ -49,7 +50,8 @@ final stockRepositoryProvider = Provider<StockRepository>((ref) {
   return StockRepository(remote);
 });
 
-final stockListProvider = FutureProvider.family<List<StockModel>, StockQuery>((ref, query) async {
+final stockListProvider =
+    FutureProvider.family<List<StockModel>, StockQuery>((ref, query) async {
   final repo = ref.read(stockRepositoryProvider);
   return repo.fetchStocks(
     warehouseId: query.warehouseId,
@@ -63,7 +65,9 @@ final lowStockAlertsProvider = FutureProvider<List<StockModel>>((ref) async {
   return repo.fetchLowStockAlerts();
 });
 
-final stockMovementHistoryProvider = FutureProvider.family<List<StockMovementModel>, StockHistoryQuery>((ref, query) async {
+final stockMovementHistoryProvider =
+    FutureProvider.family<List<StockMovementModel>, StockHistoryQuery>(
+        (ref, query) async {
   final repo = ref.read(stockRepositoryProvider);
   return repo.fetchMovementHistory(
     warehouseId: query.warehouseId,

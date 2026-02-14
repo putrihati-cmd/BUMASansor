@@ -12,8 +12,10 @@ class AuthRepository {
 
   static const String _userKey = 'user_data';
 
-  Future<AuthResponseModel> login({required String email, required String password}) async {
-    final response = await _remoteDataSource.login(email: email, password: password);
+  Future<AuthResponseModel> login(
+      {required String email, required String password}) async {
+    final response =
+        await _remoteDataSource.login(email: email, password: password);
 
     await _secureStorageService.saveAuth(
       accessToken: response.accessToken,

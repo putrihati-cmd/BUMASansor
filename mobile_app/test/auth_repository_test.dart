@@ -47,16 +47,20 @@ void main() {
       user: user,
     );
 
-    when(remote.login(email: 'warung@bumas.local', password: 'secret')).thenAnswer((_) async => response);
-    when(storage.saveAuth(accessToken: 'access', refreshToken: 'refresh')).thenAnswer((_) async {});
+    when(remote.login(email: 'warung@bumas.local', password: 'secret'))
+        .thenAnswer((_) async => response);
+    when(storage.saveAuth(accessToken: 'access', refreshToken: 'refresh'))
+        .thenAnswer((_) async {});
     when(storage.saveRole('warung')).thenAnswer((_) async {});
 
-    final result = await repo.login(email: 'warung@bumas.local', password: 'secret');
+    final result =
+        await repo.login(email: 'warung@bumas.local', password: 'secret');
 
     expect(result.accessToken, 'access');
     expect(result.refreshToken, 'refresh');
 
-    verify(storage.saveAuth(accessToken: 'access', refreshToken: 'refresh')).called(1);
+    verify(storage.saveAuth(accessToken: 'access', refreshToken: 'refresh'))
+        .called(1);
     verify(storage.saveRole('warung')).called(1);
 
     final stored = repo.getStoredUser();
@@ -86,7 +90,9 @@ void main() {
 
     when(storage.getRefreshToken()).thenAnswer((_) async => 'old-refresh');
     when(remote.refreshToken('old-refresh')).thenAnswer((_) async => response);
-    when(storage.saveAuth(accessToken: 'new-access', refreshToken: 'new-refresh')).thenAnswer((_) async {});
+    when(storage.saveAuth(
+            accessToken: 'new-access', refreshToken: 'new-refresh'))
+        .thenAnswer((_) async {});
     when(storage.saveRole('admin')).thenAnswer((_) async {});
 
     final result = await repo.refreshAuthToken();
@@ -94,7 +100,9 @@ void main() {
     expect(result.accessToken, 'new-access');
     expect(result.refreshToken, 'new-refresh');
 
-    verify(storage.saveAuth(accessToken: 'new-access', refreshToken: 'new-refresh')).called(1);
+    verify(storage.saveAuth(
+            accessToken: 'new-access', refreshToken: 'new-refresh'))
+        .called(1);
     verify(storage.saveRole('admin')).called(1);
 
     final stored = repo.getStoredUser();

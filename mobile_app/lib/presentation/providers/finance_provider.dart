@@ -40,7 +40,9 @@ final financeRepositoryProvider = Provider<FinanceRepository>((ref) {
   return FinanceRepository(remote);
 });
 
-final receivableListProvider = FutureProvider.family<ReceivableListResponse, ReceivableQuery>((ref, query) async {
+final receivableListProvider =
+    FutureProvider.family<ReceivableListResponse, ReceivableQuery>(
+        (ref, query) async {
   final repo = ref.read(financeRepositoryProvider);
   return repo.fetchReceivables(
     warungId: query.warungId,

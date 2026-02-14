@@ -6,7 +6,8 @@ import '../datasources/local/secure_storage_service.dart';
 import 'sync_queue.dart';
 
 class SyncService {
-  SyncService(this._queue, SecureStorageService secureStorageService, this._networkInfo)
+  SyncService(
+      this._queue, SecureStorageService secureStorageService, this._networkInfo)
       : _dio = DioClient(secureStorageService).instance;
 
   final SyncQueue _queue;

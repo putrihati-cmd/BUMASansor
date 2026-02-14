@@ -91,18 +91,24 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           buyPrice: buyPrice,
           sellPrice: sellPrice,
           unit: _unitController.text.trim(),
-          description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+          description: _descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim(),
           isActive: _isActive,
         );
       } else {
         await repo.createProduct(
           name: _nameController.text.trim(),
-          barcode: _barcodeController.text.trim().isEmpty ? null : _barcodeController.text.trim(),
+          barcode: _barcodeController.text.trim().isEmpty
+              ? null
+              : _barcodeController.text.trim(),
           categoryId: categoryId,
           buyPrice: buyPrice,
           sellPrice: sellPrice,
           unit: _unitController.text.trim(),
-          description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+          description: _descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim(),
           isActive: _isActive,
         );
       }
@@ -112,7 +118,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_isEdit ? 'Produk tersimpan.' : 'Produk dibuat.')),
+        SnackBar(
+            content: Text(_isEdit ? 'Produk tersimpan.' : 'Produk dibuat.')),
       );
       Navigator.of(context).pop(true);
     } catch (e) {
@@ -143,8 +150,12 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           title: const Text('Hapus produk'),
           content: const Text('Yakin ingin menghapus produk ini?'),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Hapus')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal')),
+            FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Hapus')),
           ],
         );
       },
@@ -201,7 +212,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     return _buildScaffold(title, categoriesAsync);
   }
 
-  Scaffold _buildScaffold(String title, AsyncValue<List<CategoryModel>> categoriesAsync) {
+  Scaffold _buildScaffold(
+      String title, AsyncValue<List<CategoryModel>> categoriesAsync) {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -222,7 +234,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Nama produk'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Nama produk'),
                 validator: (v) {
                   if (v == null || v.trim().length < 2) {
                     return 'Nama minimal 2 karakter';
@@ -233,18 +246,22 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _barcodeController,
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Barcode (opsional)'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Barcode (opsional)'),
               ),
               const SizedBox(height: 12),
               categoriesAsync.when(
                 data: (items) {
-                  if (items.isNotEmpty && (_categoryId == null || _categoryId!.isEmpty)) {
+                  if (items.isNotEmpty &&
+                      (_categoryId == null || _categoryId!.isEmpty)) {
                     _categoryId = items.first.id;
                   }
 
                   return DropdownButtonFormField<String>(
                     initialValue: _categoryId,
-                    decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Kategori'),
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(), labelText: 'Kategori'),
                     items: items
                         .map(
                           (c) => DropdownMenuItem(
@@ -270,7 +287,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     child: TextFormField(
                       controller: _buyPriceController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Harga beli'),
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Harga beli'),
                       validator: (v) {
                         final value = double.tryParse(v?.trim() ?? '');
                         if (value == null || value < 0) {
@@ -285,7 +304,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     child: TextFormField(
                       controller: _sellPriceController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Harga jual'),
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Harga jual'),
                       validator: (v) {
                         final value = double.tryParse(v?.trim() ?? '');
                         if (value == null || value < 0) {
@@ -300,7 +321,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _unitController,
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Unit'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Unit'),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
                     return 'Unit wajib diisi';
@@ -312,7 +334,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Deskripsi (opsional)'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Deskripsi (opsional)'),
               ),
               const SizedBox(height: 12),
               SwitchListTile(

@@ -37,7 +37,8 @@ final warungRepositoryProvider = Provider<WarungRepository>((ref) {
   return WarungRepository(remote);
 });
 
-final warungListProvider = FutureProvider.family<List<WarungModel>, WarungQuery>((ref, query) async {
+final warungListProvider =
+    FutureProvider.family<List<WarungModel>, WarungQuery>((ref, query) async {
   final repository = ref.read(warungRepositoryProvider);
   return repository.fetchWarungs(
     search: query.search,
@@ -47,7 +48,8 @@ final warungListProvider = FutureProvider.family<List<WarungModel>, WarungQuery>
   );
 });
 
-final warungDetailProvider = FutureProvider.family<WarungModel, String>((ref, warungId) async {
+final warungDetailProvider =
+    FutureProvider.family<WarungModel, String>((ref, warungId) async {
   final repository = ref.read(warungRepositoryProvider);
   return repository.fetchWarungById(warungId);
 });

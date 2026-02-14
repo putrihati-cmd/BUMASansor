@@ -33,7 +33,8 @@ class FinanceRepository {
       'receivableId': receivableId,
       'amount': amount,
       'method': method,
-      if (proofUrl != null && proofUrl.trim().isNotEmpty) 'proofUrl': proofUrl.trim(),
+      if (proofUrl != null && proofUrl.trim().isNotEmpty)
+        'proofUrl': proofUrl.trim(),
       if (notes != null && notes.trim().isNotEmpty) 'notes': notes.trim(),
     });
   }

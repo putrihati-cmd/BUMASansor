@@ -41,7 +41,8 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(this._authRepository, this._secureStorageService)
-      : super(const AuthState(loading: true, isLoggedIn: false, role: UserRole.unknown));
+      : super(const AuthState(
+            loading: true, isLoggedIn: false, role: UserRole.unknown));
 
   final AuthRepository _authRepository;
   final SecureStorageService _secureStorageService;
@@ -49,7 +50,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> bootstrap() async {
     final isLoggedIn = await _authRepository.isLoggedIn();
     if (!isLoggedIn) {
-      state = const AuthState(loading: false, isLoggedIn: false, role: UserRole.unknown);
+      state = const AuthState(
+          loading: false, isLoggedIn: false, role: UserRole.unknown);
       return;
     }
 
@@ -67,7 +69,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> login({required String email, required String password}) async {
     state = state.copyWith(loading: true, errorMessage: null);
     try {
-      final response = await _authRepository.login(email: email, password: password);
+      final response =
+          await _authRepository.login(email: email, password: password);
       state = AuthState(
         loading: false,
         isLoggedIn: true,
@@ -86,7 +89,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> mockLogin(UserRole role) async {
-    await _secureStorageService.saveAuth(accessToken: 'mock-access-token', refreshToken: 'mock-refresh-token');
+    await _secureStorageService.saveAuth(
+        accessToken: 'mock-access-token', refreshToken: 'mock-refresh-token');
     await _secureStorageService.saveRole(role.name);
     state = AuthState(
       loading: false,
@@ -98,7 +102,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     await _authRepository.logout();
-    state = const AuthState(loading: false, isLoggedIn: false, role: UserRole.unknown);
+    state = const AuthState(
+        loading: false, isLoggedIn: false, role: UserRole.unknown);
   }
 
   UserRole _parseRole(String? role) {

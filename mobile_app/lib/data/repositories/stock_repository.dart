@@ -6,15 +6,18 @@ class StockRepository {
 
   final StockRemoteDataSource _remoteDataSource;
 
-  Future<List<StockModel>> fetchStocks({String? warehouseId, String? productId, bool? lowStock}) {
-    return _remoteDataSource.fetchStocks(warehouseId: warehouseId, productId: productId, lowStock: lowStock);
+  Future<List<StockModel>> fetchStocks(
+      {String? warehouseId, String? productId, bool? lowStock}) {
+    return _remoteDataSource.fetchStocks(
+        warehouseId: warehouseId, productId: productId, lowStock: lowStock);
   }
 
   Future<List<StockModel>> fetchLowStockAlerts() {
     return _remoteDataSource.fetchLowStockAlerts();
   }
 
-  Future<List<StockMovementModel>> fetchMovementHistory({String? warehouseId, String? productId, String? movementType}) {
+  Future<List<StockMovementModel>> fetchMovementHistory(
+      {String? warehouseId, String? productId, String? movementType}) {
     return _remoteDataSource.fetchMovementHistory(
       warehouseId: warehouseId,
       productId: productId,

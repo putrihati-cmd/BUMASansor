@@ -32,10 +32,10 @@ class RealtimeSocket {
 
   void disconnect() => _socket.disconnect();
 
-  void on(String event, void Function(dynamic data) handler) => _socket.on(event, handler);
+  void on(String event, void Function(dynamic data) handler) =>
+      _socket.on(event, handler);
 
   void dispose() {
     _socket.dispose();
   }
 }
-

@@ -4,12 +4,14 @@ import '../../data/models/dashboard_model.dart';
 import '../../data/models/report_models.dart';
 import 'dashboard_provider.dart';
 
-final dailyReportProvider = FutureProvider.family<DailyReportModel, String?>((ref, date) async {
+final dailyReportProvider =
+    FutureProvider.family<DailyReportModel, String?>((ref, date) async {
   final repo = ref.read(reportsRepositoryProvider);
   return repo.fetchDaily(date: date);
 });
 
-final monthlyReportProvider = FutureProvider.family<MonthlyReportModel, String?>((ref, month) async {
+final monthlyReportProvider =
+    FutureProvider.family<MonthlyReportModel, String?>((ref, month) async {
   final repo = ref.read(reportsRepositoryProvider);
   return repo.fetchMonthly(month: month);
 });
@@ -29,12 +31,16 @@ class TopProductsQuery {
   int get hashCode => Object.hash(days, top);
 }
 
-final topProductsProvider = FutureProvider.family<List<DashboardTopProduct>, TopProductsQuery>((ref, query) async {
+final topProductsProvider =
+    FutureProvider.family<List<DashboardTopProduct>, TopProductsQuery>(
+        (ref, query) async {
   final repo = ref.read(reportsRepositoryProvider);
   return repo.fetchTopProducts(days: query.days, top: query.top);
 });
 
-final warungPerformanceProvider = FutureProvider.family<WarungPerformanceResponse, String>((ref, period) async {
+final warungPerformanceProvider =
+    FutureProvider.family<WarungPerformanceResponse, String>(
+        (ref, period) async {
   final repo = ref.read(reportsRepositoryProvider);
   return repo.fetchWarungPerformance(period: period);
 });

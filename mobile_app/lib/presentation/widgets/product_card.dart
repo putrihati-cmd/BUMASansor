@@ -21,12 +21,14 @@ class ProductCard extends StatelessWidget {
     if (isListView) {
       return Card(
         child: ListTile(
-          title: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+          title:
+              Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
           subtitle: Text('${product.barcode} • ${product.unit}'),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(priceText, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(priceText,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               IconButton(
                 onPressed: onTap,
@@ -58,7 +60,10 @@ class ProductCard extends StatelessWidget {
               ),
               Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 6),
-              Text(priceText, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
+              Text(priceText,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary)),
             ],
           ),
         ),

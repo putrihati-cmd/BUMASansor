@@ -44,7 +44,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final warungId = auth.user?.warungId;
     if (warungId == null || warungId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Akun warung belum terhubung ke warungId.')),
+        const SnackBar(
+            content: Text('Akun warung belum terhubung ke warungId.')),
       );
       return;
     }
@@ -67,7 +68,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
 
     final notes = _notesController.text.trim();
-    final noteWithDiscount = _discount > 0 ? 'Discount: Rp ${_discount.toStringAsFixed(0)}' : null;
+    final noteWithDiscount =
+        _discount > 0 ? 'Discount: Rp ${_discount.toStringAsFixed(0)}' : null;
     final combinedNotes = [
       if (notes.isNotEmpty) notes,
       if (noteWithDiscount != null) noteWithDiscount,
@@ -116,7 +118,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Warehouse belum tersimpan untuk mode offline. Silakan online sekali untuk init.')),
+        const SnackBar(
+            content: Text(
+                'Warehouse belum tersimpan untuk mode offline. Silakan online sekali untuk init.')),
       );
       return;
     }
@@ -239,16 +243,20 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
-            const Text('Item Belanja', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('Item Belanja',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Card(
               child: Column(
                 children: cart
                     .map(
                       (item) => ListTile(
-                        title: Text(item.product.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        subtitle: Text('${item.quantity}x - Rp ${item.product.sellPrice.toStringAsFixed(0)}'),
-                        trailing: Text('Rp ${item.subtotal.toStringAsFixed(0)}'),
+                        title: Text(item.product.name,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        subtitle: Text(
+                            '${item.quantity}x - Rp ${item.product.sellPrice.toStringAsFixed(0)}'),
+                        trailing:
+                            Text('Rp ${item.subtotal.toStringAsFixed(0)}'),
                       ),
                     )
                     .toList(),
@@ -261,11 +269,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Diskon (Rp)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Diskon (Rp)',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     TextField(
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(border: OutlineInputBorder(), hintText: '0'),
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(), hintText: '0'),
                       onChanged: (value) {
                         setState(() {
                           _discount = double.tryParse(value) ?? 0;
@@ -283,7 +293,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Metode Pembayaran', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Metode Pembayaran',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     RadioGroup<PaymentMethod>(
                       groupValue: _paymentMethod,
                       onChanged: (value) {
@@ -326,16 +337,19 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Uang Diterima', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('Uang Diterima',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       TextField(
                         controller: _cashReceivedController,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(border: OutlineInputBorder(), hintText: '0'),
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(), hintText: '0'),
                         onChanged: (_) => setState(() {}),
                       ),
                       const SizedBox(height: 8),
-                      Text('Kembalian: Rp ${cashChange.isNaN ? 0 : cashChange.toStringAsFixed(0)}'),
+                      Text(
+                          'Kembalian: Rp ${cashChange.isNaN ? 0 : cashChange.toStringAsFixed(0)}'),
                     ],
                   ),
                 ),
@@ -348,12 +362,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Catatan (opsional)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Catatan (opsional)',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _notesController,
                       maxLines: 3,
-                      decoration: const InputDecoration(border: OutlineInputBorder()),
+                      decoration:
+                          const InputDecoration(border: OutlineInputBorder()),
                     ),
                   ],
                 ),
@@ -384,8 +400,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('TOTAL', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('Rp ${total.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const Text('TOTAL',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Rp ${total.toStringAsFixed(0)}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ],

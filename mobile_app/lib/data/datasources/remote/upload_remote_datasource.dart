@@ -11,7 +11,8 @@ class UploadRemoteDataSource {
 
   final Dio _dio;
 
-  Future<String> uploadBytes(Uint8List bytes, {required String filename}) async {
+  Future<String> uploadBytes(Uint8List bytes,
+      {required String filename}) async {
     final formData = FormData.fromMap({
       'file': MultipartFile.fromBytes(bytes, filename: filename),
     });

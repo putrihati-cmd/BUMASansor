@@ -12,7 +12,8 @@ class ApiInterceptor extends Interceptor {
   Future<void>? _refreshing;
 
   @override
-  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
     final token = await _secureStorageService.getAccessToken();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -22,7 +23,8 @@ class ApiInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler) async {
     final status = err.response?.statusCode;
     final requestOptions = err.requestOptions;
 
@@ -84,11 +86,14 @@ class ApiInterceptor extends Interceptor {
     final newRefreshToken = data['refreshToken'] as String;
     final user = data['user'] as Map<String, dynamic>;
 
-    await _secureStorageService.saveAuth(accessToken: accessToken, refreshToken: newRefreshToken);
-    await _secureStorageService.saveRole((user['role'] as String).toLowerCase());
+    await _secureStorageService.saveAuth(
+        accessToken: accessToken, refreshToken: newRefreshToken);
+    await _secureStorageService
+        .saveRole((user['role'] as String).toLowerCase());
   }
 
-  Future<Response<dynamic>> _retry(RequestOptions requestOptions, String token) {
+  Future<Response<dynamic>> _retry(
+      RequestOptions requestOptions, String token) {
     final dio = Dio(
       BaseOptions(
         baseUrl: ApiConfig.baseUrl,

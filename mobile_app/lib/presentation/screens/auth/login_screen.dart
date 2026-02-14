@@ -104,9 +104,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 decoration: const InputDecoration(labelText: 'Role'),
                 items: const [
                   DropdownMenuItem(value: UserRole.admin, child: Text('Admin')),
-                  DropdownMenuItem(value: UserRole.gudang, child: Text('Gudang')),
+                  DropdownMenuItem(
+                      value: UserRole.gudang, child: Text('Gudang')),
                   DropdownMenuItem(value: UserRole.kurir, child: Text('Kurir')),
-                  DropdownMenuItem(value: UserRole.warung, child: Text('Warung')),
+                  DropdownMenuItem(
+                      value: UserRole.warung, child: Text('Warung')),
                 ],
                 onChanged: (value) {
                   if (value == null) {
@@ -118,7 +120,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 },
               ),
               const SizedBox(height: 8),
-              OutlinedButton(onPressed: _mockLogin, child: const Text('Masuk (Mock)')),
+              OutlinedButton(
+                  onPressed: _mockLogin, child: const Text('Masuk (Mock)')),
               if (state.errorMessage != null) ...[
                 const SizedBox(height: 12),
                 Text(

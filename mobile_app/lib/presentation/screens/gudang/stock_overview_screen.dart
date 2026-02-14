@@ -10,7 +10,8 @@ class StockOverviewScreen extends ConsumerStatefulWidget {
   const StockOverviewScreen({super.key});
 
   @override
-  ConsumerState<StockOverviewScreen> createState() => _StockOverviewScreenState();
+  ConsumerState<StockOverviewScreen> createState() =>
+      _StockOverviewScreenState();
 }
 
 class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
@@ -44,7 +45,8 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
           builder: (context, scrollController) {
             final historyAsync = ref.watch(
               stockMovementHistoryProvider(
-                StockHistoryQuery(warehouseId: stock.warehouseId, productId: stock.productId),
+                StockHistoryQuery(
+                    warehouseId: stock.warehouseId, productId: stock.productId),
               ),
             );
 
@@ -52,7 +54,9 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
               controller: scrollController,
               padding: const EdgeInsets.all(16),
               children: [
-                Text(stock.product.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(stock.product.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
                 Text('Barcode: ${stock.product.barcode}'),
                 const SizedBox(height: 12),
@@ -74,7 +78,8 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
                 const SizedBox(height: 12),
                 const Divider(),
                 const SizedBox(height: 8),
-                const Text('Movement History', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Movement History',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 historyAsync.when(
                   data: (items) {
@@ -88,12 +93,16 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
                             .map(
                               (m) => ListTile(
                                 dense: true,
-                                title: Text('${m.movementType} - ${m.quantity}'),
+                                title:
+                                    Text('${m.movementType} - ${m.quantity}'),
                                 subtitle: Text(
                                   [
-                                    if (m.fromWarehouseName != null) 'From: ${m.fromWarehouseName}',
-                                    if (m.toWarehouseName != null) 'To: ${m.toWarehouseName}',
-                                    if (m.referenceType != null) 'Ref: ${m.referenceType}',
+                                    if (m.fromWarehouseName != null)
+                                      'From: ${m.fromWarehouseName}',
+                                    if (m.toWarehouseName != null)
+                                      'To: ${m.toWarehouseName}',
+                                    if (m.referenceType != null)
+                                      'Ref: ${m.referenceType}',
                                   ].join(' | '),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -104,14 +113,18 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
                       ),
                     );
                   },
-                  loading: () => const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+                  loading: () => const Center(
+                      child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: CircularProgressIndicator())),
                   error: (e, _) => Text('Gagal load history: $e'),
                 ),
                 const SizedBox(height: 12),
                 FilledButton.icon(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    context.push('/gudang/opname?warehouseId=${stock.warehouseId}&productId=${stock.productId}');
+                    context.push(
+                        '/gudang/opname?warehouseId=${stock.warehouseId}&productId=${stock.productId}');
                   },
                   icon: const Icon(Icons.fact_check),
                   label: const Text('Stock Opname'),
@@ -155,24 +168,28 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
             padding: const EdgeInsets.all(16),
             child: warehousesAsync.when(
               data: (warehouses) {
-                if (warehouses.isNotEmpty && (_warehouseId == null || _warehouseId!.isEmpty)) {
+                if (warehouses.isNotEmpty &&
+                    (_warehouseId == null || _warehouseId!.isEmpty)) {
                   _warehouseId = warehouses.first.id;
                 }
 
                 return Column(
                   children: [
                     InputDecorator(
-                      decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Warehouse'),
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(), labelText: 'Warehouse'),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           isExpanded: true,
                           value: _warehouseId,
                           items: warehouses
                               .map(
-                                (w) => DropdownMenuItem(value: w.id, child: Text(w.name)),
+                                (w) => DropdownMenuItem(
+                                    value: w.id, child: Text(w.name)),
                               )
                               .toList(),
-                          onChanged: (value) => setState(() => _warehouseId = value),
+                          onChanged: (value) =>
+                              setState(() => _warehouseId = value),
                         ),
                       ),
                     ),
@@ -185,7 +202,8 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
                         suffixIcon: _searchController.text.isEmpty
                             ? null
                             : IconButton(
-                                onPressed: () => setState(() => _searchController.clear()),
+                                onPressed: () =>
+                                    setState(() => _searchController.clear()),
                                 icon: const Icon(Icons.clear),
                               ),
                         border: const OutlineInputBorder(),
@@ -216,7 +234,8 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
                 : Consumer(
                     builder: (context, ref, _) {
                       final stockAsync = ref.watch(stockListProvider(_query));
-                      final search = _searchController.text.trim().toLowerCase();
+                      final search =
+                          _searchController.text.trim().toLowerCase();
 
                       return stockAsync.when(
                         data: (items) {
@@ -224,41 +243,58 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
                               ? items
                               : items
                                   .where(
-                                    (s) => s.product.name.toLowerCase().contains(search) ||
-                                        s.product.barcode.toLowerCase().contains(search),
+                                    (s) =>
+                                        s.product.name
+                                            .toLowerCase()
+                                            .contains(search) ||
+                                        s.product.barcode
+                                            .toLowerCase()
+                                            .contains(search),
                                   )
                                   .toList();
 
                           if (filtered.isEmpty) {
-                            return const Center(child: Text('Tidak ada stock.'));
+                            return const Center(
+                                child: Text('Tidak ada stock.'));
                           }
 
                           return RefreshIndicator(
                             onRefresh: () async {
                               ref.invalidate(stockListProvider(_query));
-                              await Future<void>.delayed(const Duration(milliseconds: 200));
+                              await Future<void>.delayed(
+                                  const Duration(milliseconds: 200));
                             },
                             child: ListView.separated(
                               padding: const EdgeInsets.only(bottom: 24),
                               itemCount: filtered.length,
-                              separatorBuilder: (_, __) => const Divider(height: 1),
+                              separatorBuilder: (_, __) =>
+                                  const Divider(height: 1),
                               itemBuilder: (context, index) {
                                 final s = filtered[index];
-                                final subtitle = '${s.product.barcode} | ${s.quantity} ${s.product.unit} | Min ${s.minStock}';
+                                final subtitle =
+                                    '${s.product.barcode} | ${s.quantity} ${s.product.unit} | Min ${s.minStock}';
                                 return ListTile(
                                   onTap: () => _openStockDetail(s),
-                                  title: Text(s.product.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                  subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  title: Text(s.product.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis),
+                                  subtitle: Text(subtitle,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis),
                                   trailing: s.isLowStock
-                                      ? const Icon(Icons.warning_amber, color: Colors.orange)
-                                      : const Icon(Icons.check_circle, color: Colors.green),
+                                      ? const Icon(Icons.warning_amber,
+                                          color: Colors.orange)
+                                      : const Icon(Icons.check_circle,
+                                          color: Colors.green),
                                 );
                               },
                             ),
                           );
                         },
-                        loading: () => const Center(child: CircularProgressIndicator()),
-                        error: (e, _) => Center(child: Text('Gagal load stock: $e')),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (e, _) =>
+                            Center(child: Text('Gagal load stock: $e')),
                       );
                     },
                   ),

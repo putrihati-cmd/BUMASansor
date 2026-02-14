@@ -19,7 +19,8 @@ class DeliveryDetailScreen extends ConsumerStatefulWidget {
   final String deliveryId;
 
   @override
-  ConsumerState<DeliveryDetailScreen> createState() => _DeliveryDetailScreenState();
+  ConsumerState<DeliveryDetailScreen> createState() =>
+      _DeliveryDetailScreenState();
 }
 
 class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
@@ -47,7 +48,8 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Koordinat warung belum diisi.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Koordinat warung belum diisi.')));
       return;
     }
 
@@ -60,14 +62,16 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak bisa membuka Maps.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tidak bisa membuka Maps.')));
     }
   }
 
   Future<void> _pickPhoto() async {
     try {
       final picker = ImagePicker();
-      final file = await picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+      final file =
+          await picker.pickImage(source: ImageSource.camera, imageQuality: 80);
       if (file == null) {
         return;
       }
@@ -80,7 +84,8 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal ambil foto: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal ambil foto: $e')));
     }
   }
 
@@ -91,7 +96,8 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
   }
 
   Future<Uint8List?> _captureSignaturePng() async {
-    final boundary = _signatureKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    final boundary = _signatureKey.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
     if (boundary == null) {
       return null;
     }
@@ -114,12 +120,14 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Delivery dimulai.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Delivery dimulai.')));
     } catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal start: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal start: $e')));
     } finally {
       if (mounted) {
         setState(() => _saving = false);
@@ -140,12 +148,14 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Status menjadi DELIVERED.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Status menjadi DELIVERED.')));
     } catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal mark delivered: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal mark delivered: $e')));
     } finally {
       if (mounted) {
         setState(() => _saving = false);
@@ -155,7 +165,8 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
 
   Future<void> _confirmDelivery(DeliveryOrderModel delivery) async {
     if (_signaturePoints.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tanda tangan masih kosong.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tanda tangan masih kosong.')));
       return;
     }
 
@@ -178,13 +189,15 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
 
       String? photoUrl;
       if (photo != null) {
-        final url = await uploader.uploadBytes(photo, filename: 'delivery_photo.jpg');
+        final url =
+            await uploader.uploadBytes(photo, filename: 'delivery_photo.jpg');
         if (url.trim().isNotEmpty) {
           photoUrl = url;
         }
       }
 
-      final signatureUrl = await uploader.uploadBytes(signaturePng, filename: 'delivery_signature.png');
+      final signatureUrl = await uploader.uploadBytes(signaturePng,
+          filename: 'delivery_signature.png');
       if (signatureUrl.trim().isEmpty) {
         throw Exception('Upload tanda tangan gagal.');
       }
@@ -208,12 +221,14 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Delivery dikonfirmasi.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Delivery dikonfirmasi.')));
     } catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal confirm: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal confirm: $e')));
     } finally {
       if (mounted) {
         setState(() => _saving = false);
@@ -231,7 +246,8 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
         actions: [
           IconButton(
             tooltip: 'Refresh',
-            onPressed: () => ref.invalidate(deliveryDetailProvider(widget.deliveryId)),
+            onPressed: () =>
+                ref.invalidate(deliveryDetailProvider(widget.deliveryId)),
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -248,12 +264,16 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(delivery.doNumber, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(delivery.doNumber,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 4),
                       Text('Status: ${delivery.status}'),
                       const SizedBox(height: 8),
-                      Text('Warung: ${warung.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                      if (warung.address != null) Text('Alamat: ${warung.address}'),
+                      Text('Warung: ${warung.name}',
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      if (warung.address != null)
+                        Text('Alamat: ${warung.address}'),
                       if (warung.phone != null) Text('Telp: ${warung.phone}'),
                       const SizedBox(height: 8),
                       Row(
@@ -264,7 +284,9 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
                             label: const Text('Maps'),
                           ),
                           const SizedBox(width: 12),
-                          Text('Total: ${_money(delivery.totalAmount)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text('Total: ${_money(delivery.totalAmount)}',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ],
@@ -272,7 +294,8 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text('Items', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Items',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Card(
                 child: Column(
@@ -280,8 +303,10 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
                       .map(
                         (i) => ListTile(
                           dense: true,
-                          title: Text(i.productName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                          subtitle: Text('${i.quantity} ${i.unit ?? ''} x Rp ${i.price.toStringAsFixed(0)}'),
+                          title: Text(i.productName,
+                              maxLines: 1, overflow: TextOverflow.ellipsis),
+                          subtitle: Text(
+                              '${i.quantity} ${i.unit ?? ''} x Rp ${i.price.toStringAsFixed(0)}'),
                           trailing: Text('Rp ${i.subtotal.toStringAsFixed(0)}'),
                         ),
                       )
@@ -301,10 +326,12 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
                   icon: const Icon(Icons.flag),
                   label: const Text('Mark Delivered'),
                 ),
-              if (delivery.status == 'DELIVERED' || delivery.status == 'ON_DELIVERY') ...[
+              if (delivery.status == 'DELIVERED' ||
+                  delivery.status == 'ON_DELIVERY') ...[
                 const SizedBox(height: 16),
                 const Divider(),
-                const Text('Konfirmasi Delivery', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Konfirmasi Delivery',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -332,13 +359,16 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
                 if (_photoBytes != null)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.memory(_photoBytes!, height: 180, fit: BoxFit.cover),
+                    child: Image.memory(_photoBytes!,
+                        height: 180, fit: BoxFit.cover),
                   ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
                     const Expanded(child: Text('Tanda tangan')),
-                    TextButton(onPressed: _saving ? null : _clearSignature, child: const Text('Clear')),
+                    TextButton(
+                        onPressed: _saving ? null : _clearSignature,
+                        child: const Text('Clear')),
                   ],
                 ),
                 RepaintBoundary(
@@ -352,14 +382,17 @@ class _DeliveryDetailScreenState extends ConsumerState<DeliveryDetailScreen> {
                     ),
                     child: GestureDetector(
                       onPanUpdate: (details) {
-                        final renderBox = context.findRenderObject() as RenderBox?;
+                        final renderBox =
+                            context.findRenderObject() as RenderBox?;
                         if (renderBox == null) {
                           return;
                         }
-                        final local = renderBox.globalToLocal(details.globalPosition);
+                        final local =
+                            renderBox.globalToLocal(details.globalPosition);
                         setState(() => _signaturePoints.add(local));
                       },
-                      onPanEnd: (_) => setState(() => _signaturePoints.add(null)),
+                      onPanEnd: (_) =>
+                          setState(() => _signaturePoints.add(null)),
                       child: CustomPaint(
                         painter: _SignaturePainter(_signaturePoints),
                         size: Size.infinite,

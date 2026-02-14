@@ -13,6 +13,8 @@ class UserRemoteDataSource {
   Future<List<UserModel>> fetchUsers() async {
     final response = await _dio.get('/users');
     final data = (response.data['data'] ?? []) as List<dynamic>;
-    return data.map((row) => UserModel.fromJson(row as Map<String, dynamic>)).toList();
+    return data
+        .map((row) => UserModel.fromJson(row as Map<String, dynamic>))
+        .toList();
   }
 }

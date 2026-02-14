@@ -7,7 +7,8 @@ import '../../providers/stock_provider.dart';
 import '../../providers/warehouse_provider.dart';
 
 class StockOpnameScreen extends ConsumerStatefulWidget {
-  const StockOpnameScreen({super.key, this.initialWarehouseId, this.initialProductId});
+  const StockOpnameScreen(
+      {super.key, this.initialWarehouseId, this.initialProductId});
 
   final String? initialWarehouseId;
   final String? initialProductId;
@@ -46,23 +47,27 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
     final productId = _productId;
 
     if (warehouseId == null || warehouseId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih warehouse.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Pilih warehouse.')));
       return;
     }
     if (productId == null || productId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih produk.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Pilih produk.')));
       return;
     }
 
     final actualQty = int.tryParse(_actualQtyController.text.trim());
     if (actualQty == null || actualQty < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Actual qty harus angka >= 0.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Actual qty harus angka >= 0.')));
       return;
     }
 
     final reason = _reasonController.text.trim();
     if (reason.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reason wajib diisi.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Reason wajib diisi.')));
       return;
     }
 
@@ -81,13 +86,15 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Opname tersimpan.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Opname tersimpan.')));
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal opname: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal opname: $e')));
     } finally {
       if (mounted) {
         setState(() => _saving = false);
@@ -121,7 +128,8 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
     final productId = _productId;
 
     final stockAsync = (warehouseId != null && productId != null)
-        ? ref.watch(stockListProvider(StockQuery(warehouseId: warehouseId, productId: productId)))
+        ? ref.watch(stockListProvider(
+            StockQuery(warehouseId: warehouseId, productId: productId)))
         : const AsyncValue<List<dynamic>>.data([]);
 
     return Scaffold(
@@ -131,22 +139,27 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
         children: [
           warehousesAsync.when(
             data: (warehouses) {
-              if (warehouses.isNotEmpty && (_warehouseId == null || _warehouseId!.isEmpty)) {
+              if (warehouses.isNotEmpty &&
+                  (_warehouseId == null || _warehouseId!.isEmpty)) {
                 _warehouseId = warehouses.first.id;
               }
 
               return InputDecorator(
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Warehouse'),
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Warehouse'),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     isExpanded: true,
                     value: _warehouseId,
                     items: warehouses
                         .map(
-                          (w) => DropdownMenuItem(value: w.id, child: Text(w.name)),
+                          (w) => DropdownMenuItem(
+                              value: w.id, child: Text(w.name)),
                         )
                         .toList(),
-                    onChanged: _saving ? null : (value) => setState(() => _warehouseId = value),
+                    onChanged: _saving
+                        ? null
+                        : (value) => setState(() => _warehouseId = value),
                   ),
                 ),
               );
@@ -170,7 +183,8 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
             Builder(
               builder: (context) {
                 final q = _productSearchController.text.trim();
-                final productsAsync = ref.watch(productSearchProvider(q.isEmpty ? null : q));
+                final productsAsync =
+                    ref.watch(productSearchProvider(q.isEmpty ? null : q));
 
                 return productsAsync.when(
                   data: (items) {
@@ -187,7 +201,8 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
                         itemBuilder: (context, index) {
                           final p = items[index];
                           return ListTile(
-                            title: Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            title: Text(p.name,
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
                             subtitle: Text('${p.barcode} | ${p.unit}'),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: _saving
@@ -202,7 +217,8 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
                       ),
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (e, _) => Text('Gagal load produk: $e'),
                 );
               },
@@ -210,7 +226,8 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
           ] else ...[
             Consumer(
               builder: (context, ref, _) {
-                final productAsync = ref.watch(productDetailProvider(_productId!));
+                final productAsync =
+                    ref.watch(productDetailProvider(_productId!));
                 return productAsync.when(
                   data: (p) => Card(child: _buildSelectedProductTile(p)),
                   loading: () => const LinearProgressIndicator(),
@@ -229,7 +246,8 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
                 child: ListTile(
                   title: const Text('System Qty'),
                   subtitle: Text('Min stock: $minStock'),
-                  trailing: Text(systemQty.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                  trailing: Text(systemQty.toString(),
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
               );
             },
@@ -258,7 +276,10 @@ class _StockOpnameScreenState extends ConsumerState<StockOpnameScreen> {
           FilledButton.icon(
             onPressed: _saving ? null : _submit,
             icon: _saving
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.save),
             label: Text(_saving ? 'Menyimpan...' : 'Simpan'),
           ),

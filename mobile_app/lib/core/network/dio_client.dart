@@ -29,7 +29,8 @@ class DioClient {
     );
 
     _dio!.interceptors.add(ApiInterceptor(_secureStorageService));
-    _dio!.interceptors.add(PrettyDioLogger(requestBody: true, requestHeader: true));
+    _dio!.interceptors
+        .add(PrettyDioLogger(requestBody: true, requestHeader: true));
 
     return _dio!;
   }

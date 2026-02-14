@@ -16,7 +16,8 @@ class DailyReportModel {
   final double collected;
 
   factory DailyReportModel.fromJson(Map<String, dynamic> json) {
-    double toDouble(dynamic value) => double.tryParse(value?.toString() ?? '0') ?? 0;
+    double toDouble(dynamic value) =>
+        double.tryParse(value?.toString() ?? '0') ?? 0;
 
     final sales = (json['sales'] as Map<String, dynamic>? ?? const {});
     final payments = (json['payments'] as Map<String, dynamic>? ?? const {});
@@ -52,11 +53,14 @@ class MonthlyReportModel {
   final double collectionsAmount;
 
   factory MonthlyReportModel.fromJson(Map<String, dynamic> json) {
-    double toDouble(dynamic value) => double.tryParse(value?.toString() ?? '0') ?? 0;
+    double toDouble(dynamic value) =>
+        double.tryParse(value?.toString() ?? '0') ?? 0;
 
     final sales = (json['sales'] as Map<String, dynamic>? ?? const {});
-    final receivables = (json['receivables'] as Map<String, dynamic>? ?? const {});
-    final collections = (json['collections'] as Map<String, dynamic>? ?? const {});
+    final receivables =
+        (json['receivables'] as Map<String, dynamic>? ?? const {});
+    final collections =
+        (json['collections'] as Map<String, dynamic>? ?? const {});
 
     return MonthlyReportModel(
       period: json['period'] as String? ?? '-',
@@ -92,7 +96,8 @@ class WarungPerformanceModel {
   final String status;
 
   factory WarungPerformanceModel.fromJson(Map<String, dynamic> json) {
-    double toDouble(dynamic value) => double.tryParse(value?.toString() ?? '0') ?? 0;
+    double toDouble(dynamic value) =>
+        double.tryParse(value?.toString() ?? '0') ?? 0;
 
     return WarungPerformanceModel(
       warungId: json['warungId'] as String? ?? '-',
@@ -114,7 +119,8 @@ class WarungPerformanceResponse {
   final List<WarungPerformanceModel> warungs;
 
   factory WarungPerformanceResponse.fromJson(Map<String, dynamic> json) {
-    final items = (json['warungs'] as List<dynamic>? ?? const []).cast<dynamic>();
+    final items =
+        (json['warungs'] as List<dynamic>? ?? const []).cast<dynamic>();
     return WarungPerformanceResponse(
       period: json['period'] as String? ?? '-',
       warungs: items

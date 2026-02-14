@@ -25,9 +25,13 @@ class CartBottomSheet extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Keranjang', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Keranjang',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 TextButton(
-                  onPressed: cart.isEmpty ? null : () => ref.read(cartProvider.notifier).clear(),
+                  onPressed: cart.isEmpty
+                      ? null
+                      : () => ref.read(cartProvider.notifier).clear(),
                   child: const Text('Kosongkan'),
                 ),
               ],
@@ -47,18 +51,28 @@ class CartBottomSheet extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final item = cart[index];
                     return ListTile(
-                      title: Text(item.product.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      subtitle: Text('Rp ${item.product.sellPrice.toStringAsFixed(0)}'),
+                      title: Text(item.product.name,
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(
+                          'Rp ${item.product.sellPrice.toStringAsFixed(0)}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            onPressed: () => ref.read(cartProvider.notifier).updateQuantity(item.product.id, item.quantity - 1),
+                            onPressed: () => ref
+                                .read(cartProvider.notifier)
+                                .updateQuantity(
+                                    item.product.id, item.quantity - 1),
                             icon: const Icon(Icons.remove),
                           ),
-                          Text('${item.quantity}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text('${item.quantity}',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                           IconButton(
-                            onPressed: () => ref.read(cartProvider.notifier).updateQuantity(item.product.id, item.quantity + 1),
+                            onPressed: () => ref
+                                .read(cartProvider.notifier)
+                                .updateQuantity(
+                                    item.product.id, item.quantity + 1),
                             icon: const Icon(Icons.add),
                           ),
                         ],
@@ -71,8 +85,12 @@ class CartBottomSheet extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                Text('Rp ${subtotal.toStringAsFixed(0)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Total',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                Text('Rp ${subtotal.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(height: 12),

@@ -15,7 +15,8 @@ class AdminDashboardScreen extends ConsumerStatefulWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  ConsumerState<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+  ConsumerState<AdminDashboardScreen> createState() =>
+      _AdminDashboardScreenState();
 }
 
 class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
@@ -114,10 +115,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         onTap: _onNavTapped,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Warung'),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory_2), label: 'Produk'),
-          BottomNavigationBarItem(icon: Icon(Icons.assessment), label: 'Laporan'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.inventory_2), label: 'Produk'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.assessment), label: 'Laporan'),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -143,12 +147,14 @@ class _DashboardBody extends StatelessWidget {
     final today = dashboard.today;
     final monthly = dashboard.chart?.omzetBulanan;
 
-    final labaText = today.profitEstimate > 0 ? _money(today.profitEstimate) : 'N/A';
+    final labaText =
+        today.profitEstimate > 0 ? _money(today.profitEstimate) : 'N/A';
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text('Ringkasan Hari Ini', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text('Ringkasan Hari Ini',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -190,7 +196,9 @@ class _DashboardBody extends StatelessWidget {
                 value: labaText,
                 icon: Icons.trending_up,
                 color: Colors.blue,
-                subtitle: today.profitEstimate > 0 ? null : 'Belum tersedia dari backend',
+                subtitle: today.profitEstimate > 0
+                    ? null
+                    : 'Belum tersedia dari backend',
               ),
             ),
           ],
@@ -199,7 +207,8 @@ class _DashboardBody extends StatelessWidget {
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 8),
-          const Text('Omzet & Pengeluaran (12 bulan)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text('Omzet & Pengeluaran (12 bulan)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Card(
             child: Padding(
@@ -214,7 +223,8 @@ class _DashboardBody extends StatelessWidget {
         const SizedBox(height: 16),
         const Divider(),
         const SizedBox(height: 8),
-        const Text('Warung', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text('Warung',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -238,7 +248,8 @@ class _DashboardBody extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        const Text('Stok', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text('Stok',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -264,7 +275,8 @@ class _DashboardBody extends StatelessWidget {
         const SizedBox(height: 16),
         const Divider(),
         const SizedBox(height: 8),
-        const Text('Produk Terlaris (30 hari)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text('Produk Terlaris (30 hari)',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         if (dashboard.topProducts.isEmpty)
           const Text('Belum ada data top produk.'),
@@ -277,8 +289,10 @@ class _DashboardBody extends StatelessWidget {
                     (p) => ListTile(
                       dense: true,
                       leading: CircleAvatar(child: Text(p.rank.toString())),
-                      title: Text(p.productName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      subtitle: Text('${p.quantitySold} terjual - ${p.barcode}'),
+                      title: Text(p.productName,
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle:
+                          Text('${p.quantitySold} terjual - ${p.barcode}'),
                       trailing: Text(_money(p.revenue)),
                     ),
                   )
@@ -286,7 +300,8 @@ class _DashboardBody extends StatelessWidget {
             ),
           ),
         const SizedBox(height: 16),
-        const Text('Aksi Cepat', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text('Aksi Cepat',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 12,
@@ -326,14 +341,16 @@ class _DashboardBody extends StatelessWidget {
   Widget _buildMonthlyChart(DashboardMonthlyChart chart) {
     final length = chart.labels.length;
     final values = [...chart.omzet, ...chart.pengeluaran];
-    final maxSeries = values.isEmpty ? 0.0 : values.reduce((a, b) => a > b ? a : b);
+    final maxSeries =
+        values.isEmpty ? 0.0 : values.reduce((a, b) => a > b ? a : b);
     final maxY = max(1.0, maxSeries * 1.1).toDouble();
     final interval = length <= 6 ? 1.0 : (length / 6).ceilToDouble();
 
     List<FlSpot> toSpots(List<double> series) {
       return List<FlSpot>.generate(
         length,
-        (index) => FlSpot(index.toDouble(), index < series.length ? series[index] : 0),
+        (index) =>
+            FlSpot(index.toDouble(), index < series.length ? series[index] : 0),
       );
     }
 
@@ -347,8 +364,10 @@ class _DashboardBody extends StatelessWidget {
         borderData: FlBorderData(show: false),
         lineTouchData: const LineTouchData(enabled: true),
         titlesData: FlTitlesData(
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           leftTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: true, reservedSize: 46),
           ),

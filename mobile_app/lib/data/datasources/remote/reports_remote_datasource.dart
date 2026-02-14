@@ -18,25 +18,33 @@ class ReportsRemoteDataSource {
   }
 
   Future<DailyReportModel> fetchDaily({String? date}) async {
-    final response = await _dio.get('/reports/daily', queryParameters: {'date': date});
+    final response =
+        await _dio.get('/reports/daily', queryParameters: {'date': date});
     final data = response.data['data'] as Map<String, dynamic>;
     return DailyReportModel.fromJson(data);
   }
 
   Future<MonthlyReportModel> fetchMonthly({String? month}) async {
-    final response = await _dio.get('/reports/monthly', queryParameters: {'month': month});
+    final response =
+        await _dio.get('/reports/monthly', queryParameters: {'month': month});
     final data = response.data['data'] as Map<String, dynamic>;
     return MonthlyReportModel.fromJson(data);
   }
 
-  Future<List<DashboardTopProduct>> fetchTopProducts({int days = 30, int top = 10}) async {
-    final response = await _dio.get('/reports/top-products', queryParameters: {'days': days, 'top': top});
+  Future<List<DashboardTopProduct>> fetchTopProducts(
+      {int days = 30, int top = 10}) async {
+    final response = await _dio.get('/reports/top-products',
+        queryParameters: {'days': days, 'top': top});
     final data = (response.data['data'] ?? []) as List<dynamic>;
-    return data.map((row) => DashboardTopProduct.fromJson(row as Map<String, dynamic>)).toList();
+    return data
+        .map((row) => DashboardTopProduct.fromJson(row as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<WarungPerformanceResponse> fetchWarungPerformance({String period = 'monthly'}) async {
-    final response = await _dio.get('/reports/warungs', queryParameters: {'period': period});
+  Future<WarungPerformanceResponse> fetchWarungPerformance(
+      {String period = 'monthly'}) async {
+    final response =
+        await _dio.get('/reports/warungs', queryParameters: {'period': period});
     final data = response.data['data'] as Map<String, dynamic>;
     return WarungPerformanceResponse.fromJson(data);
   }

@@ -11,7 +11,8 @@ class DeliveryRepository {
     String? warungId,
     String? kurirId,
   }) {
-    return _remoteDataSource.fetchDeliveryOrders(status: status, warungId: warungId, kurirId: kurirId);
+    return _remoteDataSource.fetchDeliveryOrders(
+        status: status, warungId: warungId, kurirId: kurirId);
   }
 
   Future<DeliveryOrderModel> fetchDeliveryOrderById(String id) {

@@ -35,7 +35,8 @@ class WarungHomeScreen extends ConsumerWidget {
           children: [
             FilledButton.icon(
               onPressed: () async {
-                final count = await ref.read(syncServiceProvider).processQueue();
+                final count =
+                    await ref.read(syncServiceProvider).processQueue();
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Sync berhasil: $count task')),
@@ -61,13 +62,15 @@ class WarungHomeScreen extends ConsumerWidget {
                       return ListTile(
                         title: Text(product.name),
                         subtitle: Text('${product.barcode} - ${product.unit}'),
-                        trailing: Text('Rp ${product.sellPrice.toStringAsFixed(0)}'),
+                        trailing:
+                            Text('Rp ${product.sellPrice.toStringAsFixed(0)}'),
                       );
                     },
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stackTrace) => Text('Gagal mengambil produk: $error'),
+                error: (error, stackTrace) =>
+                    Text('Gagal mengambil produk: $error'),
               ),
             ),
           ],

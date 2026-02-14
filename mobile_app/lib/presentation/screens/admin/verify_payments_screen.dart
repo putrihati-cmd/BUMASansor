@@ -8,7 +8,8 @@ class VerifyPaymentsScreen extends ConsumerStatefulWidget {
   const VerifyPaymentsScreen({super.key});
 
   @override
-  ConsumerState<VerifyPaymentsScreen> createState() => _VerifyPaymentsScreenState();
+  ConsumerState<VerifyPaymentsScreen> createState() =>
+      _VerifyPaymentsScreenState();
 }
 
 class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
@@ -27,7 +28,8 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
   String _money(double value) => 'Rp ${value.toStringAsFixed(0)}';
 
   Future<void> _createPayment(ReceivableModel receivable) async {
-    final amountController = TextEditingController(text: receivable.balance.toStringAsFixed(0));
+    final amountController =
+        TextEditingController(text: receivable.balance.toStringAsFixed(0));
     String method = 'TRANSFER';
 
     final ok = await showDialog<bool>(
@@ -41,7 +43,8 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Warung: ${receivable.warung?.name ?? receivable.warungId}'),
+                  Text(
+                      'Warung: ${receivable.warung?.name ?? receivable.warungId}'),
                   const SizedBox(height: 8),
                   Text('Sisa tagihan: ${_money(receivable.balance)}'),
                   const SizedBox(height: 12),
@@ -55,14 +58,16 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
                   ),
                   const SizedBox(height: 12),
                   InputDecorator(
-                    decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Metode'),
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(), labelText: 'Metode'),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         isExpanded: true,
                         value: method,
                         items: const [
                           DropdownMenuItem(value: 'CASH', child: Text('Cash')),
-                          DropdownMenuItem(value: 'TRANSFER', child: Text('Transfer')),
+                          DropdownMenuItem(
+                              value: 'TRANSFER', child: Text('Transfer')),
                           DropdownMenuItem(value: 'QRIS', child: Text('QRIS')),
                         ],
                         onChanged: (value) {
@@ -77,8 +82,12 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
                 ],
               ),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-                FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Simpan')),
+                TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Batal')),
+                FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Simpan')),
               ],
             );
           },
@@ -97,11 +106,13 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
     }
 
     if (amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Jumlah bayar harus > 0.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Jumlah bayar harus > 0.')));
       return;
     }
     if (amount > receivable.balance) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Jumlah bayar melebihi sisa tagihan.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Jumlah bayar melebihi sisa tagihan.')));
       return;
     }
 
@@ -118,12 +129,14 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
       }
 
       ref.invalidate(receivableListProvider(_query));
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pembayaran tercatat.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Pembayaran tercatat.')));
     } catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal mencatat: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal mencatat: $e')));
     }
   }
 
@@ -150,16 +163,20 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
               children: [
                 Expanded(
                   child: InputDecorator(
-                    decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Status'),
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(), labelText: 'Status'),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String?>(
                         isExpanded: true,
                         value: _status,
                         items: const [
                           DropdownMenuItem(value: null, child: Text('Semua')),
-                          DropdownMenuItem(value: 'UNPAID', child: Text('UNPAID')),
-                          DropdownMenuItem(value: 'PARTIAL', child: Text('PARTIAL')),
-                          DropdownMenuItem(value: 'OVERDUE', child: Text('OVERDUE')),
+                          DropdownMenuItem(
+                              value: 'UNPAID', child: Text('UNPAID')),
+                          DropdownMenuItem(
+                              value: 'PARTIAL', child: Text('PARTIAL')),
+                          DropdownMenuItem(
+                              value: 'OVERDUE', child: Text('OVERDUE')),
                           DropdownMenuItem(value: 'PAID', child: Text('PAID')),
                         ],
                         onChanged: (value) => setState(() => _status = value),
@@ -187,7 +204,8 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
                 return RefreshIndicator(
                   onRefresh: () async {
                     ref.invalidate(receivableListProvider(_query));
-                    await Future<void>.delayed(const Duration(milliseconds: 200));
+                    await Future<void>.delayed(
+                        const Duration(milliseconds: 200));
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.only(bottom: 24),
@@ -196,22 +214,30 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
                     itemBuilder: (context, index) {
                       final r = items[index];
                       final warungName = r.warung?.name ?? r.warungId;
-                      final subtitle = 'Due: ${r.dueDate.toIso8601String().substring(0, 10)} | ${r.status}';
+                      final subtitle =
+                          'Due: ${r.dueDate.toIso8601String().substring(0, 10)} | ${r.status}';
 
                       return ListTile(
-                        title: Text(warungName, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        title: Text(warungName,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
                         subtitle: Text(subtitle),
                         leading: CircleAvatar(
-                          child: Text(warungName.isEmpty ? '?' : warungName[0].toUpperCase()),
+                          child: Text(warungName.isEmpty
+                              ? '?'
+                              : warungName[0].toUpperCase()),
                         ),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(_money(r.balance), style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(_money(r.balance),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
                             const SizedBox(height: 4),
                             OutlinedButton(
-                              onPressed: r.balance <= 0 ? null : () => _createPayment(r),
+                              onPressed: r.balance <= 0
+                                  ? null
+                                  : () => _createPayment(r),
                               child: const Text('Bayar'),
                             ),
                           ],
@@ -222,7 +248,8 @@ class _VerifyPaymentsScreenState extends ConsumerState<VerifyPaymentsScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Gagal load receivables: $e')),
+              error: (e, _) =>
+                  Center(child: Text('Gagal load receivables: $e')),
             ),
           ),
         ],

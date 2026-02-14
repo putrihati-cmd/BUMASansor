@@ -9,4 +9,3 @@ final uploadRepositoryProvider = Provider<UploadRepository>((ref) {
   final remote = UploadRemoteDataSource(storage);
   return UploadRepository(remote);
 });
-

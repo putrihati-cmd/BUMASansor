@@ -27,8 +27,10 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
     String? dateTo;
 
     if (_range != null) {
-      final start = DateTime(_range!.start.year, _range!.start.month, _range!.start.day);
-      final end = DateTime(_range!.end.year, _range!.end.month, _range!.end.day, 23, 59, 59);
+      final start =
+          DateTime(_range!.start.year, _range!.start.month, _range!.start.day);
+      final end = DateTime(
+          _range!.end.year, _range!.end.month, _range!.end.day, 23, 59, 59);
       dateFrom = start.toIso8601String();
       dateTo = end.toIso8601String();
     }
@@ -83,8 +85,11 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
               valueListenable: HiveService.syncQueueBox.listenable(),
               builder: (context, Box<dynamic> box, child) {
                 final tasks = box.values
-                    .map((value) => SyncTaskModel.fromJson(value as Map<dynamic, dynamic>))
-                    .where((t) => t.endpoint == '/sales' && t.method.toUpperCase() == 'POST')
+                    .map((value) =>
+                        SyncTaskModel.fromJson(value as Map<dynamic, dynamic>))
+                    .where((t) =>
+                        t.endpoint == '/sales' &&
+                        t.method.toUpperCase() == 'POST')
                     .toList();
 
                 if (tasks.isEmpty) {
@@ -98,7 +103,9 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Pending Offline: ${tasks.length}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Pending Offline: ${tasks.length}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         ...tasks.take(5).map((task) {
                           final createdAt = task.createdAt;
@@ -122,7 +129,8 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return Center(child: Text('Gagal load riwayat: ${snapshot.error}'));
+                    return Center(
+                        child: Text('Gagal load riwayat: ${snapshot.error}'));
                   }
 
                   final sales = snapshot.data ?? const [];
@@ -137,11 +145,14 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                       final sale = sales[index];
                       return ListTile(
                         title: Text(sale.invoiceNumber),
-                        subtitle: Text(DateFormat('yyyy-MM-dd HH:mm').format(sale.createdAt)),
-                        trailing: Text('Rp ${sale.totalAmount.toStringAsFixed(0)}'),
+                        subtitle: Text(DateFormat('yyyy-MM-dd HH:mm')
+                            .format(sale.createdAt)),
+                        trailing:
+                            Text('Rp ${sale.totalAmount.toStringAsFixed(0)}'),
                         onTap: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => ReceiptScreen(sale: sale)),
+                            MaterialPageRoute(
+                                builder: (_) => ReceiptScreen(sale: sale)),
                           );
                         },
                       );
