@@ -52,6 +52,18 @@ jobs:
       - name: Build Android prod (release)
         run: flutter build apk --flavor prod --release --dart-define=API_BASE_URL=https://bumas.infiatin.cloud/api
 
+      - name: Upload dev APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-dev-debug.apk
+          path: mobile_app/build/app/outputs/flutter-apk/app-dev-debug.apk
+
+      - name: Upload prod APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-prod-release.apk
+          path: mobile_app/build/app/outputs/flutter-apk/app-prod-release.apk
+
   ios-build:
     runs-on: macos-latest
     defaults:
