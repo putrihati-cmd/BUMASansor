@@ -60,7 +60,11 @@ export class DistributionController {
 
   @Get('delivery-orders')
   @Roles(Role.ADMIN, Role.GUDANG, Role.KURIR, Role.WARUNG)
-  listDO(@Query('status') status?: DOStatus, @Query('warungId') warungId?: string, @Query('kurirId') kurirId?: string) {
+  listDO(
+    @Query('status') status?: DOStatus,
+    @Query('warungId') warungId?: string,
+    @Query('kurirId') kurirId?: string,
+  ) {
     return this.distributionService.listDeliveryOrders(status, warungId, kurirId);
   }
 

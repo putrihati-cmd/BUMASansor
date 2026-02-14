@@ -213,12 +213,16 @@ export class DistributionService {
   }
 
   async createDeliveryOrder(userId: string, dto: CreateDODto) {
-    const warung = await this.prisma.warung.findFirst({ where: { id: dto.warungId, deletedAt: null } });
+    const warung = await this.prisma.warung.findFirst({
+      where: { id: dto.warungId, deletedAt: null },
+    });
     if (!warung) {
       throw new NotFoundException('Warung not found');
     }
     if (warung.isBlocked) {
-      throw new BadRequestException(`Warung is blocked: ${warung.blockedReason ?? 'unknown reason'}`);
+      throw new BadRequestException(
+        `Warung is blocked: ${warung.blockedReason ?? 'unknown reason'}`,
+      );
     }
 
     await this.ensureWarehouse(dto.warehouseId);
@@ -564,4 +568,3 @@ export class DistributionService {
     }
   }
 }
-

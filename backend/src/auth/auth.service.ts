@@ -30,8 +30,12 @@ export class AuthService {
     }
 
     const saltRoundsConfig = this.configService.get<string | number>('BCRYPT_SALT_ROUNDS', 10);
-    const parsedSaltRounds = typeof saltRoundsConfig === 'number' ? saltRoundsConfig : Number.parseInt(saltRoundsConfig, 10);
-    const saltRounds = Number.isFinite(parsedSaltRounds) && parsedSaltRounds > 0 ? parsedSaltRounds : 10;
+    const parsedSaltRounds =
+      typeof saltRoundsConfig === 'number'
+        ? saltRoundsConfig
+        : Number.parseInt(saltRoundsConfig, 10);
+    const saltRounds =
+      Number.isFinite(parsedSaltRounds) && parsedSaltRounds > 0 ? parsedSaltRounds : 10;
     const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
 
     const user = await this.usersService.create({
@@ -154,7 +158,9 @@ export class AuthService {
     });
 
     const decoded = this.jwtService.decode(refreshToken) as { exp?: number };
-    const expiresAt = decoded?.exp ? new Date(decoded.exp * 1000) : new Date(Date.now() + 7 * 86400000);
+    const expiresAt = decoded?.exp
+      ? new Date(decoded.exp * 1000)
+      : new Date(Date.now() + 7 * 86400000);
 
     const tokenHash = await bcrypt.hash(refreshToken, 10);
     await this.prisma.refreshToken.create({

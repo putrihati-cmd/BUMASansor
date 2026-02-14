@@ -142,15 +142,9 @@ describe('Products API (e2e)', () => {
     expect(Number(updated.margin)).toBeCloseTo(21.43, 2);
     expect(updated.isActive).toBe(false);
 
-    await api(app)
-      .delete(`/api/products/${created.id}`)
-      .set(authHeader(adminToken))
-      .expect(200);
+    await api(app).delete(`/api/products/${created.id}`).set(authHeader(adminToken)).expect(200);
 
-    await api(app)
-      .get(`/api/products/${created.id}`)
-      .set(authHeader(adminToken))
-      .expect(404);
+    await api(app).get(`/api/products/${created.id}`).set(authHeader(adminToken)).expect(404);
   });
 
   it('forbids WARUNG role to create products', async () => {

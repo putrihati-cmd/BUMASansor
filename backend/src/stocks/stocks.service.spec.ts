@@ -99,13 +99,24 @@ describe('StocksService', () => {
 
       expect(prisma.stockOpname.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ systemQty: 5, actualQty: 8, difference: 3, reason: 'count', performedBy: 'u-1' }),
+          data: expect.objectContaining({
+            systemQty: 5,
+            actualQty: 8,
+            difference: 3,
+            reason: 'count',
+            performedBy: 'u-1',
+          }),
         }),
       );
 
       expect(prisma.stockMovement.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ movementType: 'ADJUSTMENT', quantity: 3, referenceType: 'OPNAME', referenceId: 'op-1' }),
+          data: expect.objectContaining({
+            movementType: 'ADJUSTMENT',
+            quantity: 3,
+            referenceType: 'OPNAME',
+            referenceId: 'op-1',
+          }),
         }),
       );
 

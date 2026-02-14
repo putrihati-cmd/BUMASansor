@@ -203,9 +203,10 @@ describe('Stocks API (e2e)', () => {
       .get('/api/stocks/valuation/total')
       .set(authHeader(adminToken))
       .expect(200);
-    const valuation = unwrapData<{ totalValue: number; items: Array<{ warehouseId: string; value: number }> }>(
-      valuationRes,
-    );
+    const valuation = unwrapData<{
+      totalValue: number;
+      items: Array<{ warehouseId: string; value: number }>;
+    }>(valuationRes);
     expect(valuation.items).toHaveLength(2);
     expect(Number(valuation.totalValue)).toBe(200000);
   });
@@ -226,9 +227,10 @@ describe('Stocks API (e2e)', () => {
       .get('/api/stocks/alerts/low-stock')
       .set(authHeader(adminToken))
       .expect(200);
-    const alerts = unwrapData<Array<{ productId: string; warehouseId: string; quantity: number; minStock: number }>>(
-      alertsRes,
-    );
+    const alerts =
+      unwrapData<
+        Array<{ productId: string; warehouseId: string; quantity: number; minStock: number }>
+      >(alertsRes);
 
     expect(alerts).toHaveLength(1);
     expect(alerts[0].productId).toBe(productId);

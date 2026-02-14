@@ -40,7 +40,10 @@ describe('ReportsService', () => {
 
   describe('dashboard', () => {
     it('returns expected dashboard shape', async () => {
-      prisma.sale.aggregate.mockResolvedValue({ _sum: { totalAmount: 1000, paidAmount: 800 }, _count: 2 });
+      prisma.sale.aggregate.mockResolvedValue({
+        _sum: { totalAmount: 1000, paidAmount: 800 },
+        _count: 2,
+      });
       prisma.receivable.aggregate.mockResolvedValue({ _sum: { balance: 200 } });
       prisma.warung.count.mockResolvedValueOnce(5).mockResolvedValueOnce(1);
 

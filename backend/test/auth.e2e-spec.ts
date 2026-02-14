@@ -115,10 +115,7 @@ describe('Authentication (e2e)', () => {
       role: Role.ADMIN,
     });
 
-    const meRes = await api(app)
-      .get('/api/auth/me')
-      .set(authHeader(user.accessToken))
-      .expect(200);
+    const meRes = await api(app).get('/api/auth/me').set(authHeader(user.accessToken)).expect(200);
 
     const me = unwrapData<{ email: string; role: Role }>(meRes);
     expect(me.email).toBe('auth.login@bumas.test');
@@ -164,10 +161,7 @@ describe('Authentication (e2e)', () => {
     expect(refreshed.accessToken).toBeDefined();
     expect(refreshed.refreshToken).toBeDefined();
 
-    await api(app)
-      .get('/api/auth/me')
-      .set(authHeader(refreshed.accessToken))
-      .expect(200);
+    await api(app).get('/api/auth/me').set(authHeader(refreshed.accessToken)).expect(200);
   });
 
   it('fails refresh with invalid token', async () => {
@@ -191,9 +185,6 @@ describe('Authentication (e2e)', () => {
       .send({ refreshToken: user.refreshToken })
       .expect(201);
 
-    await api(app)
-      .post('/api/auth/refresh')
-      .send({ refreshToken: user.refreshToken })
-      .expect(401);
+    await api(app).post('/api/auth/refresh').send({ refreshToken: user.refreshToken }).expect(401);
   });
 });

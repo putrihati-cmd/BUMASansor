@@ -82,7 +82,12 @@ describe('FinanceService', () => {
       });
 
       prisma.payment.create.mockResolvedValue({ id: 'pay-1' });
-      prisma.receivable.update.mockResolvedValue({ id: 'rec-1', balance: 0, paidAmount: 100, status: 'PAID' });
+      prisma.receivable.update.mockResolvedValue({
+        id: 'rec-1',
+        balance: 0,
+        paidAmount: 100,
+        status: 'PAID',
+      });
       prisma.warung.update.mockResolvedValue({ id: 'w-1' });
 
       prisma.receivable.findMany.mockResolvedValue([]);
@@ -96,7 +101,12 @@ describe('FinanceService', () => {
 
       expect(prisma.payment.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ receivableId: 'rec-1', amount: 100, method: 'TRANSFER', verifiedBy: 'admin-1' }),
+          data: expect.objectContaining({
+            receivableId: 'rec-1',
+            amount: 100,
+            method: 'TRANSFER',
+            verifiedBy: 'admin-1',
+          }),
         }),
       );
 

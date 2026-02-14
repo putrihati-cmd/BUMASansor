@@ -360,7 +360,9 @@ export class StocksService {
   }
 
   private async ensureProductExists(productId: string) {
-    const product = await this.prisma.product.findFirst({ where: { id: productId, deletedAt: null } });
+    const product = await this.prisma.product.findFirst({
+      where: { id: productId, deletedAt: null },
+    });
     if (!product) {
       throw new NotFoundException('Product not found');
     }

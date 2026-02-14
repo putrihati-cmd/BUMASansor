@@ -111,9 +111,9 @@ describe('DistributionService', () => {
       });
       prisma.receivable.findFirst.mockResolvedValue({ id: 'rec-1' });
 
-      await expect(service.confirmDelivery('do-1', 'admin-1', { photoProof: 'x' } as any)).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(
+        service.confirmDelivery('do-1', 'admin-1', { photoProof: 'x' } as any),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
 
     it('throws when stock insufficient', async () => {
@@ -131,9 +131,9 @@ describe('DistributionService', () => {
 
       prisma.stock.findUnique.mockResolvedValue({ quantity: 1 });
 
-      await expect(service.confirmDelivery('do-1', 'admin-1', { photoProof: 'x' } as any)).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(
+        service.confirmDelivery('do-1', 'admin-1', { photoProof: 'x' } as any),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
 
@@ -142,7 +142,9 @@ describe('DistributionService', () => {
       prisma.deliveryOrder.findFirst.mockResolvedValue({ id: 'do-1', status: 'PENDING' });
       prisma.user.findFirst.mockResolvedValue(null);
 
-      await expect(service.assignKurir('do-1', { kurirId: 'k-1' } as any)).rejects.toBeInstanceOf(BadRequestException);
+      await expect(service.assignKurir('do-1', { kurirId: 'k-1' } as any)).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
     });
   });
 });

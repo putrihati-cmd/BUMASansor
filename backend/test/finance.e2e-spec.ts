@@ -249,7 +249,9 @@ describe('Finance API (e2e)', () => {
       .get(`/api/finance/receivables/warung/${warungId}/status`)
       .set(authHeader(adminToken))
       .expect(200);
-    const status = unwrapData<{ currentDebt: number; availableCredit: number; isBlocked: boolean }>(statusRes);
+    const status = unwrapData<{ currentDebt: number; availableCredit: number; isBlocked: boolean }>(
+      statusRes,
+    );
     expect(Number(status.currentDebt)).toBe(0);
     expect(status.isBlocked).toBe(false);
   });
@@ -339,10 +341,7 @@ describe('Finance API (e2e)', () => {
   it('enforces finance endpoint roles', async () => {
     const receivable = await createReceivableByConfirmedDelivery(3);
 
-    await api(app)
-      .get('/api/finance/receivables')
-      .set(authHeader(warungToken))
-      .expect(200);
+    await api(app).get('/api/finance/receivables').set(authHeader(warungToken)).expect(200);
 
     await api(app)
       .post('/api/finance/payments')

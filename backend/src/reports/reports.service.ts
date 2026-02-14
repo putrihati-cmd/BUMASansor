@@ -13,8 +13,17 @@ export class ReportsService {
     const end = new Date(now);
     end.setHours(23, 59, 59, 999);
 
-    const [salesToday, unpaidReceivables, activeWarungs, blockedWarungs, stocks, topProducts, profitEstimate, collectedToday, chart] =
-      await Promise.all([
+    const [
+      salesToday,
+      unpaidReceivables,
+      activeWarungs,
+      blockedWarungs,
+      stocks,
+      topProducts,
+      profitEstimate,
+      collectedToday,
+      chart,
+    ] = await Promise.all([
       this.prisma.sale.aggregate({
         where: { createdAt: { gte: start, lte: end }, deletedAt: null },
         _sum: { totalAmount: true, paidAmount: true },
@@ -23,7 +32,9 @@ export class ReportsService {
       this.prisma.receivable.aggregate({
         where: {
           deletedAt: null,
-          status: { in: [ReceivableStatus.UNPAID, ReceivableStatus.PARTIAL, ReceivableStatus.OVERDUE] },
+          status: {
+            in: [ReceivableStatus.UNPAID, ReceivableStatus.PARTIAL, ReceivableStatus.OVERDUE],
+          },
         },
         _sum: { balance: true },
       }),
@@ -37,7 +48,10 @@ export class ReportsService {
     ]);
 
     const lowStockCount = stocks.filter((stock) => stock.quantity < stock.minStock).length;
-    const stockValue = stocks.reduce((sum, stock) => sum + stock.quantity * Number(stock.product.buyPrice), 0);
+    const stockValue = stocks.reduce(
+      (sum, stock) => sum + stock.quantity * Number(stock.product.buyPrice),
+      0,
+    );
 
     const cashIn = Number(salesToday._sum.paidAmount ?? 0);
     const kasBank = cashIn + collectedToday;
@@ -185,7 +199,9 @@ export class ReportsService {
   }
 
   async monthly(month?: string) {
-    const base = month ? new Date(`${month}-01`) : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const base = month
+      ? new Date(`${month}-01`)
+      : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const start = new Date(base.getFullYear(), base.getMonth(), 1);
     const end = new Date(base.getFullYear(), base.getMonth() + 1, 0, 23, 59, 59, 999);
 

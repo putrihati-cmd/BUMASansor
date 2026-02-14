@@ -13,12 +13,16 @@ export class SalesService {
   ) {}
 
   async create(userId: string, dto: CreateSaleDto) {
-    const warung = await this.prisma.warung.findFirst({ where: { id: dto.warungId, deletedAt: null } });
+    const warung = await this.prisma.warung.findFirst({
+      where: { id: dto.warungId, deletedAt: null },
+    });
     if (!warung) {
       throw new NotFoundException('Warung not found');
     }
     if (warung.isBlocked) {
-      throw new BadRequestException(`Warung is blocked: ${warung.blockedReason ?? 'unknown reason'}`);
+      throw new BadRequestException(
+        `Warung is blocked: ${warung.blockedReason ?? 'unknown reason'}`,
+      );
     }
 
     const warehouse = await this.prisma.warehouse.findFirst({
@@ -51,7 +55,8 @@ export class SalesService {
     });
 
     const totalAmount = lineItems.reduce((sum, item) => sum + item.subtotal, 0);
-    const paidAmount = dto.paidAmount ?? (dto.paymentMethod === SalePaymentMethod.CREDIT ? 0 : totalAmount);
+    const paidAmount =
+      dto.paidAmount ?? (dto.paymentMethod === SalePaymentMethod.CREDIT ? 0 : totalAmount);
 
     if (paidAmount > totalAmount) {
       throw new BadRequestException('paidAmount cannot be greater than totalAmount');
@@ -263,4 +268,3 @@ export class SalesService {
     return `INV-${datePart}-${(count + 1).toString().padStart(4, '0')}`;
   }
 }
-

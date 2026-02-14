@@ -1,7 +1,13 @@
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import type { Server, Socket } from 'socket.io';
 
 import { RealtimeService } from './realtime.service';
@@ -45,7 +51,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       client.data.user = payload;
 
       this.logger.debug(`Socket connected: ${client.id} (sub=${payload?.sub ?? '-'})`);
-    } catch (e) {
+    } catch {
       this.logger.debug(`Socket connection rejected (invalid token): ${client.id}`);
       client.disconnect();
     }
@@ -74,4 +80,3 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     return null;
   }
 }
-

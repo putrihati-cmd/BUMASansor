@@ -43,7 +43,11 @@ describe('SalesService', () => {
 
   describe('create', () => {
     it('throws when warung is blocked', async () => {
-      prisma.warung.findFirst.mockResolvedValue({ id: 'w-1', isBlocked: true, blockedReason: 'overdue' });
+      prisma.warung.findFirst.mockResolvedValue({
+        id: 'w-1',
+        isBlocked: true,
+        blockedReason: 'overdue',
+      });
 
       await expect(
         service.create('u-1', {
@@ -58,9 +62,7 @@ describe('SalesService', () => {
     it('throws when paidAmount > totalAmount', async () => {
       prisma.warung.findFirst.mockResolvedValue({ id: 'w-1', isBlocked: false, creditDays: 14 });
       prisma.warehouse.findFirst.mockResolvedValue({ id: 'wh-1' });
-      prisma.product.findMany.mockResolvedValue([
-        { id: 'p-1', sellPrice: 100, deletedAt: null },
-      ]);
+      prisma.product.findMany.mockResolvedValue([{ id: 'p-1', sellPrice: 100, deletedAt: null }]);
 
       await expect(
         service.create('u-1', {
@@ -76,9 +78,7 @@ describe('SalesService', () => {
     it('throws when stock insufficient', async () => {
       prisma.warung.findFirst.mockResolvedValue({ id: 'w-1', isBlocked: false, creditDays: 14 });
       prisma.warehouse.findFirst.mockResolvedValue({ id: 'wh-1' });
-      prisma.product.findMany.mockResolvedValue([
-        { id: 'p-1', sellPrice: 100, deletedAt: null },
-      ]);
+      prisma.product.findMany.mockResolvedValue([{ id: 'p-1', sellPrice: 100, deletedAt: null }]);
 
       prisma.stock.findUnique.mockResolvedValue({ quantity: 0 });
 

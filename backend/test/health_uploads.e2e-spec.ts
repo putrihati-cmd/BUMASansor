@@ -1,7 +1,15 @@
 import { INestApplication } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { api, authHeader, closeTestApp, createTestApp, registerAndLogin, resetDatabase, unwrapData } from './e2e-utils';
+import {
+  api,
+  authHeader,
+  closeTestApp,
+  createTestApp,
+  registerAndLogin,
+  resetDatabase,
+  unwrapData,
+} from './e2e-utils';
 
 describe('Health & Uploads (e2e)', () => {
   let app: INestApplication;

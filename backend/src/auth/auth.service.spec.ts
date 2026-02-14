@@ -1,6 +1,4 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../common/enums/role.enum';
 import { AuthService } from './auth.service';
@@ -93,7 +91,7 @@ describe('AuthService', () => {
         role: Role.ADMIN,
       } as any);
 
-      expect((bcrypt.hash as any) as jest.Mock).toHaveBeenCalled();
+      expect(bcrypt.hash as any as jest.Mock).toHaveBeenCalled();
       expect(usersService.create).toHaveBeenCalled();
       expect(result).toHaveProperty('id', 'u-1');
       expect((result as any).password).toBeUndefined();
@@ -111,7 +109,12 @@ describe('AuthService', () => {
 
     it('throws when password invalid', async () => {
       (bcrypt.compare as any as jest.Mock).mockResolvedValue(false);
-      usersService.findByEmail.mockResolvedValue({ id: 'u-1', email: 'x@x.com', password: 'hash', role: Role.ADMIN });
+      usersService.findByEmail.mockResolvedValue({
+        id: 'u-1',
+        email: 'x@x.com',
+        password: 'hash',
+        role: Role.ADMIN,
+      });
 
       await expect(
         service.login({ email: 'x@x.com', password: 'wrong' } as any),

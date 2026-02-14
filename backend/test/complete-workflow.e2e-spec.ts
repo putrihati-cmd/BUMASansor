@@ -242,9 +242,9 @@ describe('Complete Workflow (e2e)', () => {
         .get(`/api/finance/receivables?warungId=${warungId}`)
         .set(authHeader(adminToken))
         .expect(200);
-      const receivableList = unwrapData<{ items: Array<{ id: string; amount: number; balance: number }> }>(
-        receivablesRes,
-      );
+      const receivableList = unwrapData<{
+        items: Array<{ id: string; amount: number; balance: number }>;
+      }>(receivablesRes);
       expect(receivableList.items).toHaveLength(1);
       const receivableId = receivableList.items[0].id;
       expect(Number(receivableList.items[0].amount)).toBe(192000);

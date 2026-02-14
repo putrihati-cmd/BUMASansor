@@ -35,19 +35,21 @@ async function main() {
     },
   });
 
-  const warung = await prisma.warung.create({
-    data: {
-      name: 'Warung Contoh',
-      ownerName: 'Pemilik Contoh',
-      phone: '081200000002',
-      address: 'Jl. Contoh No. 1',
-      region: 'Pusat',
-      creditLimit: 5000000,
-      creditDays: 14,
-    },
-  }).catch(async () => {
-    return prisma.warung.findFirstOrThrow({ where: { name: 'Warung Contoh' } });
-  });
+  const warung = await prisma.warung
+    .create({
+      data: {
+        name: 'Warung Contoh',
+        ownerName: 'Pemilik Contoh',
+        phone: '081200000002',
+        address: 'Jl. Contoh No. 1',
+        region: 'Pusat',
+        creditLimit: 5000000,
+        creditDays: 14,
+      },
+    })
+    .catch(async () => {
+      return prisma.warung.findFirstOrThrow({ where: { name: 'Warung Contoh' } });
+    });
 
   const password = await bcrypt.hash('Admin12345', 10);
 

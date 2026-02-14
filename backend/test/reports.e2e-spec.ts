@@ -282,7 +282,13 @@ describe('Reports API (e2e)', () => {
       .expect(200);
 
     const top = unwrapData<
-      Array<{ rank: number; productId: string; productName: string; quantitySold: number; revenue: number }>
+      Array<{
+        rank: number;
+        productId: string;
+        productName: string;
+        quantitySold: number;
+        revenue: number;
+      }>
     >(topRes);
 
     expect(top.length).toBeGreaterThan(0);

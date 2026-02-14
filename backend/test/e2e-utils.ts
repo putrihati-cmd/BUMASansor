@@ -65,7 +65,10 @@ export async function createTestApp(): Promise<{
   };
 }
 
-export async function closeTestApp(app: INestApplication | undefined, prisma: PrismaService | undefined) {
+export async function closeTestApp(
+  app: INestApplication | undefined,
+  prisma: PrismaService | undefined,
+) {
   if (prisma) {
     await prisma.$disconnect().catch(() => undefined);
   }

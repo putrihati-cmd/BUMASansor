@@ -29,7 +29,7 @@ export class RedisService implements OnModuleDestroy {
 
     this.client = new Redis({
       host: host?.trim() || 'localhost',
-      port: typeof port === 'string' ? Number(port) : port ?? 6379,
+      port: typeof port === 'string' ? Number(port) : (port ?? 6379),
       password: password?.trim() || undefined,
       maxRetriesPerRequest: 1,
       lazyConnect: true,
@@ -67,9 +67,8 @@ export class RedisService implements OnModuleDestroy {
 
     try {
       await this.client.quit();
-    } catch (_) {
+    } catch {
       // Best-effort shutdown: ignore errors when connection isn't established.
     }
   }
 }
-
