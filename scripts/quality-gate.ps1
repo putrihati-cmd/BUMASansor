@@ -39,16 +39,16 @@ function Ensure-ContainerRunning([string]$name) {
   }
 }
 
-function Wait-Tcp([string]$host, [int]$port, [int]$timeoutSec = 60) {
+function Wait-Tcp([string]$hostname, [int]$port, [int]$timeoutSec = 60) {
   $deadline = (Get-Date).AddSeconds($timeoutSec)
   while ((Get-Date) -lt $deadline) {
-    $ok = Test-NetConnection -ComputerName $host -Port $port -InformationLevel Quiet
+    $ok = Test-NetConnection -ComputerName $hostname -Port $port -InformationLevel Quiet
     if ($ok) {
       return
     }
     Start-Sleep -Seconds 2
   }
-  throw "Timeout waiting for TCP $host:$port"
+  throw "Timeout waiting for TCP ${hostname}:${port}"
 }
 
 Ensure-NodeTools
@@ -101,4 +101,3 @@ flutter build apk --flavor dev --debug --dart-define=API_BASE_URL=https://bumas.
 flutter build apk --flavor prod --release --dart-define=API_BASE_URL=https://bumas.infiatin.cloud/api
 
 Write-Host "[gate] OK"
-
