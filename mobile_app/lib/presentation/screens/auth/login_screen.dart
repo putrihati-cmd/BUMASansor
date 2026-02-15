@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -94,34 +95,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 onPressed: state.loading ? null : _loginApi,
                 child: Text(state.loading ? 'Loading...' : 'Login API'),
               ),
-              const SizedBox(height: 8),
-              const Divider(),
-              const SizedBox(height: 8),
-              const Text('Fallback dev mode (mock role login):'),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<UserRole>(
-                initialValue: _selectedRole,
-                decoration: const InputDecoration(labelText: 'Role'),
-                items: const [
-                  DropdownMenuItem(value: UserRole.admin, child: Text('Admin')),
-                  DropdownMenuItem(
-                      value: UserRole.gudang, child: Text('Gudang')),
-                  DropdownMenuItem(value: UserRole.kurir, child: Text('Kurir')),
-                  DropdownMenuItem(
-                      value: UserRole.warung, child: Text('Warung')),
-                ],
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  setState(() {
-                    _selectedRole = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton(
-                  onPressed: _mockLogin, child: const Text('Masuk (Mock)')),
+              if (kDebugMode) ...[
+                const SizedBox(height: 8),
+                const Divider(),
+                const SizedBox(height: 8),
+                const Text('Fallback dev mode (mock role login):'),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<UserRole>(
+                  initialValue: _selectedRole,
+                  decoration: const InputDecoration(labelText: 'Role'),
+                  items: const [
+                    DropdownMenuItem(
+                        value: UserRole.admin, child: Text('Admin')),
+                    DropdownMenuItem(
+                        value: UserRole.gudang, child: Text('Gudang')),
+                    DropdownMenuItem(
+                        value: UserRole.kurir, child: Text('Kurir')),
+                    DropdownMenuItem(
+                        value: UserRole.warung, child: Text('Warung')),
+                  ],
+                  onChanged: (value) {
+                    if (value == null) {
+                      return;
+                    }
+                    setState(() {
+                      _selectedRole = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton(
+                    onPressed: _mockLogin, child: const Text('Masuk (Mock)')),
+              ],
               if (state.errorMessage != null) ...[
                 const SizedBox(height: 12),
                 Text(
