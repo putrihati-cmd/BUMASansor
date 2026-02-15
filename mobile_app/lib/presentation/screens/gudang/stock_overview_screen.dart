@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../data/models/stock_model.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/stock_provider.dart';
 import '../../providers/warehouse_provider.dart';
 
@@ -159,6 +160,16 @@ class _StockOverviewScreenState extends ConsumerState<StockOverviewScreen> {
             tooltip: 'Stock Opname',
             onPressed: () => context.push('/gudang/opname'),
             icon: const Icon(Icons.fact_check),
+          ),
+          IconButton(
+            tooltip: 'Logout',
+            onPressed: () async {
+              await ref.read(authProvider.notifier).logout();
+              if (context.mounted) {
+                context.go('/login');
+              }
+            },
+            icon: const Icon(Icons.logout),
           ),
         ],
       ),
