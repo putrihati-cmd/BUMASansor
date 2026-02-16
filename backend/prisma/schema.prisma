@@ -8,10 +8,10 @@ datasource db {
 }
 
 enum Role {
-  ADMIN
-  GUDANG
-  KURIR
+  SUPER_ADMIN
   WARUNG
+  KURIR
+  GUDANG
 }
 
 enum MovementType {
@@ -21,81 +21,61 @@ enum MovementType {
   ADJUSTMENT
 }
 
-enum POStatus {
+enum OrderStatus {
   PENDING
   APPROVED
-  RECEIVED
-  CANCELLED
-}
-
-enum DOStatus {
-  PENDING
-  ASSIGNED
-  ON_DELIVERY
+  PREPARING
+  IN_TRANSIT
   DELIVERED
-  CONFIRMED
   CANCELLED
-}
-
-enum SalePaymentMethod {
-  CASH
-  TRANSFER
-  QRIS
-  EDC
-  CREDIT
-}
-
-enum ReceivableStatus {
-  UNPAID
-  PARTIAL
-  PAID
-  OVERDUE
 }
 
 enum PaymentMethod {
   CASH
   TRANSFER
   QRIS
+  EDC
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  OVERDUE
 }
 
 model User {
-  id               String          @id @default(uuid())
-  email            String          @unique
-  password         String
-  name             String
-  role             Role
-  warungId         String?
-  warung           Warung?         @relation(fields: [warungId], references: [id], onDelete: SetNull)
-  refreshTokens    RefreshToken[]
-  stockMovements   StockMovement[]
-  stockOpnames     StockOpname[]   @relation("stock_opname_user")
-  createdPO        PurchaseOrder[] @relation("po_creator")
-  approvedPO       PurchaseOrder[] @relation("po_approver")
-  receivedPO       PurchaseOrder[] @relation("po_receiver")
-  createdDO        DeliveryOrder[] @relation("do_creator")
-  assignedDO       DeliveryOrder[] @relation("do_kurir")
-  confirmedDO      DeliveryOrder[] @relation("do_confirmer")
-  createdSales     Sale[]          @relation("sales_creator")
-  verifiedPayments Payment[]       @relation("payment_verified_by")
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  deletedAt        DateTime?
+  id                 String          @id @default(uuid())
+  email              String          @unique
+  password           String
+  name               String
+  role               Role            @default(WARUNG)
+  phone              String?
+  warungId           String?
+  warung             Warung?         @relation(fields: [warungId], references: [id], onDelete: SetNull)
+  refreshTokens      RefreshToken[]
+  stockMovements     StockMovement[]
+  stockOpnames       StockOpname[]   @relation("stock_opname_user")
+  createdOrders      Order[]         @relation("order_creator")
+  assignedDeliveries DeliveryTask[]  @relation("delivery_kurir")
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  deletedAt          DateTime?
 
   @@index([role])
   @@index([warungId])
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   tokenHash String
   expiresAt DateTime
   revokedAt DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   @@index([userId])
-  @@index([expiresAt])
 }
 
 model Category {
@@ -104,92 +84,66 @@ model Category {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-}
-
-model Supplier {
-  id             String          @id @default(uuid())
-  name           String          @unique
-  contact        String?
-  phone          String?
-  address        String?
-  purchaseOrders PurchaseOrder[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  deletedAt      DateTime?
 }
 
 model Warung {
-  id             String          @id @default(uuid())
-  name           String
-  ownerName      String
-  phone          String?
-  address        String?
-  region         String?
-  creditLimit    Decimal         @db.Decimal(12, 2) @default(0)
-  creditDays     Int             @default(14)
-  currentDebt    Decimal         @db.Decimal(12, 2) @default(0)
-  isBlocked      Boolean         @default(false)
-  blockedReason  String?
-  latitude       Float?
-  longitude      Float?
-  users          User[]
-  deliveryOrders DeliveryOrder[]
-  sales          Sale[]
-  receivables    Receivable[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  deletedAt      DateTime?
+  id          String  @id @default(uuid())
+  name        String
+  ownerName   String
+  phone       String?
+  address     String?
+  region      String?
+  latitude    Float?
+  longitude   Float?
+  creditLimit Decimal @default(0) @db.Decimal(12, 2)
+  currentDebt Decimal @default(0) @db.Decimal(12, 2)
 
-  @@index([isBlocked])
+  users         User[]
+  inventory     WarungProduct[]
+  sales         Sale[] // Sales to customers
+  restockOrders Order[] // Orders to BUMAS
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+
   @@index([region])
 }
 
 model Warehouse {
-  id             String          @id @default(uuid())
-  name           String          @unique
-  location       String
-  phone          String?
-  stocks         Stock[]
-  purchaseOrders PurchaseOrder[]
-  deliveryOrders DeliveryOrder[]
-  sales          Sale[]
-  outMovements   StockMovement[] @relation("movement_from")
-  inMovements    StockMovement[] @relation("movement_to")
-  stockOpnames   StockOpname[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  deletedAt      DateTime?
+  id        String   @id @default(uuid())
+  name      String   @unique
+  location  String
+  phone     String?
+  stocks    Stock[] // Central stocks
+  orders    Order[] // Outbound to warungs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Product {
-  id             String          @id @default(uuid())
+  id             String   @id @default(uuid())
   name           String
-  barcode        String          @unique
+  barcode        String   @unique
+  sku            String?  @unique
   categoryId     String
-  category       Category        @relation(fields: [categoryId], references: [id])
-  buyPrice       Decimal         @db.Decimal(10, 2)
-  sellPrice      Decimal         @db.Decimal(10, 2)
-  margin         Decimal         @db.Decimal(5, 2)
+  category       Category @relation(fields: [categoryId], references: [id])
+  basePrice      Decimal  @db.Decimal(10, 2) // BUMAS wholesale price
+  suggestedPrice Decimal? @db.Decimal(10, 2)
   unit           String
   description    String?
   imageUrl       String?
-  isActive       Boolean         @default(true)
-  poItems        POItem[]
-  doItems        DOItem[]
-  saleItems      SaleItem[]
-  stocks         Stock[]
+  isActive       Boolean  @default(true)
+
+  stocks         Stock[] // Central stocks
+  warungProducts WarungProduct[] // Warung inventories
+  orderItems     OrderItem[]
   stockMovements StockMovement[]
   stockOpnames   StockOpname[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-  deletedAt      DateTime?
-
-  @@index([name])
-  @@index([categoryId])
-  @@index([isActive])
 }
 
+// Central Warehouse Stock
 model Stock {
   id          String    @id @default(uuid())
   warehouseId String
@@ -201,156 +155,53 @@ model Stock {
   updatedAt   DateTime  @updatedAt
 
   @@unique([warehouseId, productId])
-  @@index([quantity])
 }
 
-model StockMovement {
-  id              String       @id @default(uuid())
-  movementType    MovementType
-  productId       String
-  product         Product      @relation(fields: [productId], references: [id])
-  fromWarehouseId String?
-  fromWarehouse   Warehouse?   @relation("movement_from", fields: [fromWarehouseId], references: [id])
-  toWarehouseId   String?
-  toWarehouse     Warehouse?   @relation("movement_to", fields: [toWarehouseId], references: [id])
-  quantity        Int
-  referenceType   String?
-  referenceId     String?
-  notes           String?
-  createdBy       String
-  createdByUser   User         @relation(fields: [createdBy], references: [id])
-  createdAt       DateTime     @default(now())
-
-  @@index([productId])
-  @@index([createdAt])
-}
-
-model StockOpname {
-  id          String    @id @default(uuid())
-  warehouseId String
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
-  productId   String
-  product     Product   @relation(fields: [productId], references: [id])
-  systemQty   Int
-  actualQty   Int
-  difference  Int
-  reason      String
-  performedBy String
-  user        User      @relation("stock_opname_user", fields: [performedBy], references: [id])
-  createdAt   DateTime  @default(now())
-
-  @@index([warehouseId, productId])
-}
-
-model PurchaseOrder {
-  id          String    @id @default(uuid())
-  poNumber    String    @unique
-  supplierId  String
-  supplier    Supplier  @relation(fields: [supplierId], references: [id])
-  warehouseId String
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
-  items       POItem[]
-  totalAmount Decimal   @db.Decimal(12, 2)
-  status      POStatus  @default(PENDING)
-  notes       String?
-  createdBy   String
-  user        User      @relation("po_creator", fields: [createdBy], references: [id])
-  approvedBy  String?
-  approver    User?     @relation("po_approver", fields: [approvedBy], references: [id])
-  approvedAt  DateTime?
-  receivedBy  String?
-  receiver    User?     @relation("po_receiver", fields: [receivedBy], references: [id])
-  receivedAt  DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  @@index([status])
-  @@index([createdAt])
-}
-
-model POItem {
-  id        String        @id @default(uuid())
-  poId      String
-  po        PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product       @relation(fields: [productId], references: [id])
-  quantity  Int
-  price     Decimal       @db.Decimal(10, 2)
-  subtotal  Decimal       @db.Decimal(12, 2)
-}
-
-model DeliveryOrder {
-  id          String      @id @default(uuid())
-  doNumber    String      @unique
-  warungId    String
-  warung      Warung      @relation(fields: [warungId], references: [id])
-  warehouseId String
-  warehouse   Warehouse   @relation(fields: [warehouseId], references: [id])
-  kurirId     String?
-  kurir       User?       @relation("do_kurir", fields: [kurirId], references: [id])
-  items       DOItem[]
-  totalAmount Decimal     @db.Decimal(12, 2)
-  status      DOStatus    @default(PENDING)
-  creditDays  Int
-  dueDate     DateTime
-  notes       String?
-  createdBy   String
-  user        User        @relation("do_creator", fields: [createdBy], references: [id])
-  assignedAt  DateTime?
-  deliveredAt DateTime?
-  confirmedBy String?
-  confirmer   User?       @relation("do_confirmer", fields: [confirmedBy], references: [id])
-  confirmedAt DateTime?
-  photoProof  String?
-  receivable  Receivable?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  deletedAt   DateTime?
-
-  @@index([status])
-  @@index([warungId])
-  @@index([kurirId])
-}
-
-model DOItem {
-  id        String        @id @default(uuid())
-  doId      String
-  delivery  DeliveryOrder @relation(fields: [doId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product       @relation(fields: [productId], references: [id])
-  quantity  Int
-  price     Decimal       @db.Decimal(10, 2)
-  subtotal  Decimal       @db.Decimal(12, 2)
-}
-
-model Sale {
-  id            String            @id @default(uuid())
-  invoiceNumber String            @unique
-  warungId      String
-  warung        Warung            @relation(fields: [warungId], references: [id])
-  warehouseId   String
-  warehouse     Warehouse         @relation(fields: [warehouseId], references: [id])
-  items         SaleItem[]
-  totalAmount   Decimal           @db.Decimal(12, 2)
-  paidAmount    Decimal           @db.Decimal(12, 2) @default(0)
-  paymentMethod SalePaymentMethod
-  notes         String?
-  createdBy     String?
-  creator       User?             @relation("sales_creator", fields: [createdBy], references: [id])
-  receivable    Receivable?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  deletedAt     DateTime?
-
-  @@index([warungId])
-  @@index([createdAt])
-}
-
-model SaleItem {
+// Local Warung Inventory
+model WarungProduct {
   id        String  @id @default(uuid())
-  saleId    String
-  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  warungId  String
+  warung    Warung  @relation(fields: [warungId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  sellingPrice Decimal @db.Decimal(10, 2)
+  stockQty     Int     @default(0)
+  minStock     Int     @default(5)
+
+  saleItems SaleItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([warungId, productId])
+}
+
+model Order {
+  id            String         @id @default(uuid())
+  orderNumber   String         @unique
+  warungId      String
+  warung        Warung         @relation(fields: [warungId], references: [id])
+  warehouseId   String
+  warehouse     Warehouse      @relation(fields: [warehouseId], references: [id])
+  status        OrderStatus    @default(PENDING)
+  totalAmount   Decimal        @db.Decimal(12, 2)
+  paymentStatus PaymentStatus  @default(UNPAID)
+  paymentMethod PaymentMethod?
+
+  items        OrderItem[]
+  deliveryTask DeliveryTask?
+  createdBy    String
+  creator      User          @relation("order_creator", fields: [createdBy], references: [id])
+
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
@@ -358,43 +209,77 @@ model SaleItem {
   subtotal  Decimal @db.Decimal(12, 2)
 }
 
-model Receivable {
-  id              String           @id @default(uuid())
-  warungId        String
-  warung          Warung           @relation(fields: [warungId], references: [id])
-  deliveryOrderId String?          @unique
-  deliveryOrder   DeliveryOrder?   @relation(fields: [deliveryOrderId], references: [id], onDelete: SetNull)
-  saleId          String?          @unique
-  sale            Sale?            @relation(fields: [saleId], references: [id], onDelete: SetNull)
-  amount          Decimal          @db.Decimal(12, 2)
-  paidAmount      Decimal          @db.Decimal(12, 2) @default(0)
-  balance         Decimal          @db.Decimal(12, 2)
-  dueDate         DateTime
-  status          ReceivableStatus @default(UNPAID)
-  notes           String?
-  payments        Payment[]
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  deletedAt       DateTime?
+model Sale {
+  id            String @id @default(uuid())
+  invoiceNumber String @unique
+  warungId      String
+  warung        Warung @relation(fields: [warungId], references: [id])
 
-  @@index([warungId])
-  @@index([status])
-  @@index([dueDate])
+  items         SaleItem[]
+  totalAmount   Decimal       @db.Decimal(12, 2)
+  paidAmount    Decimal       @default(0) @db.Decimal(12, 2)
+  paymentMethod PaymentMethod
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Payment {
-  id             String        @id @default(uuid())
-  receivableId   String
-  receivable     Receivable    @relation(fields: [receivableId], references: [id])
-  amount         Decimal       @db.Decimal(12, 2)
-  paymentDate    DateTime      @default(now())
-  method         PaymentMethod
-  proofUrl       String?
-  notes          String?
-  verifiedBy     String?
-  verifiedByUser User?         @relation("payment_verified_by", fields: [verifiedBy], references: [id], onDelete: SetNull)
-  createdAt      DateTime      @default(now())
+model SaleItem {
+  id              String        @id @default(uuid())
+  saleId          String
+  sale            Sale          @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  warungProductId String
+  warungProduct   WarungProduct @relation(fields: [warungProductId], references: [id])
 
-  @@index([receivableId])
-  @@index([paymentDate])
+  quantity Int
+  price    Decimal @db.Decimal(10, 2)
+  subtotal Decimal @db.Decimal(12, 2)
+}
+
+model DeliveryTask {
+  id      String @id @default(uuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+  kurirId String
+  kurir   User   @relation("delivery_kurir", fields: [kurirId], references: [id])
+
+  status        OrderStatus @default(PENDING)
+  pickupPhoto   String?
+  deliveryPhoto String?
+  signature     String?
+
+  assignedAt  DateTime  @default(now())
+  pickedUpAt  DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model StockMovement {
+  id           String       @id @default(uuid())
+  movementType MovementType
+  productId    String
+  product      Product      @relation(fields: [productId], references: [id])
+  quantity     Int
+
+  // Could be from central or warung inventory
+  referenceType String? // "ORDER", "SALE", "ADJUSTMENT"
+  referenceId   String?
+
+  createdBy String
+  user      User     @relation(fields: [createdBy], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model StockOpname {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  systemQty   Int
+  actualQty   Int
+  difference  Int
+  reason      String
+  performedBy String
+  user        User     @relation("stock_opname_user", fields: [performedBy], references: [id])
+  createdAt   DateTime @default(now())
 }

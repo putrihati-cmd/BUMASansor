@@ -6,7 +6,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async list(query: QueryProductDto) {
     const page = query.page ?? 1;
@@ -16,11 +16,11 @@ export class ProductsService {
       deletedAt: null,
       ...(query.search
         ? {
-            OR: [
-              { name: { contains: query.search, mode: 'insensitive' as const } },
-              { barcode: { contains: query.search, mode: 'insensitive' as const } },
-            ],
-          }
+          OR: [
+            { name: { contains: query.search, mode: 'insensitive' as const } },
+            { barcode: { contains: query.search, mode: 'insensitive' as const } },
+          ],
+        }
         : {}),
       ...(query.categoryId ? { categoryId: query.categoryId } : {}),
       ...(query.isActive !== undefined ? { isActive: query.isActive } : {}),
@@ -84,29 +84,23 @@ export class ProductsService {
     }
 
     const barcode = dto.barcode ?? (await this.generateBarcode());
-    const margin = this.calculateMargin(dto.buyPrice, dto.sellPrice);
 
     return this.prisma.product.create({
       data: {
         ...dto,
         barcode,
-        margin,
       },
       include: { category: true },
     });
   }
 
   async update(id: string, dto: UpdateProductDto) {
-    const existing = await this.findOne(id);
-
-    const buyPrice = dto.buyPrice ?? Number(existing.buyPrice);
-    const sellPrice = dto.sellPrice ?? Number(existing.sellPrice);
+    await this.findOne(id);
 
     return this.prisma.product.update({
       where: { id },
       data: {
         ...dto,
-        margin: this.calculateMargin(buyPrice, sellPrice),
       },
       include: { category: true },
     });
@@ -139,12 +133,7 @@ export class ProductsService {
     });
   }
 
-  private calculateMargin(buyPrice: number, sellPrice: number): number {
-    if (buyPrice <= 0) {
-      return 0;
-    }
-    return Number((((sellPrice - buyPrice) / buyPrice) * 100).toFixed(2));
-  }
+  // Margin calculation is now deferred to WarungProduct or computed on frontend
 
   private async generateBarcode(): Promise<string> {
     for (let i = 0; i < 10; i += 1) {

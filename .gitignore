@@ -45,3 +45,5 @@ backend/uploads/
 .idea/
 .DS_Store
 Thumbs.db
+# Jest cache
+.jest-cache/

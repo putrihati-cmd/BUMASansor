@@ -71,7 +71,7 @@ android {
         create("prod") {
             dimension = "environment"
             resValue("string", "app_name", "BUMAS Ansor")
-            buildConfigField("String", "API_BASE_URL", "\"https://api.bumasansor.com/api\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://bumas.infiatin.cloud/api\"")
         }
     }
 

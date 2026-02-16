@@ -1,0 +1,62 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+set password "065820Aaaa"
+set host "root@server.infiatin.cloud"
+set proxy "cloudflared access ssh --hostname server.infiatin.cloud"
+set remote_dir "/root/bumas-ansor/backend"
+
+# 1. Create Remote Directory
+spawn ssh -o ProxyCommand=$proxy -o StrictHostKeyChecking=no $host "mkdir -p $remote_dir/nginx"
+expect {
+    "password:" { send "$password\r"; exp_continue }
+    eof
+}
+
+# 2. Upload docker-compose.prod.yml
+spawn scp -o ProxyCommand=$proxy -o StrictHostKeyChecking=no backend/docker-compose.prod.yml $host:$remote_dir/docker-compose.prod.yml
+expect {
+    "password:" { send "$password\r"; exp_continue }
+    eof
+}
+
+# 3. Upload .env.production
+spawn scp -o ProxyCommand=$proxy -o StrictHostKeyChecking=no backend/.env.production $host:$remote_dir/.env.production
+expect {
+    "password:" { send "$password\r"; exp_continue }
+    eof
+}
+
+# 4. Upload Nginx Config
+# Note: recursive scp with -r
+spawn scp -o ProxyCommand=$proxy -o StrictHostKeyChecking=no -r backend/nginx $host:$remote_dir/
+expect {
+    "password:" { send "$password\r"; exp_continue }
+    eof
+}
+
+# 5. Execute Deployment Commands on Server
+# We send a complex command string to handle everything in one go
+set commands "cd $remote_dir && \
+    export BACKEND_IMAGE=ghcr.io/putrihati-cmd/bumas-ansor-backend:latest && \
+    echo 'Logging in to GHCR...' && \
+    echo \"\$GHCR_TOKEN\" | docker login ghcr.io -u putrihati-cmd --password-stdin && \
+    echo 'Pulling image...' && \
+    docker pull \$BACKEND_IMAGE && \
+    echo 'Starting services...' && \
+    docker compose -f docker-compose.prod.yml up -d --remove-orphans && \
+    echo 'Waiting for DB...' && \
+    sleep 10 && \
+    echo 'Running migrations...' && \
+    docker compose -f docker-compose.prod.yml exec -T app npx prisma migrate deploy && \
+    echo 'Cleaning up...' && \
+    docker image prune -f"
+
+spawn ssh -o ProxyCommand=$proxy -o StrictHostKeyChecking=no $host $commands
+expect {
+    "password:" { send "$password\r"; exp_continue }
+    "Pulling image..." { puts "Image pull started..."; exp_continue }
+    "Starting services..." { puts "Services restarting..."; exp_continue }
+    "Running migrations..." { puts "Migrating database..."; exp_continue }
+    eof
+}

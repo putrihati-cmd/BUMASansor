@@ -16,7 +16,8 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final priceText = 'Rp ${product.sellPrice.toStringAsFixed(0)}';
+    final price = product.suggestedPrice ?? product.basePrice;
+    final priceText = 'Rp ${price.toStringAsFixed(0)}';
 
     if (isListView) {
       return Card(

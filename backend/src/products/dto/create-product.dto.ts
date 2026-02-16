@@ -15,11 +15,12 @@ export class CreateProductDto {
 
   @Type(() => Number)
   @Min(0)
-  buyPrice: number;
+  basePrice: number;
 
+  @IsOptional()
   @Type(() => Number)
   @Min(0)
-  sellPrice: number;
+  suggestedPrice?: number;
 
   @IsString()
   unit: string;

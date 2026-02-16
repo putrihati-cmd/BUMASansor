@@ -28,32 +28,26 @@ class ProductModel {
     required this.name,
     required this.barcode,
     required this.categoryId,
-    required this.buyPrice,
-    required this.sellPrice,
-    required this.margin,
+    required this.basePrice,
+    this.suggestedPrice,
     required this.unit,
     this.description,
     this.imageUrl,
     this.isActive = true,
     this.category,
-    this.currentStock,
   });
 
   final String id;
   final String name;
   final String barcode;
   final String categoryId;
-  final double buyPrice;
-  final double sellPrice;
-  final double margin;
+  final double basePrice;
+  final double? suggestedPrice;
   final String unit;
   final String? description;
   final String? imageUrl;
   final bool isActive;
   final CategoryModel? category;
-
-  // Optional for future stock UI.
-  final int? currentStock;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     final categoryJson = json['category'];
@@ -61,22 +55,20 @@ class ProductModel {
         ? CategoryModel.fromJson(categoryJson)
         : null;
 
-    final categoryId = (json['categoryId'] as String?) ?? category?.id ?? '';
-
     return ProductModel(
       id: json['id'] as String,
       name: json['name'] as String,
       barcode: json['barcode'] as String,
-      categoryId: categoryId,
-      buyPrice: double.parse(json['buyPrice'].toString()),
-      sellPrice: double.parse(json['sellPrice'].toString()),
-      margin: double.parse(json['margin'].toString()),
+      categoryId: (json['categoryId'] as String?) ?? '',
+      basePrice: double.parse(json['basePrice']?.toString() ?? '0'),
+      suggestedPrice: json['suggestedPrice'] != null 
+          ? double.parse(json['suggestedPrice'].toString()) 
+          : null,
       unit: json['unit'] as String,
       description: json['description'] as String?,
       imageUrl: json['imageUrl'] as String?,
       isActive: (json['isActive'] as bool?) ?? true,
       category: category,
-      currentStock: json['currentStock'] as int?,
     );
   }
 
@@ -86,15 +78,59 @@ class ProductModel {
       'name': name,
       'barcode': barcode,
       'categoryId': categoryId,
-      'buyPrice': buyPrice,
-      'sellPrice': sellPrice,
-      'margin': margin,
+      'basePrice': basePrice,
+      'suggestedPrice': suggestedPrice,
       'unit': unit,
       'description': description,
       'imageUrl': imageUrl,
       'isActive': isActive,
       'category': category?.toJson(),
-      'currentStock': currentStock,
+    };
+  }
+}
+
+class WarungProductModel {
+  WarungProductModel({
+    required this.id,
+    required this.warungId,
+    required this.productId,
+    required this.sellingPrice,
+    required this.stockQty,
+    this.minStock = 5,
+    this.product,
+  });
+
+  final String id;
+  final String warungId;
+  final String productId;
+  final double sellingPrice;
+  final int stockQty;
+  final int minStock;
+  final ProductModel? product;
+
+  factory WarungProductModel.fromJson(Map<String, dynamic> json) {
+    return WarungProductModel(
+      id: json['id'] as String,
+      warungId: json['warungId'] as String,
+      productId: json['productId'] as String,
+      sellingPrice: double.parse(json['sellingPrice'].toString()),
+      stockQty: json['stockQty'] as int,
+      minStock: (json['minStock'] as int?) ?? 5,
+      product: json['product'] != null 
+          ? ProductModel.fromJson(json['product']) 
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'warungId': warungId,
+      'productId': productId,
+      'sellingPrice': sellingPrice,
+      'stockQty': stockQty,
+      'minStock': minStock,
+      'product': product?.toJson(),
     };
   }
 }

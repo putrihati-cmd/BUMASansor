@@ -110,8 +110,8 @@ class ProductRepository {
       if (barcode != null && barcode.trim().isNotEmpty)
         'barcode': barcode.trim(),
       'categoryId': categoryId,
-      'buyPrice': buyPrice,
-      'sellPrice': sellPrice,
+      'basePrice': buyPrice,
+      if (sellPrice > 0) 'suggestedPrice': sellPrice,
       'unit': unit,
       if (description != null && description.trim().isNotEmpty)
         'description': description.trim(),
@@ -138,8 +138,8 @@ class ProductRepository {
     if (name != null) payload['name'] = name;
     if (barcode != null) payload['barcode'] = barcode;
     if (categoryId != null) payload['categoryId'] = categoryId;
-    if (buyPrice != null) payload['buyPrice'] = buyPrice;
-    if (sellPrice != null) payload['sellPrice'] = sellPrice;
+    if (buyPrice != null) payload['basePrice'] = buyPrice;
+    if (sellPrice != null) payload['suggestedPrice'] = sellPrice;
     if (unit != null) payload['unit'] = unit;
     if (description != null) payload['description'] = description;
     if (imageUrl != null) payload['imageUrl'] = imageUrl;

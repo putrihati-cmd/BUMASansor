@@ -51,8 +51,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
     _nameController.text = p.name;
     _barcodeController.text = p.barcode;
-    _buyPriceController.text = p.buyPrice.toStringAsFixed(0);
-    _sellPriceController.text = p.sellPrice.toStringAsFixed(0);
+    _buyPriceController.text = p.basePrice.toStringAsFixed(0);
+    _sellPriceController.text = p.suggestedPrice?.toStringAsFixed(0) ?? '0';
     _unitController.text = p.unit;
     _descriptionController.text = p.description ?? '';
     _categoryId = p.categoryId;
@@ -289,7 +289,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: 'Harga beli'),
+                          labelText: 'Harga Bakul (Wholesale)'),
                       validator: (v) {
                         final value = double.tryParse(v?.trim() ?? '');
                         if (value == null || value < 0) {
@@ -306,7 +306,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: 'Harga jual'),
+                          labelText: 'Harga Saran (SRP)'),
                       validator: (v) {
                         final value = double.tryParse(v?.trim() ?? '');
                         if (value == null || value < 0) {
