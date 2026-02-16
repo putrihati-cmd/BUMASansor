@@ -50,11 +50,14 @@ class CartBottomSheet extends ConsumerWidget {
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final item = cart[index];
+                    final name = item.warungProduct.product?.name ?? 'Unknown';
+                    final price = item.warungProduct.sellingPrice;
+                    
                     return ListTile(
-                      title: Text(item.product.name,
+                      title: Text(name,
                           maxLines: 1, overflow: TextOverflow.ellipsis),
                       subtitle: Text(
-                          'Rp ${item.product.sellPrice.toStringAsFixed(0)}'),
+                          'Rp ${price.toStringAsFixed(0)}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -62,7 +65,7 @@ class CartBottomSheet extends ConsumerWidget {
                             onPressed: () => ref
                                 .read(cartProvider.notifier)
                                 .updateQuantity(
-                                    item.product.id, item.quantity - 1),
+                                    item.warungProduct.id, item.quantity - 1),
                             icon: const Icon(Icons.remove),
                           ),
                           Text('${item.quantity}',
@@ -72,7 +75,7 @@ class CartBottomSheet extends ConsumerWidget {
                             onPressed: () => ref
                                 .read(cartProvider.notifier)
                                 .updateQuantity(
-                                    item.product.id, item.quantity + 1),
+                                    item.warungProduct.id, item.quantity + 1),
                             icon: const Icon(Icons.add),
                           ),
                         ],

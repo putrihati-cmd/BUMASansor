@@ -10,7 +10,7 @@ import '../../providers/product_provider.dart';
 import '../../providers/warehouse_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../widgets/cart_bottom_sheet.dart';
-import '../../widgets/product_card.dart';
+import '../../widgets/warung_product_card.dart'; // UPDATED
 import '../../widgets/sync_indicator.dart';
 import 'checkout_screen.dart';
 import 'daily_summary_screen.dart';
@@ -111,9 +111,26 @@ class _POSScreenState extends ConsumerState<POSScreen> {
   }
 
   Future<void> _handleBarcode(String barcode) async {
+    final user = ref.read(currentUserProvider);
+    final warungId = user?.warungId;
+
+    if (warungId == null) {
+       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Warung ID not found for current user')),
+      );
+      return;
+    }
+
     try {
-      final repository = ref.read(productRepositoryProvider);
-      final product = await repository.fetchByBarcode(barcode);
+      // Fetch full list to filter
+      // Alternatively, implement fetchWarungProductByBarcode in repo. 
+      // For now, caching full list is standard for POS.
+      final products = await ref.read(warungProductListProvider(warungId).future);
+      
+      final product = products.firstWhere(
+        (p) => p.product?.barcode == barcode,
+        orElse: () => throw Exception('Not found'),
+      );
 
       ref.read(cartProvider.notifier).addProduct(product);
       await SystemSound.play(SystemSoundType.click);
@@ -123,14 +140,14 @@ class _POSScreenState extends ConsumerState<POSScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${product.name} ditambahkan ke keranjang')),
+        SnackBar(content: Text('${product.product?.name ?? 'Item'} ditambahkan ke keranjang')),
       );
     } catch (e) {
       if (!mounted) {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Produk tidak ditemukan: $barcode')),
+        SnackBar(content: Text('Produk tidak ditemukan di inventaris warung: $barcode')),
       );
     }
   }
@@ -138,7 +155,13 @@ class _POSScreenState extends ConsumerState<POSScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
-    final productAsync = ref.watch(productListProvider);
+    final user = ref.watch(currentUserProvider);
+    final warungId = user?.warungId;
+
+    final productAsync = warungId == null 
+        ? const AsyncValue.loading() 
+        : ref.watch(warungProductListProvider(warungId));
+    
     final cart = ref.watch(cartProvider);
     final totalItems = ref.watch(cartTotalItemsProvider);
     final subtotal = ref.watch(cartSubtotalProvider);
@@ -192,7 +215,9 @@ class _POSScreenState extends ConsumerState<POSScreen> {
           ),
         ],
       ),
-      body: Padding(
+      body: warungId == null 
+        ? const Center(child: Text('Error: User role is WARUNG but no warungId found.'))
+        : Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
@@ -233,9 +258,11 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                       ? products
                       : products
                           .where(
-                            (p) =>
-                                p.name.toLowerCase().contains(query) ||
-                                p.barcode.toLowerCase().contains(query),
+                            (p) {
+                                final name = p.product?.name.toLowerCase() ?? '';
+                                final barcode = p.product?.barcode.toLowerCase() ?? '';
+                                return name.contains(query) || barcode.contains(query);
+                            },
                           )
                           .toList();
 
@@ -255,8 +282,8 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                       ),
                       itemBuilder: (context, index) {
                         final product = filtered[index];
-                        return ProductCard(
-                          product: product,
+                        return WarungProductCard(
+                          item: product,
                           onTap: () => ref
                               .read(cartProvider.notifier)
                               .addProduct(product),
@@ -270,8 +297,8 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final product = filtered[index];
-                      return ProductCard(
-                        product: product,
+                      return WarungProductCard(
+                        item: product,
                         isListView: true,
                         onTap: () =>
                             ref.read(cartProvider.notifier).addProduct(product),

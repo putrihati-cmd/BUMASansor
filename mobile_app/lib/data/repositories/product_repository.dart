@@ -64,6 +64,10 @@ class ProductRepository {
     }
   }
 
+  Future<List<WarungProductModel>> fetchWarungProducts(String warungId) {
+    return _remoteDataSource.fetchWarungProducts(warungId);
+  }
+
   Future<ProductModel> fetchByBarcode(String barcode) async {
     try {
       return await _remoteDataSource.fetchByBarcode(barcode);

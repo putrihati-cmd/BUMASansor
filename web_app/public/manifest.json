@@ -1,0 +1,16 @@
+{
+    "name": "BUMAS Ansor - POS & Distribution",
+    "short_name": "BUMAS",
+    "description": "Platform Distribusi & POS Retail - Badan Usaha Milik Ansor",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#1e5d48",
+    "icons": [
+        {
+            "src": "/icon.png",
+            "sizes": "1024x1024",
+            "type": "image/png"
+        }
+    ]
+}

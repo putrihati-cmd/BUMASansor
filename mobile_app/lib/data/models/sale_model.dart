@@ -51,16 +51,21 @@ class SaleItemModel {
   final double subtotal;
 
   factory SaleItemModel.fromJson(Map<String, dynamic> json) {
-    final productJson = json['product'];
+    // Check if 'warungProduct' exists (from backend) or 'product' (older/offline)
+    final warungProduct = json['warungProduct'];
+    final productJson = warungProduct != null ? warungProduct['product'] : json['product'];
+    
     final product = productJson is Map<String, dynamic>
         ? ProductModel.fromJson(productJson)
         : null;
 
+    final priceVal = json['unitPrice'] ?? json['price']; // API uses unitPrice, local uses price
+
     return SaleItemModel(
-      productId: json['productId'] as String,
+      productId: (json['productId'] as String?) ?? (warungProduct?['productId'] as String?) ?? '', 
       productName: product?.name ?? (json['productName'] as String? ?? '-'),
       quantity: json['quantity'] as int,
-      price: double.parse(json['price'].toString()),
+      price: double.parse(priceVal.toString()),
       subtotal: double.parse(json['subtotal'].toString()),
     );
   }

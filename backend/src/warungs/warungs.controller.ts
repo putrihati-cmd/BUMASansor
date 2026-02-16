@@ -11,7 +11,7 @@ import { WarungsService } from './warungs.service';
 @Controller('warungs')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class WarungsController {
-  constructor(private readonly warungsService: WarungsService) {}
+  constructor(private readonly warungsService: WarungsService) { }
 
   @Get()
   @Roles(Role.ADMIN, Role.GUDANG, Role.KURIR)
@@ -23,6 +23,12 @@ export class WarungsController {
   @Roles(Role.ADMIN, Role.GUDANG, Role.KURIR, Role.WARUNG)
   findOne(@Param('id') id: string) {
     return this.warungsService.findOne(id);
+  }
+
+  @Get(':id/products')
+  @Roles(Role.ADMIN, Role.GUDANG, Role.KURIR, Role.WARUNG)
+  listProducts(@Param('id') id: string) {
+    return this.warungsService.listProducts(id);
   }
 
   @Post()

@@ -6,7 +6,7 @@ import { UpdateWarungDto } from './dto/update-warung.dto';
 
 @Injectable()
 export class WarungsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async list(query: QueryWarungDto) {
     const page = query.page ?? 1;
@@ -18,11 +18,11 @@ export class WarungsService {
       ...(query.region ? { region: query.region } : {}),
       ...(query.search
         ? {
-            OR: [
-              { name: { contains: query.search, mode: 'insensitive' as const } },
-              { ownerName: { contains: query.search, mode: 'insensitive' as const } },
-            ],
-          }
+          OR: [
+            { name: { contains: query.search, mode: 'insensitive' as const } },
+            { ownerName: { contains: query.search, mode: 'insensitive' as const } },
+          ],
+        }
         : {}),
     };
 
@@ -57,6 +57,32 @@ export class WarungsService {
     }
 
     return warung;
+  }
+
+  async listProducts(warungId: string) {
+    await this.findOne(warungId);
+    return this.prisma.warungProduct.findMany({
+      where: { warungId },
+      include: {
+        product: { include: { category: true } },
+        wholesalePrices: true,
+        modifierGroups: {
+          include: {
+            modifierGroup: {
+              include: {
+                modifiers: true
+              }
+            }
+          }
+        },
+        recipes: {
+          include: {
+            ingredient: true
+          }
+        }
+      },
+      orderBy: { product: { name: 'asc' } },
+    });
   }
 
   create(dto: CreateWarungDto) {

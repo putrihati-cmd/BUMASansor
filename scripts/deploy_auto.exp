@@ -2,8 +2,8 @@
 
 set timeout 300
 set password "065820Aaaa"
-set host "root@server.infiatin.cloud"
-set proxy "cloudflared access ssh --hostname server.infiatin.cloud"
+set host "root@bumas.infiatin.cloud"
+set proxy "cloudflared access ssh --hostname bumas.infiatin.cloud"
 set remote_dir "/root/bumas-ansor/backend"
 
 # 1. Create Remote Directory

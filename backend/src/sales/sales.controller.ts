@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
@@ -11,7 +11,7 @@ import { SalesService } from './sales.service';
 @Controller('sales')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class SalesController {
-  constructor(private readonly salesService: SalesService) {}
+  constructor(private readonly salesService: SalesService) { }
 
   @Post()
   @Roles(Role.ADMIN, Role.WARUNG)
@@ -26,9 +26,17 @@ export class SalesController {
   }
 
   @Get('daily-summary')
-  @Roles(Role.ADMIN, Role.GUDANG)
-  dailySummary(@Query('date') date?: string) {
-    return this.salesService.dailySummary(date);
+  @Roles(Role.ADMIN, Role.GUDANG, Role.WARUNG)
+  dailySummary(
+    @Query('date') date?: string,
+    @Query('warungId') queryWarungId?: string,
+    @CurrentUser() user?: any,
+  ) {
+    const warungId = user?.role === Role.WARUNG ? user.warungId : queryWarungId;
+    if (!warungId) {
+      throw new BadRequestException('Warung ID is required');
+    }
+    return this.salesService.dailySummary(warungId, date);
   }
 
   @Get(':id')

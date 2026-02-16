@@ -22,6 +22,12 @@ final productSearchProvider =
   return repository.fetchProducts(search: search);
 });
 
+final warungProductListProvider =
+    FutureProvider.family<List<WarungProductModel>, String>((ref, warungId) async {
+  final repository = ref.read(productRepositoryProvider);
+  return repository.fetchWarungProducts(warungId);
+});
+
 final productDetailProvider =
     FutureProvider.family<ProductModel, String>((ref, productId) async {
   final repository = ref.read(productRepositoryProvider);

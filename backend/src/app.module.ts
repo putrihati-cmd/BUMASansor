@@ -21,6 +21,11 @@ import { UsersModule } from './users/users.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
 import { WarungsModule } from './warungs/warungs.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { CustomersModule } from './customers/customers.module';
+import { ShiftsModule } from './shifts/shifts.module';
+import { DebtsModule } from './debts/debts.module';
+import { PosExtensionsModule } from './pos/extensions/pos-extensions.module';
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   imports: [
@@ -50,6 +55,11 @@ import { UploadsModule } from './uploads/uploads.module';
     FinanceModule,
     ReportsModule,
     UploadsModule,
+    CustomersModule,
+    ShiftsModule,
+    DebtsModule,
+    PosExtensionsModule,
+    AttendanceModule,
   ],
   providers: [
     {
@@ -58,4 +68,4 @@ import { UploadsModule } from './uploads/uploads.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

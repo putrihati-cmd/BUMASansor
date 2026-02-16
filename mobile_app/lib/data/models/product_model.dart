@@ -87,6 +87,9 @@ class ProductModel {
       'category': category?.toJson(),
     };
   }
+
+  double get sellPrice => suggestedPrice ?? basePrice;
+  double get buyPrice => basePrice;
 }
 
 class WarungProductModel {

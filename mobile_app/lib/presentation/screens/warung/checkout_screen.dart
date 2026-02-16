@@ -184,9 +184,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       'items': items
           .map(
             (item) => {
-              'productId': item.product.id,
+              'warungProductId': item.warungProduct.id,
               'quantity': item.quantity,
-              'price': item.product.sellPrice,
+              'price': item.warungProduct.sellingPrice,
             },
           )
           .toList(),
@@ -215,11 +215,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       items: items
           .map(
             (item) => SaleItemModel(
-              productId: item.product.id,
-              productName: item.product.name,
+              productId: item.warungProduct.product?.id ?? '',
+              productName: item.warungProduct.product?.name ?? 'Unknown',
               quantity: item.quantity,
-              price: item.product.sellPrice,
-              subtotal: item.product.sellPrice * item.quantity,
+              price: item.warungProduct.sellingPrice,
+              subtotal: item.warungProduct.sellingPrice * item.quantity,
             ),
           )
           .toList(),
@@ -251,10 +251,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 children: cart
                     .map(
                       (item) => ListTile(
-                        title: Text(item.product.name,
+                        title: Text(item.warungProduct.product?.name ?? 'Unknown',
                             maxLines: 1, overflow: TextOverflow.ellipsis),
                         subtitle: Text(
-                            '${item.quantity}x - Rp ${item.product.sellPrice.toStringAsFixed(0)}'),
+                            '${item.quantity}x - Rp ${item.warungProduct.sellingPrice.toStringAsFixed(0)}'),
                         trailing:
                             Text('Rp ${item.subtotal.toStringAsFixed(0)}'),
                       ),

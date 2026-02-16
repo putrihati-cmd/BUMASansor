@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { MovementType, Prisma, ReceivableStatus, SalePaymentMethod } from '@prisma/client';
+import { MovementType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimeService } from '../realtime/realtime.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
@@ -10,156 +10,217 @@ export class SalesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly realtime: RealtimeService,
-  ) {}
+  ) { }
 
   async create(userId: string, dto: CreateSaleDto) {
     const warung = await this.prisma.warung.findFirst({
       where: { id: dto.warungId, deletedAt: null },
+      include: { taxSettings: true }
     });
     if (!warung) {
       throw new NotFoundException('Warung not found');
     }
     if (warung.isBlocked) {
-      throw new BadRequestException(
-        `Warung is blocked: ${warung.blockedReason ?? 'unknown reason'}`,
-      );
+      throw new BadRequestException('Warung is blocked');
     }
 
-    const warehouse = await this.prisma.warehouse.findFirst({
-      where: { id: dto.warehouseId, deletedAt: null },
-    });
-    if (!warehouse) {
-      throw new NotFoundException('Warehouse not found');
-    }
-
-    const products = await this.prisma.product.findMany({
+    const warungProducts = await this.prisma.warungProduct.findMany({
       where: {
-        id: { in: dto.items.map((item) => item.productId) },
-        deletedAt: null,
+        id: { in: dto.items.map((item) => item.warungProductId) },
+        warungId: dto.warungId,
+      },
+      include: {
+        product: true,
+        wholesalePrices: true,
+        recipes: { include: { ingredient: true } },
+        modifierGroups: { include: { modifierGroup: { include: { modifiers: true } } } }
       },
     });
 
-    if (products.length !== dto.items.length) {
-      throw new BadRequestException('Some products are invalid');
+    if (warungProducts.length !== dto.items.length) {
+      throw new BadRequestException('Some products are invalid or not found in warung inventory');
     }
 
-    const lineItems = dto.items.map((item) => {
-      const product = products.find((p) => p.id === item.productId)!;
-      const price = item.price ?? Number(product.sellPrice);
+    // 1. Calculate prices including Wholesale and Modifiers
+    const lineItems = dto.items.map((dtoItem) => {
+      const wp = warungProducts.find((p) => p.id === dtoItem.warungProductId)!;
+
+      // Auto-Wholesale logic
+      let unitPrice = Number(wp.sellingPrice);
+      const appliedWholesale = wp.wholesalePrices
+        .filter(w => dtoItem.quantity >= w.minQty)
+        .sort((a, b) => b.minQty - a.minQty)[0]; // Use highest matching minQty
+
+      if (appliedWholesale) {
+        unitPrice = Number(appliedWholesale.price);
+      }
+
+      // Modifier mapping
+      const modifiers = (dtoItem.modifiers ?? []).map(m => {
+        const mod = wp.modifierGroups
+          .flatMap(g => g.modifierGroup.modifiers)
+          .find(mod => mod.id === m.modifierId);
+
+        if (!mod) throw new BadRequestException(`Invalid modifier ID ${m.modifierId}`);
+
+        return {
+          modifierId: mod.id,
+          name: mod.name,
+          price: mod.price,
+        };
+      });
+
+      const modifierTotal = modifiers.reduce((sum, m) => sum + Number(m.price), 0);
+      const finalPrice = dtoItem.price ?? (unitPrice + modifierTotal);
+      const discount = dtoItem.discount ?? 0;
+
       return {
-        productId: item.productId,
-        quantity: item.quantity,
-        price,
-        subtotal: price * item.quantity,
+        warungProductId: dtoItem.warungProductId,
+        quantity: dtoItem.quantity,
+        costPrice: wp.costPrice,
+        price: finalPrice,
+        discount,
+        subtotal: (finalPrice - discount) * dtoItem.quantity,
+        modifiers: modifiers,
+        productName: wp.product.name,
+        recipe: wp.recipes,
       };
     });
 
-    const totalAmount = lineItems.reduce((sum, item) => sum + item.subtotal, 0);
-    const paidAmount =
-      dto.paidAmount ?? (dto.paymentMethod === SalePaymentMethod.CREDIT ? 0 : totalAmount);
+    const subtotal = lineItems.reduce((sum, item) => sum + item.subtotal, 0);
+
+    // Tax & Service logic
+    const taxRate = warung.taxSettings?.taxRate ? Number(warung.taxSettings.taxRate) : 0;
+    const serviceRate = warung.taxSettings?.serviceRate ? Number(warung.taxSettings.serviceRate) : 0;
+
+    const taxAmount = (subtotal * taxRate) / 100;
+    const serviceAmount = (subtotal * serviceRate) / 100;
+
+    const totalAmount = subtotal - (dto.discountAmount ?? 0) + taxAmount + serviceAmount;
+    const paidAmount = dto.paidAmount ?? totalAmount;
 
     if (paidAmount > totalAmount) {
       throw new BadRequestException('paidAmount cannot be greater than totalAmount');
     }
 
     const sale = await this.prisma.$transaction(async (tx) => {
-      for (const item of lineItems) {
-        const stock = await tx.stock.findUnique({
-          where: {
-            warehouseId_productId: {
-              warehouseId: dto.warehouseId,
-              productId: item.productId,
-            },
-          },
-        });
+      // 2. Verify shift
+      if (dto.shiftId) {
+        const shift = await tx.shift.findUnique({ where: { id: dto.shiftId } });
+        if (!shift || shift.endTime) throw new BadRequestException('Invalid or closed shift');
+      }
 
-        if (!stock || stock.quantity < item.quantity) {
-          throw new BadRequestException(`Insufficient stock for product ${item.productId}`);
+      // 3. Process Inventory (Stock & Ingredients)
+      for (const item of lineItems) {
+        const wp = warungProducts.find((p) => p.id === item.warungProductId)!;
+
+        // Deduck product stock if it's not a service/virtual product (optional check)
+        if (wp.stockQty < item.quantity) {
+          throw new BadRequestException(`Insufficient stock for product ${item.productName}`);
         }
 
-        await tx.stock.update({
-          where: {
-            warehouseId_productId: {
-              warehouseId: dto.warehouseId,
-              productId: item.productId,
-            },
-          },
-          data: {
-            quantity: { decrement: item.quantity },
-          },
+        await tx.warungProduct.update({
+          where: { id: wp.id },
+          data: { stockQty: { decrement: item.quantity } },
         });
+
+        // Deduck ingredients based on recipe
+        for (const r of item.recipe) {
+          const reqQty = Number(r.quantity) * item.quantity;
+          await tx.ingredient.update({
+            where: { id: r.ingredientId },
+            data: { stockQty: { decrement: reqQty } }
+          });
+        }
 
         await tx.stockMovement.create({
           data: {
             movementType: MovementType.OUT,
-            productId: item.productId,
-            fromWarehouseId: dto.warehouseId,
+            productId: wp.productId,
             quantity: item.quantity,
-            referenceType: 'SALES',
+            referenceType: 'SALE',
             createdBy: userId,
           },
         });
       }
 
-      const sale = await tx.sale.create({
+      // 4. Create Sale Record
+      const saleRecord = await tx.sale.create({
         data: {
           invoiceNumber: await this.generateInvoiceNumber(tx),
           warungId: dto.warungId,
-          warehouseId: dto.warehouseId,
+          shiftId: dto.shiftId,
+          customerId: dto.customerId,
           paymentMethod: dto.paymentMethod,
+          orderType: dto.orderType ?? 'TAKE_AWAY',
+          subtotal,
+          discountAmount: dto.discountAmount ?? 0,
+          taxAmount,
           totalAmount,
           paidAmount,
-          notes: dto.notes,
-          createdBy: userId,
+          taxRate,
+          serviceRate,
           items: {
-            create: lineItems,
+            create: lineItems.map(li => ({
+              warungProductId: li.warungProductId,
+              quantity: li.quantity,
+              costPrice: li.costPrice,
+              price: li.price,
+              discount: li.discount,
+              subtotal: li.subtotal,
+              modifiers: {
+                create: li.modifiers.map(m => ({
+                  modifierId: m.modifierId,
+                  name: li.productName + ' - ' + m.name,
+                  price: m.price,
+                }))
+              }
+            })),
           },
         },
         include: {
-          items: { include: { product: true } },
+          items: { include: { modifiers: true, warungProduct: { include: { product: true } } } },
           warung: true,
+          customer: true,
         },
       });
 
-      const balance = totalAmount - paidAmount;
-      if (balance > 0) {
-        const dueDate = new Date();
-        dueDate.setDate(dueDate.getDate() + warung.creditDays);
+      // 5. Update Debt
+      const balanceAmount = totalAmount - paidAmount;
+      if (balanceAmount > 0) {
+        if (dto.customerId) {
+          await tx.customer.update({
+            where: { id: dto.customerId },
+            data: { currentDebt: { increment: balanceAmount } },
+          });
 
-        await tx.receivable.create({
-          data: {
-            warungId: dto.warungId,
-            saleId: sale.id,
-            amount: totalAmount,
-            paidAmount,
-            balance,
-            dueDate,
-            status: paidAmount > 0 ? ReceivableStatus.PARTIAL : ReceivableStatus.UNPAID,
-            notes: `Receivable from sale ${sale.invoiceNumber}`,
-          },
-        });
-
-        await tx.warung.update({
-          where: { id: warung.id },
-          data: {
-            currentDebt: {
-              increment: balance,
+          await tx.customerDebt.create({
+            data: {
+              warungId: dto.warungId,
+              customerId: dto.customerId,
+              saleId: saleRecord.id,
+              amount: totalAmount,
+              paidAmount: paidAmount,
+              balance: balanceAmount,
+              status: balanceAmount === totalAmount ? 'UNPAID' : 'PARTIAL',
+              dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             },
-          },
-        });
+          });
+        } else {
+          await tx.warung.update({
+            where: { id: warung.id },
+            data: { currentDebt: { increment: balanceAmount } },
+          });
+        }
       }
 
-      return sale;
+      return saleRecord;
     });
 
     this.realtime.emit('sales.created', {
       saleId: sale.id,
       warungId: sale.warungId,
-      warehouseId: sale.warehouseId,
       totalAmount: sale.totalAmount,
-      paidAmount: sale.paidAmount,
-      paymentMethod: sale.paymentMethod,
-      createdAt: sale.createdAt,
     });
 
     return sale;
@@ -170,15 +231,14 @@ export class SalesService {
     const limit = query.limit ?? 10;
 
     const where = {
-      deletedAt: null,
       ...(query.warungId ? { warungId: query.warungId } : {}),
       ...(query.dateFrom || query.dateTo
         ? {
-            createdAt: {
-              ...(query.dateFrom ? { gte: new Date(query.dateFrom) } : {}),
-              ...(query.dateTo ? { lte: new Date(query.dateTo) } : {}),
-            },
-          }
+          createdAt: {
+            ...(query.dateFrom ? { gte: new Date(query.dateFrom) } : {}),
+            ...(query.dateTo ? { lte: new Date(query.dateTo) } : {}),
+          },
+        }
         : {}),
     };
 
@@ -187,7 +247,7 @@ export class SalesService {
         where,
         include: {
           warung: true,
-          items: { include: { product: true } },
+          items: { include: { warungProduct: { include: { product: true } } } },
         },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
@@ -209,10 +269,10 @@ export class SalesService {
 
   async findOne(id: string) {
     const sale = await this.prisma.sale.findFirst({
-      where: { id, deletedAt: null },
+      where: { id },
       include: {
         warung: true,
-        items: { include: { product: true } },
+        items: { include: { warungProduct: { include: { product: true } } } },
       },
     });
 
@@ -223,7 +283,7 @@ export class SalesService {
     return sale;
   }
 
-  async dailySummary(date?: string) {
+  async dailySummary(warungId: string, date?: string) {
     const target = date ? new Date(date) : new Date();
     const start = new Date(target);
     start.setHours(0, 0, 0, 0);
@@ -232,11 +292,11 @@ export class SalesService {
 
     const summary = await this.prisma.sale.aggregate({
       where: {
+        warungId,
         createdAt: {
           gte: start,
           lte: end,
         },
-        deletedAt: null,
       },
       _sum: {
         totalAmount: true,

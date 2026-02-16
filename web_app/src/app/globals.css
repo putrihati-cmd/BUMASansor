@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #effaf3;
+  --color-primary-100: #d8f1e1;
+  --color-primary-200: #b5e1c8;
+  --color-primary-300: #85caaa;
+  --color-primary-400: #54ad88;
+  --color-primary-500: #34916d;
+  --color-primary-600: #257458;
+  --color-primary-700: #1e5d48;
+  --color-primary-800: #1a4a3a;
+  --color-primary-900: #163d30;
+  --color-primary-950: #0c221b;
+}
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #34916d;
+  --primary-foreground: #ffffff;
+}
+
+@layer base {
+  * {
+    border-color: #e2e8f0;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+.mobile-container {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: white;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

@@ -24,10 +24,10 @@ class SalesRepository {
       'items': items
           .map(
             (item) => {
-              'productId': item.product.id,
+              'warungProductId': item.warungProduct.id,
               'quantity': item.quantity,
               // Keep price explicit for consistency.
-              'price': item.product.sellPrice,
+              'price': item.warungProduct.sellingPrice,
             },
           )
           .toList(),

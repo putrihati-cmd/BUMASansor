@@ -1,46 +1,28 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { DOStatus, POStatus, ReceivableStatus, Role } from '@prisma/client';
+import { MovementType, OrderStatus, POStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimeService } from '../realtime/realtime.service';
-import { AssignKurirDto } from './dto/assign-kurir.dto';
-import { ConfirmDeliveryDto } from './dto/confirm-delivery.dto';
-import { CreateDODto } from './dto/create-do.dto';
-import { CreatePODto } from './dto/create-po.dto';
 
 @Injectable()
 export class DistributionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly realtime: RealtimeService,
-  ) {}
+  ) { }
 
-  async createPurchaseOrder(userId: string, dto: CreatePODto) {
-    await this.ensureSupplier(dto.supplierId);
-    await this.ensureWarehouse(dto.warehouseId);
+  async createOrder(userId: string, warungId: string, warehouseId: string, items: any[], notes?: string) {
+    const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    const products = await this.prisma.product.findMany({
-      where: {
-        id: { in: dto.items.map((item) => item.productId) },
-        deletedAt: null,
-      },
-    });
-
-    if (products.length !== dto.items.length) {
-      throw new BadRequestException('Some products are invalid');
-    }
-
-    const totalAmount = dto.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-    const po = await this.prisma.purchaseOrder.create({
+    const order = await this.prisma.order.create({
       data: {
-        poNumber: await this.generateDocumentNumber('PO'),
-        supplierId: dto.supplierId,
-        warehouseId: dto.warehouseId,
-        notes: dto.notes,
+        orderNumber: await this.generateOrderNumber(),
+        warungId,
+        warehouseId,
         totalAmount,
+        notes,
         createdBy: userId,
         items: {
-          create: dto.items.map((item) => ({
+          create: items.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
             price: item.price,
@@ -50,109 +32,130 @@ export class DistributionService {
       },
       include: {
         items: { include: { product: true } },
-        supplier: true,
-        warehouse: true,
+        warung: true,
       },
     });
 
-    this.realtime.emit('po.created', {
-      poId: po.id,
-      poNumber: po.poNumber,
-      supplierId: po.supplierId,
-      warehouseId: po.warehouseId,
-      status: po.status,
-      totalAmount: po.totalAmount,
-      createdAt: po.createdAt,
-    });
-
-    return po;
+    this.realtime.emit('order.created', order);
+    return order;
   }
 
-  listPurchaseOrders(status?: POStatus, supplierId?: string) {
-    return this.prisma.purchaseOrder.findMany({
-      where: {
-        deletedAt: null,
-        ...(status ? { status } : {}),
-        ...(supplierId ? { supplierId } : {}),
-      },
-      include: {
-        items: { include: { product: true } },
-        supplier: true,
-        warehouse: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async findPurchaseOrder(id: string) {
-    const po = await this.prisma.purchaseOrder.findFirst({
-      where: { id, deletedAt: null },
-      include: {
-        items: { include: { product: true } },
-        supplier: true,
-        warehouse: true,
-      },
+  async updateOrderStatus(orderId: string, status: OrderStatus) {
+    const order = await this.prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+      include: { warung: true, items: true },
     });
 
-    if (!po) {
-      throw new NotFoundException('Purchase order not found');
-    }
-
-    return po;
+    this.realtime.emit('order.updated', order);
+    return order;
   }
 
-  async approvePurchaseOrder(id: string, userId: string) {
-    const po = await this.findPurchaseOrder(id);
-    if (po.status !== POStatus.PENDING) {
-      throw new BadRequestException('Only pending PO can be approved');
-    }
+  async assignKurir(orderId: string, kurirId: string) {
+    const task = await this.prisma.deliveryTask.upsert({
+      where: { orderId },
+      update: { kurirId, status: OrderStatus.PENDING },
+      create: { orderId, kurirId, status: OrderStatus.PENDING },
+    });
 
-    const updated = await this.prisma.purchaseOrder.update({
-      where: { id },
+    await this.updateOrderStatus(orderId, OrderStatus.APPROVED);
+
+    this.realtime.emit('delivery.assigned', task);
+    return task;
+  }
+
+  async startDelivery(orderId: string, kurirId: string) {
+    const task = await this.prisma.deliveryTask.update({
+      where: { orderId },
+      data: { status: OrderStatus.IN_TRANSIT, pickedUpAt: new Date() },
+    });
+
+    await this.updateOrderStatus(orderId, OrderStatus.IN_TRANSIT);
+    return task;
+  }
+
+  async completeDelivery(orderId: string, kurirId: string, photoProof?: string) {
+    const task = await this.prisma.deliveryTask.update({
+      where: { orderId },
       data: {
-        status: POStatus.APPROVED,
-        approvedBy: userId,
-        approvedAt: new Date(),
+        status: OrderStatus.DELIVERED,
+        deliveredAt: new Date(),
+        deliveryPhoto: photoProof,
       },
     });
 
-    this.realtime.emit('po.updated', {
-      poId: updated.id,
-      status: updated.status,
-      approvedBy: updated.approvedBy,
-      approvedAt: updated.approvedAt,
+    await this.updateOrderStatus(orderId, OrderStatus.DELIVERED);
+
+    // Update Warung Inventory after delivery
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
     });
 
-    return updated;
-  }
-
-  async receivePurchaseOrder(id: string, userId: string) {
-    const po = await this.findPurchaseOrder(id);
-    if (po.status !== POStatus.APPROVED) {
-      throw new BadRequestException('PO must be approved before receiving');
+    if (order) {
+      for (const item of order.items) {
+        await this.prisma.warungProduct.upsert({
+          where: { warungId_productId: { warungId: order.warungId, productId: item.productId } },
+          update: { stockQty: { increment: item.quantity } },
+          create: {
+            warungId: order.warungId,
+            productId: item.productId,
+            stockQty: item.quantity,
+            sellingPrice: 0, // Should be set by warung later
+          },
+        });
+      }
     }
 
-    const updatedPO = await this.prisma.$transaction(async (tx) => {
-      const updatedPO = await tx.purchaseOrder.update({
-        where: { id },
-        data: {
-          status: POStatus.RECEIVED,
-          receivedBy: userId,
-          receivedAt: new Date(),
-        },
-      });
+    return task;
+  }
 
+  // PO Methods (Inbound from Supplier)
+  async createPurchaseOrder(userId: string, supplierId: string, warehouseId: string, items: any[], notes?: string) {
+    const totalAmount = items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
+
+    // Generate PO Number
+    const count = await this.prisma.purchaseOrder.count();
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const poNumber = `PO-${date}-${(count + 1).toString().padStart(4, '0')}`;
+
+    return this.prisma.purchaseOrder.create({
+      data: {
+        poNumber,
+        supplierId,
+        warehouseId,
+        totalAmount,
+        notes,
+        createdBy: userId,
+        items: {
+          create: items.map((item: any) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+            subtotal: item.price * item.quantity,
+          })),
+        },
+      },
+      include: { items: true },
+    });
+  }
+
+  async receivePurchaseOrder(poId: string, userId: string) {
+    const po = await this.prisma.purchaseOrder.findUnique({
+      where: { id: poId },
+      include: { items: true },
+    });
+
+    if (!po) throw new NotFoundException('PO not found');
+    if (po.status === POStatus.RECEIVED) throw new BadRequestException('PO already received');
+
+    return this.prisma.$transaction(async (tx) => {
+      // Add Stock
       for (const item of po.items) {
+        // Find existing stock to update quantity
         await tx.stock.upsert({
-          where: {
-            warehouseId_productId: {
-              warehouseId: po.warehouseId,
-              productId: item.productId,
-            },
-          },
-          update: {
-            quantity: { increment: item.quantity },
-          },
+          where: { warehouseId_productId: { warehouseId: po.warehouseId, productId: item.productId } },
+          update: { quantity: { increment: item.quantity } },
           create: {
             warehouseId: po.warehouseId,
             productId: item.productId,
@@ -160,411 +163,58 @@ export class DistributionService {
           },
         });
 
+        // Movement
         await tx.stockMovement.create({
           data: {
-            movementType: 'IN',
+            movementType: MovementType.IN,
             productId: item.productId,
             toWarehouseId: po.warehouseId,
             quantity: item.quantity,
-            referenceType: 'PO',
+            referenceType: 'PURCHASE_ORDER',
             referenceId: po.id,
             createdBy: userId,
+            notes: `Received from PO ${po.poNumber}`,
           },
         });
       }
 
-      return updatedPO;
-    });
-
-    this.realtime.emit('po.updated', {
-      poId: updatedPO.id,
-      status: updatedPO.status,
-      receivedBy: updatedPO.receivedBy,
-      receivedAt: updatedPO.receivedAt,
-    });
-
-    this.realtime.emit('stocks.updated', {
-      warehouseId: po.warehouseId,
-      productIds: po.items.map((i) => i.productId),
-      referenceType: 'PO',
-      referenceId: po.id,
-    });
-
-    return updatedPO;
-  }
-
-  async cancelPurchaseOrder(id: string) {
-    const po = await this.findPurchaseOrder(id);
-    if (po.status !== POStatus.PENDING) {
-      throw new BadRequestException('Only pending PO can be cancelled');
-    }
-
-    const updated = await this.prisma.purchaseOrder.update({
-      where: { id },
-      data: { status: POStatus.CANCELLED },
-    });
-
-    this.realtime.emit('po.updated', {
-      poId: updated.id,
-      status: updated.status,
-    });
-
-    return updated;
-  }
-
-  async createDeliveryOrder(userId: string, dto: CreateDODto) {
-    const warung = await this.prisma.warung.findFirst({
-      where: { id: dto.warungId, deletedAt: null },
-    });
-    if (!warung) {
-      throw new NotFoundException('Warung not found');
-    }
-    if (warung.isBlocked) {
-      throw new BadRequestException(
-        `Warung is blocked: ${warung.blockedReason ?? 'unknown reason'}`,
-      );
-    }
-
-    await this.ensureWarehouse(dto.warehouseId);
-
-    const products = await this.prisma.product.findMany({
-      where: {
-        id: { in: dto.items.map((item) => item.productId) },
-        deletedAt: null,
-      },
-    });
-
-    if (products.length !== dto.items.length) {
-      throw new BadRequestException('Some products are invalid');
-    }
-
-    const totalAmount = dto.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const availableCredit = Number(warung.creditLimit) - Number(warung.currentDebt);
-    if (totalAmount > availableCredit) {
-      throw new BadRequestException('Credit limit exceeded');
-    }
-
-    const creditDays = dto.creditDays ?? warung.creditDays;
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + creditDays);
-
-    const delivery = await this.prisma.deliveryOrder.create({
-      data: {
-        doNumber: await this.generateDocumentNumber('DO'),
-        warungId: dto.warungId,
-        warehouseId: dto.warehouseId,
-        totalAmount,
-        status: DOStatus.PENDING,
-        creditDays,
-        dueDate,
-        notes: dto.notes,
-        createdBy: userId,
-        items: {
-          create: dto.items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-            subtotal: item.price * item.quantity,
-          })),
+      return tx.purchaseOrder.update({
+        where: { id: poId },
+        data: {
+          status: POStatus.RECEIVED,
+          receivedAt: new Date(),
+          receivedBy: userId,
         },
-      },
-      include: {
-        warung: true,
-        items: { include: { product: true } },
-      },
+      });
     });
-
-    this.realtime.emit('do.created', {
-      doId: delivery.id,
-      doNumber: delivery.doNumber,
-      warungId: delivery.warungId,
-      warehouseId: delivery.warehouseId,
-      totalAmount: delivery.totalAmount,
-      status: delivery.status,
-      dueDate: delivery.dueDate,
-      createdAt: delivery.createdAt,
-    });
-
-    return delivery;
   }
 
-  listDeliveryOrders(status?: DOStatus, warungId?: string, kurirId?: string) {
-    return this.prisma.deliveryOrder.findMany({
-      where: {
-        deletedAt: null,
-        ...(status ? { status } : {}),
-        ...(warungId ? { warungId } : {}),
-        ...(kurirId ? { kurirId } : {}),
-      },
+  async listOrders(role: string, userId: string, warungId?: string, status?: OrderStatus) {
+    const where: any = {};
+    if (role === 'WARUNG') {
+      where.warungId = warungId; // Warung can only see their orders
+    }
+    // GUDANG/ADMIN can see all, or filter by warungId
+    if (role !== 'WARUNG' && warungId) {
+      where.warungId = warungId;
+    }
+    if (status) {
+      where.status = status;
+    }
+
+    return this.prisma.order.findMany({
+      where,
       include: {
         warung: true,
-        kurir: true,
         items: { include: { product: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async findDeliveryOrder(id: string) {
-    const delivery = await this.prisma.deliveryOrder.findFirst({
-      where: { id, deletedAt: null },
-      include: {
-        warung: true,
-        kurir: true,
-        items: { include: { product: true } },
-      },
-    });
-
-    if (!delivery) {
-      throw new NotFoundException('Delivery order not found');
-    }
-
-    return delivery;
-  }
-
-  async assignKurir(id: string, dto: AssignKurirDto) {
-    const delivery = await this.findDeliveryOrder(id);
-    if (!([DOStatus.PENDING, DOStatus.ASSIGNED] as DOStatus[]).includes(delivery.status)) {
-      throw new BadRequestException('Delivery order cannot be assigned');
-    }
-
-    const kurir = await this.prisma.user.findFirst({
-      where: { id: dto.kurirId, role: Role.KURIR, deletedAt: null },
-    });
-    if (!kurir) {
-      throw new BadRequestException('Kurir not found');
-    }
-
-    const updated = await this.prisma.deliveryOrder.update({
-      where: { id },
-      data: {
-        kurirId: dto.kurirId,
-        status: DOStatus.ASSIGNED,
-        assignedAt: new Date(),
-      },
-    });
-
-    this.realtime.emit('do.updated', {
-      doId: updated.id,
-      status: updated.status,
-      kurirId: updated.kurirId,
-      assignedAt: updated.assignedAt,
-    });
-
-    return updated;
-  }
-
-  async startDelivery(id: string, userId: string, role: string) {
-    const delivery = await this.findDeliveryOrder(id);
-    if (delivery.status !== DOStatus.ASSIGNED) {
-      throw new BadRequestException('Delivery order must be assigned first');
-    }
-    if (role === Role.KURIR && delivery.kurirId !== userId) {
-      throw new BadRequestException('This delivery is assigned to another kurir');
-    }
-
-    const updated = await this.prisma.deliveryOrder.update({
-      where: { id },
-      data: { status: DOStatus.ON_DELIVERY },
-    });
-
-    this.realtime.emit('do.updated', {
-      doId: updated.id,
-      status: updated.status,
-    });
-
-    return updated;
-  }
-
-  async markDelivered(id: string, userId: string, role: string) {
-    const delivery = await this.findDeliveryOrder(id);
-    if (delivery.status !== DOStatus.ON_DELIVERY) {
-      throw new BadRequestException('Delivery order must be on delivery first');
-    }
-    if (role === Role.KURIR && delivery.kurirId !== userId) {
-      throw new BadRequestException('This delivery is assigned to another kurir');
-    }
-
-    const updated = await this.prisma.deliveryOrder.update({
-      where: { id },
-      data: {
-        status: DOStatus.DELIVERED,
-        deliveredAt: new Date(),
-      },
-    });
-
-    this.realtime.emit('do.updated', {
-      doId: updated.id,
-      status: updated.status,
-      deliveredAt: updated.deliveredAt,
-    });
-
-    return updated;
-  }
-
-  async confirmDelivery(id: string, userId: string, dto: ConfirmDeliveryDto) {
-    const delivery = await this.findDeliveryOrder(id);
-    if (!([DOStatus.DELIVERED, DOStatus.ON_DELIVERY] as DOStatus[]).includes(delivery.status)) {
-      throw new BadRequestException('Delivery order cannot be confirmed');
-    }
-
-    const existingReceivable = await this.prisma.receivable.findFirst({
-      where: {
-        deliveryOrderId: id,
-        deletedAt: null,
-      },
-    });
-
-    if (existingReceivable) {
-      throw new BadRequestException('Delivery order already confirmed');
-    }
-
-    const confirmed = await this.prisma.$transaction(async (tx) => {
-      for (const item of delivery.items) {
-        const stock = await tx.stock.findUnique({
-          where: {
-            warehouseId_productId: {
-              warehouseId: delivery.warehouseId,
-              productId: item.productId,
-            },
-          },
-        });
-
-        if (!stock || stock.quantity < item.quantity) {
-          throw new BadRequestException(`Insufficient stock for product ${item.productId}`);
-        }
-
-        await tx.stock.update({
-          where: {
-            warehouseId_productId: {
-              warehouseId: delivery.warehouseId,
-              productId: item.productId,
-            },
-          },
-          data: {
-            quantity: { decrement: item.quantity },
-          },
-        });
-
-        await tx.stockMovement.create({
-          data: {
-            movementType: 'OUT',
-            productId: item.productId,
-            fromWarehouseId: delivery.warehouseId,
-            quantity: item.quantity,
-            referenceType: 'DO',
-            referenceId: delivery.id,
-            createdBy: userId,
-          },
-        });
-      }
-
-      const confirmed = await tx.deliveryOrder.update({
-        where: { id },
-        data: {
-          status: DOStatus.CONFIRMED,
-          confirmedBy: userId,
-          confirmedAt: new Date(),
-          photoProof: dto.photoProof,
-        },
-      });
-
-      await tx.receivable.create({
-        data: {
-          warungId: delivery.warungId,
-          deliveryOrderId: delivery.id,
-          amount: delivery.totalAmount,
-          balance: delivery.totalAmount,
-          dueDate: delivery.dueDate,
-          status: ReceivableStatus.UNPAID,
-          notes: `Receivable from ${delivery.doNumber}`,
-        },
-      });
-
-      await tx.warung.update({
-        where: { id: delivery.warungId },
-        data: {
-          currentDebt: {
-            increment: delivery.totalAmount,
-          },
-        },
-      });
-
-      return confirmed;
-    });
-
-    this.realtime.emit('do.updated', {
-      doId: confirmed.id,
-      status: confirmed.status,
-      confirmedBy: confirmed.confirmedBy,
-      confirmedAt: confirmed.confirmedAt,
-    });
-
-    this.realtime.emit('receivable.created', {
-      warungId: delivery.warungId,
-      deliveryOrderId: delivery.id,
-      amount: delivery.totalAmount,
-      dueDate: delivery.dueDate,
-    });
-
-    this.realtime.emit('stocks.updated', {
-      warehouseId: delivery.warehouseId,
-      productIds: delivery.items.map((i) => i.productId),
-      referenceType: 'DO',
-      referenceId: delivery.id,
-    });
-
-    return confirmed;
-  }
-
-  async cancelDeliveryOrder(id: string) {
-    const delivery = await this.findDeliveryOrder(id);
-    if (!([DOStatus.PENDING, DOStatus.ASSIGNED] as DOStatus[]).includes(delivery.status)) {
-      throw new BadRequestException('Only pending/assigned delivery can be cancelled');
-    }
-
-    const updated = await this.prisma.deliveryOrder.update({
-      where: { id },
-      data: { status: DOStatus.CANCELLED },
-    });
-
-    this.realtime.emit('do.updated', {
-      doId: updated.id,
-      status: updated.status,
-    });
-
-    return updated;
-  }
-
-  private async generateDocumentNumber(prefix: 'PO' | 'DO'): Promise<string> {
-    const now = new Date();
-    const datePart = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now
-      .getDate()
-      .toString()
-      .padStart(2, '0')}`;
-
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const count =
-      prefix === 'PO'
-        ? await this.prisma.purchaseOrder.count({ where: { createdAt: { gte: startOfDay } } })
-        : await this.prisma.deliveryOrder.count({ where: { createdAt: { gte: startOfDay } } });
-
-    return `${prefix}-${datePart}-${(count + 1).toString().padStart(3, '0')}`;
-  }
-
-  private async ensureSupplier(id: string) {
-    const supplier = await this.prisma.supplier.findFirst({ where: { id, deletedAt: null } });
-    if (!supplier) {
-      throw new NotFoundException('Supplier not found');
-    }
-  }
-
-  private async ensureWarehouse(id: string) {
-    const warehouse = await this.prisma.warehouse.findFirst({ where: { id, deletedAt: null } });
-    if (!warehouse) {
-      throw new NotFoundException('Warehouse not found');
-    }
+  private async generateOrderNumber(): Promise<string> {
+    const count = await this.prisma.order.count();
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    return `ORD-${date}-${(count + 1).toString().padStart(4, '0')}`;
   }
 }

@@ -1,8 +1,13 @@
-import { IsInt, IsString, IsUUID } from 'class-validator';
+import { IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class StockOpnameDto {
+  @IsOptional()
   @IsUUID()
-  warehouseId: string;
+  warehouseId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  warungId?: string;
 
   @IsUUID()
   productId: string;

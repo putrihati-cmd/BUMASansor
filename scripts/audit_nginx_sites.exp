@@ -1,0 +1,11 @@
+#!/usr/bin/expect -f
+set timeout 30
+set password "065820Aaaa"
+set host "root@server.infiatin.cloud"
+set proxy "cloudflared access ssh --hostname server.infiatin.cloud"
+
+spawn ssh -o ProxyCommand=$proxy -o StrictHostKeyChecking=no $host "ls /etc/nginx/sites-enabled"
+expect {
+    "password:" { send "$password\r"; exp_continue }
+    eof
+}

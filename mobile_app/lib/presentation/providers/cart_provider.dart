@@ -6,12 +6,12 @@ import '../../data/models/product_model.dart';
 class CartNotifier extends StateNotifier<List<CartItemModel>> {
   CartNotifier() : super(const []);
 
-  void addProduct(ProductModel product, {int quantity = 1}) {
+  void addProduct(WarungProductModel product, {int quantity = 1}) {
     if (quantity <= 0) {
       return;
     }
 
-    final index = state.indexWhere((item) => item.product.id == product.id);
+    final index = state.indexWhere((item) => item.warungProduct.id == product.id);
     if (index >= 0) {
       final existing = state[index];
       final updated = existing.copyWith(quantity: existing.quantity + quantity);
@@ -21,26 +21,26 @@ class CartNotifier extends StateNotifier<List<CartItemModel>> {
       return;
     }
 
-    state = [...state, CartItemModel(product: product, quantity: quantity)];
+    state = [...state, CartItemModel(warungProduct: product, quantity: quantity)];
   }
 
-  void updateQuantity(String productId, int quantity) {
+  void updateQuantity(String warungProductId, int quantity) {
     if (quantity <= 0) {
-      removeProduct(productId);
+      removeProduct(warungProductId);
       return;
     }
 
     state = state
         .map(
-          (item) => item.product.id == productId
+          (item) => item.warungProduct.id == warungProductId
               ? item.copyWith(quantity: quantity)
               : item,
         )
         .toList();
   }
 
-  void removeProduct(String productId) {
-    state = state.where((item) => item.product.id != productId).toList();
+  void removeProduct(String warungProductId) {
+    state = state.where((item) => item.warungProduct.id != warungProductId).toList();
   }
 
   void clear() {

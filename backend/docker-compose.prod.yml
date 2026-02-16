@@ -14,7 +14,7 @@ services:
     networks:
       - bumas-network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      test: [ 'CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,7 +28,7 @@ services:
     networks:
       - bumas-network
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: [ 'CMD', 'redis-cli', 'ping' ]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -53,6 +53,17 @@ services:
     volumes:
       - uploads:/app/uploads
 
+  frontend:
+    build:
+      context: ../web_app
+      dockerfile: Dockerfile
+    container_name: bumas-frontend
+    restart: unless-stopped
+    networks:
+      - bumas-network
+    depends_on:
+      - app
+
   nginx:
     image: nginx:alpine
     container_name: bumas-nginx
@@ -72,6 +83,7 @@ volumes:
   postgres_data:
   redis_data:
   uploads:
+
 
 networks:
   bumas-network:

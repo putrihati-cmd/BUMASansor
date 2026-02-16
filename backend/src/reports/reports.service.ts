@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { POStatus, ReceivableStatus } from '@prisma/client';
+import { OrderStatus, POStatus, ReceivableStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ReportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async dashboard() {
     const now = new Date();
@@ -47,9 +47,9 @@ export class ReportsService {
       this.monthlyChart(12),
     ]);
 
-    const lowStockCount = stocks.filter((stock) => stock.quantity < stock.minStock).length;
+    const lowStockCount = stocks.filter((stock: any) => stock.quantity < stock.minStock).length;
     const stockValue = stocks.reduce(
-      (sum, stock) => sum + stock.quantity * Number(stock.product.buyPrice),
+      (sum: number, stock: any) => sum + stock.quantity * Number(stock.product.basePrice),
       0,
     );
 
@@ -90,21 +90,12 @@ export class ReportsService {
           deletedAt: null,
         },
       },
-      select: {
-        quantity: true,
-        price: true,
-        product: {
-          select: {
-            buyPrice: true,
-          },
-        },
-      },
     });
 
     return items.reduce((sum, item) => {
-      const sell = Number(item.price ?? 0);
-      const buy = Number(item.product.buyPrice ?? 0);
-      return sum + (sell - buy) * item.quantity;
+      const revenue = Number(item.subtotal); // subtotal is already quantity * (price - discount)
+      const cost = Number(item.costPrice) * item.quantity;
+      return sum + (revenue - cost);
     }, 0);
   }
 
@@ -242,38 +233,43 @@ export class ReportsService {
     const since = new Date();
     since.setDate(since.getDate() - days);
 
-    const grouped = await this.prisma.saleItem.groupBy({
-      by: ['productId'],
+    const items = await this.prisma.saleItem.findMany({
       where: {
         sale: {
           createdAt: { gte: since },
           deletedAt: null,
         },
       },
-      _sum: {
-        quantity: true,
-        subtotal: true,
-      },
-      orderBy: {
-        _sum: {
-          subtotal: 'desc',
+      include: {
+        warungProduct: {
+          include: {
+            product: true,
+          },
         },
       },
-      take: top,
     });
 
-    const products = await this.prisma.product.findMany({
-      where: { id: { in: grouped.map((row) => row.productId) } },
-      select: { id: true, name: true, barcode: true },
-    });
+    const groupedMap = new Map<string, { quantitySold: number; revenue: number; name: string; barcode: string }>();
 
-    return grouped.map((row, index) => ({
+    for (const item of items) {
+      const productId = item.warungProduct.productId;
+      const current = groupedMap.get(productId) || { quantitySold: 0, revenue: 0, name: item.warungProduct.product.name, barcode: item.warungProduct.product.barcode };
+      current.quantitySold += item.quantity;
+      current.revenue += Number(item.subtotal);
+      groupedMap.set(productId, current);
+    }
+
+    const result = Array.from(groupedMap.entries())
+      .map(([productId, data]) => ({
+        productId,
+        ...data,
+      }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, top);
+
+    return result.map((row, index) => ({
       rank: index + 1,
-      productId: row.productId,
-      productName: products.find((product) => product.id === row.productId)?.name ?? 'Unknown',
-      barcode: products.find((product) => product.id === row.productId)?.barcode ?? '-',
-      quantitySold: Number(row._sum.quantity ?? 0),
-      revenue: Number(row._sum.subtotal ?? 0),
+      ...row,
     }));
   }
 
@@ -291,22 +287,13 @@ export class ReportsService {
         id: true,
         name: true,
         isBlocked: true,
+        currentDebt: true,
       },
     });
 
     const result = [];
 
     for (const warung of warungs) {
-      const receivables = await this.prisma.receivable.findMany({
-        where: {
-          warungId: warung.id,
-          deletedAt: null,
-        },
-        select: { id: true, balance: true },
-      });
-
-      const receivableIds = receivables.map((item) => item.id);
-
       const [sales, payments] = await Promise.all([
         this.prisma.sale.aggregate({
           where: {
@@ -317,20 +304,18 @@ export class ReportsService {
           _count: true,
           _sum: { totalAmount: true },
         }),
-        receivableIds.length > 0
-          ? this.prisma.payment.aggregate({
-              where: {
-                receivableId: { in: receivableIds },
-                paymentDate: { gte: since },
-              },
-              _sum: { amount: true },
-            })
-          : Promise.resolve({ _sum: { amount: 0 } }),
+        this.prisma.payment.aggregate({
+          where: {
+            receivable: { warungId: warung.id },
+            paymentDate: { gte: since },
+          },
+          _sum: { amount: true },
+        }),
       ]);
 
       const totalPurchase = Number(sales._sum.totalAmount ?? 0);
       const totalPayment = Number(payments._sum.amount ?? 0);
-      const currentDebt = receivables.reduce((sum, item) => sum + Number(item.balance), 0);
+      const currentDebt = Number(warung.currentDebt);
 
       let paymentScore = 100;
       if (totalPurchase > 0) {

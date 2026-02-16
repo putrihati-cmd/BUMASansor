@@ -17,7 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async register(dto: RegisterDto) {
     const existing = await this.usersService.findByEmail(dto.email);
@@ -42,7 +42,7 @@ export class AuthService {
       email: dto.email,
       password: hashedPassword,
       name: dto.name,
-      role: dto.role,
+      role: dto.role as any,
       warung: dto.warungId ? { connect: { id: dto.warungId } } : undefined,
     });
 

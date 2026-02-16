@@ -9,7 +9,9 @@ export class QueryReceivableDto extends PaginationDto {
   warungId?: string;
 
   @IsOptional()
-  @IsEnum(ReceivableStatus)
+  @IsEnum(['UNPAID', 'PARTIAL', 'PAID', 'OVERDUE'], {
+    message: 'Status must be one of: UNPAID, PARTIAL, PAID, OVERDUE',
+  })
   status?: ReceivableStatus;
 
   @IsOptional()

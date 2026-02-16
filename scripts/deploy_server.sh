@@ -2,9 +2,9 @@
 set -e
 
 # Default Configuration
-SERVER_HOST="server.infiatin.cloud"
+SERVER_HOST="bumas.infiatin.cloud"
 SERVER_USER="tholib_server"
-PROXY_CMD="cloudflared access ssh --hostname server.infiatin.cloud"
+PROXY_CMD="cloudflared access ssh --hostname bumas.infiatin.cloud"
 REMOTE_DIR="/home/tholib_server/bumas-ansor/backend"
 IMAGE_NAME="ghcr.io/putrihati-cmd/bumas-ansor-backend:latest"
 

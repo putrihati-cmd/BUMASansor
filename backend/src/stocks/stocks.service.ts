@@ -11,7 +11,7 @@ export class StocksService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly realtime: RealtimeService,
-  ) {}
+  ) { }
 
   async list(query: QueryStockDto) {
     const where = {
@@ -223,42 +223,47 @@ export class StocksService {
     await this.ensureProductExists(dto.productId);
 
     const result = await this.prisma.$transaction(async (tx) => {
-      await this.ensureWarehouseExists(tx, dto.warehouseId);
+      let currentQty = 0;
+      let referenceId = '';
 
-      const currentStock = await tx.stock.upsert({
-        where: {
-          warehouseId_productId: {
-            warehouseId: dto.warehouseId,
-            productId: dto.productId,
-          },
-        },
-        update: {},
-        create: {
-          warehouseId: dto.warehouseId,
-          productId: dto.productId,
-          quantity: 0,
-        },
-      });
+      if (dto.warungId) {
+        // Retail Stock Opname
+        const wp = await tx.warungProduct.findUnique({
+          where: { warungId_productId: { warungId: dto.warungId, productId: dto.productId } },
+        });
+        if (!wp) throw new NotFoundException('Product not found in warung');
 
-      const difference = dto.actualQty - currentStock.quantity;
+        currentQty = wp.stockQty;
+        await tx.warungProduct.update({
+          where: { id: wp.id },
+          data: { stockQty: dto.actualQty },
+        });
+        referenceId = dto.warungId;
+      } else if (dto.warehouseId) {
+        // Warehouse Stock Opname
+        const stock = await tx.stock.upsert({
+          where: { warehouseId_productId: { warehouseId: dto.warehouseId, productId: dto.productId } },
+          update: {},
+          create: { warehouseId: dto.warehouseId, productId: dto.productId, quantity: 0 },
+        });
+        currentQty = stock.quantity;
+        await tx.stock.update({
+          where: { id: stock.id },
+          data: { quantity: dto.actualQty },
+        });
+        referenceId = dto.warehouseId;
+      } else {
+        throw new BadRequestException('Either warehouseId or warungId must be provided');
+      }
 
-      const updatedStock = await tx.stock.update({
-        where: {
-          warehouseId_productId: {
-            warehouseId: dto.warehouseId,
-            productId: dto.productId,
-          },
-        },
-        data: {
-          quantity: dto.actualQty,
-        },
-      });
+      const difference = dto.actualQty - currentQty;
 
       const opname = await tx.stockOpname.create({
         data: {
           warehouseId: dto.warehouseId,
+          warungId: dto.warungId,
           productId: dto.productId,
-          systemQty: currentStock.quantity,
+          systemQty: currentQty,
           actualQty: dto.actualQty,
           difference,
           reason: dto.reason,
@@ -272,6 +277,8 @@ export class StocksService {
           productId: dto.productId,
           fromWarehouseId: dto.warehouseId,
           toWarehouseId: dto.warehouseId,
+          // Note: StockMovement only has Warehouse IDs currently. 
+          // For Warung, we might need to update StockMovement too, but for now we rely on StockOpname records.
           quantity: Math.abs(difference),
           referenceType: 'OPNAME',
           referenceId: opname.id,
@@ -282,15 +289,15 @@ export class StocksService {
 
       return {
         opname,
-        stock: updatedStock,
+        currentQty: dto.actualQty,
       };
     });
 
     this.realtime.emit('stocks.updated', {
       movementType: MovementType.ADJUSTMENT,
       productId: dto.productId,
-      fromWarehouseId: dto.warehouseId,
-      toWarehouseId: dto.warehouseId,
+      warungId: dto.warungId,
+      warehouseId: dto.warehouseId,
       quantity: Math.abs(result.opname.difference),
       referenceType: 'OPNAME',
       referenceId: result.opname.id,
@@ -306,8 +313,8 @@ export class StocksService {
       where: {
         ...(query.warehouseId
           ? {
-              OR: [{ fromWarehouseId: query.warehouseId }, { toWarehouseId: query.warehouseId }],
-            }
+            OR: [{ fromWarehouseId: query.warehouseId }, { toWarehouseId: query.warehouseId }],
+          }
           : {}),
         ...(query.productId ? { productId: query.productId } : {}),
         ...(query.movementType ? { movementType: query.movementType } : {}),
@@ -340,15 +347,15 @@ export class StocksService {
     });
 
     const items = stocks.map((stock) => {
-      const buyPrice = Number(stock.product.buyPrice);
-      const value = buyPrice * stock.quantity;
+      const basePrice = Number(stock.product.basePrice);
+      const value = basePrice * stock.quantity;
       return {
         warehouseId: stock.warehouseId,
         warehouseName: stock.warehouse.name,
         productId: stock.productId,
         productName: stock.product.name,
         quantity: stock.quantity,
-        buyPrice,
+        basePrice,
         value,
       };
     });

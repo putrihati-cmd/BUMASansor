@@ -1,4 +1,4 @@
-import { SalePaymentMethod } from '@prisma/client';
+import { OrderType, PaymentMethod } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -10,9 +10,14 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+class SaleItemModifierDto {
+  @IsUUID()
+  modifierId: string;
+}
+
 class SaleItemDto {
   @IsUUID()
-  productId: string;
+  warungProductId: string;
 
   @Type(() => Number)
   @Min(1)
@@ -22,22 +27,52 @@ class SaleItemDto {
   @Type(() => Number)
   @Min(0)
   price?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  discount?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SaleItemModifierDto)
+  modifiers?: SaleItemModifierDto[];
 }
 
 export class CreateSaleDto {
   @IsUUID()
   warungId: string;
 
+  @IsOptional()
   @IsUUID()
-  warehouseId: string;
+  shiftId?: string;
 
-  @IsEnum(SalePaymentMethod)
-  paymentMethod: SalePaymentMethod;
+  @IsOptional()
+  @IsUUID()
+  customerId?: string;
+
+  @IsEnum(PaymentMethod)
+  paymentMethod: PaymentMethod;
+
+  @IsOptional()
+  @IsEnum(OrderType)
+  orderType?: OrderType;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => SaleItemDto)
   items: SaleItemDto[];
+
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  discountAmount?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  taxAmount?: number;
 
   @IsOptional()
   @Type(() => Number)

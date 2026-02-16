@@ -12,6 +12,13 @@ enum Role {
   WARUNG
   KURIR
   GUDANG
+  STAFF
+}
+
+enum OrderType {
+  DINE_IN
+  TAKE_AWAY
+  DELIVERY
 }
 
 enum MovementType {
@@ -44,6 +51,14 @@ enum PaymentStatus {
   OVERDUE
 }
 
+enum POStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RECEIVED
+  CANCELLED
+}
+
 model User {
   id                 String          @id @default(uuid())
   email              String          @unique
@@ -58,9 +73,13 @@ model User {
   stockOpnames       StockOpname[]   @relation("stock_opname_user")
   createdOrders      Order[]         @relation("order_creator")
   assignedDeliveries DeliveryTask[]  @relation("delivery_kurir")
+  shifts             Shift[]
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   deletedAt          DateTime?
+
+  attendances        Attendance[]
+  permissions        String[]        @default([]) // Granular permissions (e.g. "void_sale", "view_reports")
 
   @@index([role])
   @@index([warungId])
@@ -84,6 +103,7 @@ model Category {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model Warung {
@@ -95,16 +115,31 @@ model Warung {
   region      String?
   latitude    Float?
   longitude   Float?
-  creditLimit Decimal @default(0) @db.Decimal(12, 2)
-  currentDebt Decimal @default(0) @db.Decimal(12, 2)
+  creditLimit Decimal   @default(0) @db.Decimal(12, 2)
+  currentDebt   Decimal   @default(0) @db.Decimal(12, 2)
+  isBlocked     Boolean   @default(false)
+  blockedReason String?
+  creditDays    Int       @default(7)
+  isActive      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   users         User[]
   inventory     WarungProduct[]
-  sales         Sale[] // Sales to customers
-  restockOrders Order[] // Orders to BUMAS
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  deletedAt     DateTime?
+  sales         Sale[]         // Sales to customers
+  restockOrders Order[]        // Orders to BUMAS
+  receivables   Receivable[]
+  customers     Customer[]
+  shifts        Shift[]
+  stockOpnames  StockOpname[]
+  customerDebts CustomerDebt[]
+  
+  modifierGroups ModifierGroup[]
+  bundles        Bundle[]
+  ingredients    Ingredient[]
+  attendances    Attendance[]
+  taxSettings    TaxSettings?
 
   @@index([region])
 }
@@ -114,10 +149,15 @@ model Warehouse {
   name      String   @unique
   location  String
   phone     String?
-  stocks    Stock[] // Central stocks
-  orders    Order[] // Outbound to warungs
-  createdAt DateTime @default(now())
+  stocks         Stock[]         // Central stocks
+  orders         Order[]         // Outbound to warungs
+  purchaseOrders PurchaseOrder[] // Inbound from suppliers
+  outMovements   StockMovement[] @relation("movement_from")
+  inMovements    StockMovement[] @relation("movement_to")
+  stockOpnames   StockOpname[]
+  createdAt      DateTime        @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 }
 
 model Product {
@@ -137,10 +177,12 @@ model Product {
   stocks         Stock[] // Central stocks
   warungProducts WarungProduct[] // Warung inventories
   orderItems     OrderItem[]
+  purchaseOrderItems PurchaseOrderItem[]
   stockMovements StockMovement[]
   stockOpnames   StockOpname[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
 }
 
 // Central Warehouse Stock
@@ -152,7 +194,9 @@ model Stock {
   product     Product   @relation(fields: [productId], references: [id])
   quantity    Int       @default(0)
   minStock    Int       @default(10)
+  createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   @@unique([warehouseId, productId])
 }
@@ -165,15 +209,59 @@ model WarungProduct {
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
+  costPrice    Decimal @default(0) @db.Decimal(10, 2) // Added: HPP for profit calculation
   sellingPrice Decimal @db.Decimal(10, 2)
   stockQty     Int     @default(0)
   minStock     Int     @default(5)
+  isFavorite   Boolean @default(false)
+
+  wholesalePrices WholesalePrice[]
+  modifierGroups  ProductModifierGroup[]
+  bundleItems     BundleItem[]
+  recipes         Recipe[]
 
   saleItems SaleItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
 
   @@unique([warungId, productId])
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  warungId  String
+  warung    Warung    @relation(fields: [warungId], references: [id])
+  name      String
+  phone     String?
+  address   String?
+  points    Int       @default(0)
+  debtLimit Decimal   @default(0) @db.Decimal(12, 2)
+  currentDebt Decimal @default(0) @db.Decimal(12, 2)
+  sales       Sale[]
+  debts       CustomerDebt[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([warungId])
+}
+
+model Shift {
+  id            String    @id @default(uuid())
+  warungId      String
+  warung        Warung    @relation(fields: [warungId], references: [id])
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  startTime     DateTime  @default(now())
+  endTime       DateTime?
+  startCash     Decimal   @db.Decimal(12, 2)
+  endCash       Decimal?  @db.Decimal(12, 2)
+  totalExpected Decimal?  @db.Decimal(12, 2)
+  totalActual   Decimal?  @db.Decimal(12, 2)
+  notes         String?
+  sales         Sale[]
+  createdAt     DateTime  @default(now())
 }
 
 model Order {
@@ -196,6 +284,9 @@ model Order {
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  receivable Receivable?
 }
 
 model OrderItem {
@@ -214,14 +305,31 @@ model Sale {
   invoiceNumber String @unique
   warungId      String
   warung        Warung @relation(fields: [warungId], references: [id])
+  
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  
+  shiftId       String?
+  shift         Shift?    @relation(fields: [shiftId], references: [id])
 
   items         SaleItem[]
+  subtotal      Decimal       @default(0) @db.Decimal(12, 2)
+  discountAmount Decimal      @default(0) @db.Decimal(12, 2)
+  taxAmount     Decimal       @default(0) @db.Decimal(12, 2)
   totalAmount   Decimal       @db.Decimal(12, 2)
   paidAmount    Decimal       @default(0) @db.Decimal(12, 2)
   paymentMethod PaymentMethod
+  orderType     OrderType     @default(TAKE_AWAY)
+  
+  taxRate       Decimal       @default(0) @db.Decimal(5, 2)
+  serviceRate   Decimal       @default(0) @db.Decimal(5, 2)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  receivable   Receivable?
+  customerDebt CustomerDebt?
 }
 
 model SaleItem {
@@ -232,8 +340,22 @@ model SaleItem {
   warungProduct   WarungProduct @relation(fields: [warungProductId], references: [id])
 
   quantity Int
+  costPrice Decimal @default(0) @db.Decimal(10, 2) // Added: Snap HPP at time of sale
   price    Decimal @db.Decimal(10, 2)
+  discount Decimal @default(0) @db.Decimal(10, 2)
   subtotal Decimal @db.Decimal(12, 2)
+  
+  modifiers SaleItemModifier[]
+}
+
+model SaleItemModifier {
+  id              String   @id @default(uuid())
+  saleItemId      String
+  saleItem        SaleItem @relation(fields: [saleItemId], references: [id], onDelete: Cascade)
+  modifierId      String
+  modifier        Modifier @relation(fields: [modifierId], references: [id])
+  name            String
+  price           Decimal  @db.Decimal(10, 2)
 }
 
 model DeliveryTask {
@@ -262,9 +384,15 @@ model StockMovement {
   product      Product      @relation(fields: [productId], references: [id])
   quantity     Int
 
+  fromWarehouseId String?
+  fromWarehouse   Warehouse?   @relation("movement_from", fields: [fromWarehouseId], references: [id])
+  toWarehouseId   String?
+  toWarehouse     Warehouse?   @relation("movement_to", fields: [toWarehouseId], references: [id])
+  
   // Could be from central or warung inventory
   referenceType String? // "ORDER", "SALE", "ADJUSTMENT"
   referenceId   String?
+  notes         String?
 
   createdBy String
   user      User     @relation(fields: [createdBy], references: [id])
@@ -272,14 +400,245 @@ model StockMovement {
 }
 
 model StockOpname {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
+  warehouseId String?
+  warehouse   Warehouse? @relation(fields: [warehouseId], references: [id])
+  warungId    String?
+  warung      Warung?    @relation(fields: [warungId], references: [id])
   productId   String
-  product     Product  @relation(fields: [productId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
   systemQty   Int
   actualQty   Int
   difference  Int
   reason      String
   performedBy String
-  user        User     @relation("stock_opname_user", fields: [performedBy], references: [id])
+  user        User      @relation("stock_opname_user", fields: [performedBy], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Receivable {
+  id          String           @id @default(uuid())
+  warungId    String
+  warung      Warung           @relation(fields: [warungId], references: [id])
+  orderId     String?          @unique
+  order       Order?           @relation(fields: [orderId], references: [id])
+  saleId      String?          @unique
+  sale        Sale?            @relation(fields: [saleId], references: [id])
+  amount      Decimal          @db.Decimal(12, 2)
+  paidAmount  Decimal          @default(0) @db.Decimal(12, 2)
+  balance     Decimal          @db.Decimal(12, 2)
+  dueDate     DateTime
+  status      ReceivableStatus @default(UNPAID)
+  notes       String?
+  payments    Payment[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
+}
+
+model Payment {
+  id           String        @id @default(uuid())
+  receivableId String
+  receivable   Receivable    @relation(fields: [receivableId], references: [id])
+  amount       Decimal       @db.Decimal(12, 2)
+  paymentDate  DateTime      @default(now())
+  method       PaymentMethod
+  reference    String?
+  notes        String?
+  proofUrl     String?
+  verifiedBy   String?
+  createdAt    DateTime      @default(now())
+}
+
+enum ReceivableStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  OVERDUE
+}
+
+model Supplier {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String?
+  address   String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id          String    @id @default(uuid())
+  poNumber    String    @unique
+  supplierId  String
+  supplier    Supplier  @relation(fields: [supplierId], references: [id])
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  
+  status      POStatus    @default(PENDING)
+  totalAmount Decimal     @db.Decimal(12, 2)
+  notes       String?
+  
+  items       PurchaseOrderItem[]
+  
+  createdBy   String
+  approvedBy  String?
+  receivedBy  String?
+  
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  approvedAt  DateTime?
+  receivedAt  DateTime?
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(uuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  quantity        Int
+  price           Decimal       @db.Decimal(10, 2)
+  subtotal        Decimal       @db.Decimal(12, 2)
+}
+
+model CustomerDebt {
+  id          String           @id @default(uuid())
+  warungId    String
+  warung      Warung           @relation(fields: [warungId], references: [id])
+  customerId  String
+  customer    Customer         @relation(fields: [customerId], references: [id])
+  saleId      String?          @unique
+  sale        Sale?            @relation(fields: [saleId], references: [id])
+  
+  amount      Decimal          @db.Decimal(12, 2)
+  paidAmount  Decimal          @default(0) @db.Decimal(12, 2)
+  balance     Decimal          @db.Decimal(12, 2)
+  
+  dueDate     DateTime?
+  status      ReceivableStatus @default(UNPAID)
+  notes       String?
+  
+  payments    CustomerDebtPayment[]
+  
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
+}
+
+model CustomerDebtPayment {
+  id           String        @id @default(uuid())
+  debtId       String
+  debt         CustomerDebt  @relation(fields: [debtId], references: [id])
+  amount       Decimal       @db.Decimal(12, 2)
+  paymentDate  DateTime      @default(now())
+  method       PaymentMethod
+  notes        String?
+  createdAt    DateTime      @default(now())
+}
+
+// --- QASIR CLONE EXTENSIONS ---
+
+model ModifierGroup {
+  id        String     @id @default(uuid())
+  warungId  String
+  warung    Warung     @relation(fields: [warungId], references: [id])
+  name      String
+  minSelect Int        @default(0)
+  maxSelect Int        @default(1)
+  isRequired Boolean    @default(false)
+  modifiers Modifier[]
+  products  ProductModifierGroup[]
+}
+
+model Modifier {
+  id              String        @id @default(uuid())
+  modifierGroupId String
+  modifierGroup   ModifierGroup @relation(fields: [modifierGroupId], references: [id])
+  name            String
+  price           Decimal       @db.Decimal(10, 2)
+  stockQty        Int?          
+  saleItemModifiers SaleItemModifier[]
+}
+
+model ProductModifierGroup {
+  warungProductId String
+  warungProduct   WarungProduct @relation(fields: [warungProductId], references: [id])
+  modifierGroupId String
+  modifierGroup   ModifierGroup @relation(fields: [modifierGroupId], references: [id])
+
+  @@id([warungProductId, modifierGroupId])
+}
+
+model WholesalePrice {
+  id              String        @id @default(uuid())
+  warungProductId String
+  warungProduct   WarungProduct @relation(fields: [warungProductId], references: [id])
+  minQty          Int
+  price           Decimal       @db.Decimal(10, 2)
+}
+
+model Bundle {
+  id          String       @id @default(uuid())
+  name        String
+  price       Decimal      @db.Decimal(10, 2)
+  items       BundleItem[]
+  warungId    String
+  warung      Warung       @relation(fields: [warungId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model BundleItem {
+  id              String        @id @default(uuid())
+  bundleId        String
+  bundle          Bundle        @relation(fields: [bundleId], references: [id])
+  warungProductId String
+  warungProduct   WarungProduct @relation(fields: [warungProductId], references: [id])
+  quantity        Int
+}
+
+model Ingredient {
+  id        String   @id @default(uuid())
+  warungId  String
+  warung    Warung   @relation(fields: [warungId], references: [id])
+  name      String
+  unit      String
+  stockQty  Decimal  @db.Decimal(10, 2)
+  minStock  Decimal  @db.Decimal(10, 2)
+  recipes   Recipe[]
+}
+
+model Recipe {
+  id              String        @id @default(uuid())
+  warungProductId String
+  warungProduct   WarungProduct @relation(fields: [warungProductId], references: [id])
+  ingredientId    String
+  ingredient      Ingredient    @relation(fields: [ingredientId], references: [id])
+  quantity        Decimal       @db.Decimal(10, 3)
+}
+
+model Attendance {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  warungId  String
+  warung    Warung    @relation(fields: [warungId], references: [id])
+  checkIn   DateTime  @default(now())
+  checkOut  DateTime?
+  location  String?   
+  photoUrl  String?   
+}
+
+model TaxSettings {
+  id            String  @id @default(uuid())
+  warungId      String  @unique
+  warung        Warung  @relation(fields: [warungId], references: [id])
+  taxRate       Decimal @default(0) @db.Decimal(5, 2)
+  serviceRate   Decimal @default(0) @db.Decimal(5, 2)
+  isTaxIncluded Boolean @default(false)
 }

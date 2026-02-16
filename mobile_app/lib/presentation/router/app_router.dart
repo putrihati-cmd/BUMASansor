@@ -17,7 +17,7 @@ import '../screens/gudang/stock_opname_screen.dart';
 import '../screens/gudang/stock_overview_screen.dart';
 import '../screens/kurir/delivery_detail_screen.dart';
 import '../screens/kurir/delivery_list_screen.dart';
-import '../screens/warung/pos_screen.dart';
+import '../screens/warung/warung_dashboard_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
