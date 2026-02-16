@@ -109,6 +109,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   UserRole _parseRole(String? role) {
     switch (role?.toLowerCase()) {
       case 'admin':
+      case 'super_admin':
         return UserRole.admin;
       case 'gudang':
         return UserRole.gudang;

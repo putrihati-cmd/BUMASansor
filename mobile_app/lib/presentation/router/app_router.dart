@@ -69,7 +69,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               builder: (context, state) => const ReportsScreen()),
         ],
       ),
-      GoRoute(path: '/warung', builder: (context, state) => const POSScreen()),
+      GoRoute(path: '/warung', builder: (context, state) => const WarungDashboardScreen()),
       GoRoute(
         path: '/kurir',
         builder: (context, state) => const DeliveryListScreen(),
